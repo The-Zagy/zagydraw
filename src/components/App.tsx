@@ -1,103 +1,118 @@
-import Avatar from 'components/Avatar'
+import useGlobalEvent from "hooks/useGlobalEvent";
+import { PointerEventHandler, useEffect, useLayoutEffect, useRef } from "react";
+import { useStore } from "store";
+import drawGrid from "utils/canvas/drawGrid";
+
+const { setPosition, setZoomLevel, setDimensions } = useStore.getState();
+
+const MAX_ZOOM = 96;
+const MIN_ZOOM = 24;
+type MouseCoords = {
+    startX: number;
+    startY: number;
+    scrollLeft: number;
+    scrollTop: number;
+};
 
 function App() {
-  return (
-    <div className="relative overflow-hidden bg-white">
-      <div className="h-screen sm:pt-24 sm:pb-40 lg:pt-40 lg:pb-48">
-        <div className="relative mx-auto max-w-7xl px-4 sm:static sm:px-6 lg:px-8">
-          <div className="sm:max-w-lg">
-            <div className="my-4">
-              <Avatar
-                size="large"
-                src="https://www.gravatar.com/avatar/4405735f6f3129e0286d9d43e7b460d0"
-              />
-            </div>
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-              Welcome!
-            </h1>
-            <p className="mt-4 text-xl text-gray-500">
-              This is a boilerplate build with Vite, React 18, TypeScript,
-              Vitest, Testing Library, TailwindCSS 3, Eslint and Prettier.
-            </p>
-          </div>
-          <div>
-            <div className="my-10">
-              <a
-                href="vscode://"
-                className="inline-block rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-center font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-700 focus:ring-offset-2"
-              >
-                Start building for free
-              </a>
-              <div
-                aria-hidden="true"
-                className="pointer-events-none mt-10 md:mt-0 lg:absolute lg:inset-y-0 lg:mx-auto lg:w-full lg:max-w-7xl"
-              >
-                <div className="absolute sm:left-1/2 sm:top-0 sm:translate-x-8 lg:left-1/2 lg:top-1/2 lg:-translate-y-1/2 lg:translate-x-8">
-                  <div className="flex items-center space-x-6 lg:space-x-8">
-                    <div className="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-                      <div className="h-64 w-44 overflow-hidden rounded-lg sm:opacity-0 lg:opacity-100">
-                        <img
-                          src="https://picsum.photos/600?random=1"
-                          alt=""
-                          className="h-full w-full bg-indigo-100 object-cover object-center"
-                        />
-                      </div>
-                      <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <img
-                          src="https://picsum.photos/600?random=2"
-                          alt=""
-                          className="h-full w-full bg-indigo-100 object-cover object-center"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-                      <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <img
-                          src="https://picsum.photos/600?random=3"
-                          alt=""
-                          className="h-full w-full bg-indigo-100 object-cover object-center"
-                        />
-                      </div>
-                      <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <img
-                          src="https://picsum.photos/600?random=4"
-                          alt=""
-                          className="h-full w-full bg-indigo-100 object-cover object-center"
-                        />
-                      </div>
-                      <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <img
-                          src="https://picsum.photos/600?random=5"
-                          alt=""
-                          className="h-full w-full bg-indigo-100 object-cover object-center"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-                      <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <img
-                          src="https://picsum.photos/600?random=6"
-                          alt=""
-                          className="h-full w-full bg-indigo-100 object-cover object-center"
-                        />
-                      </div>
-                      <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <img
-                          src="https://picsum.photos/600?random=7"
-                          alt=""
-                          className="h-full w-full bg-indigo-100 object-cover object-center"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    const position = useStore((state) => state.position);
+    const zoom = useStore((state) => state.zoomLevel);
+    const width = useStore((state) => state.width);
+    const height = useStore((state) => state.height);
+    const isMouseDown = useRef<boolean>(false);
+    const mouseCoords = useRef<MouseCoords>({
+        startX: 0,
+        startY: 0,
+        scrollLeft: 0,
+        scrollTop: 0
+    });
+    const handleZoom = (zoomType: "in" | "out") => {
+        if (zoomType === "in") {
+            const currentZoom = zoom + 12;
+            if (currentZoom > MAX_ZOOM) return;
+            setZoomLevel(currentZoom);
+            return;
+        }
+        const currentZoom = zoom - 12;
+        if (currentZoom <= MIN_ZOOM) return;
+        setZoomLevel(currentZoom);
+    };
+    const canvas = useRef<HTMLCanvasElement>(null);
+    useLayoutEffect(() => {
+        if (canvas.current) {
+            //make canvas fill the screen
+            canvas.current.width = window.innerWidth;
+            canvas.current.height = window.innerHeight;
+        }
+    }, []);
+    useEffect(() => {
+        if (!canvas.current) return;
+        const ctx = canvas.current.getContext("2d");
+        if (!ctx) return;
+        //clear the canvas
+        ctx.clearRect(0, 0, canvas.current.width, canvas.current.height);
+        //draw a the grid
+        drawGrid(
+            position.x,
+            position.y,
+            canvas.current.width,
+            canvas.current.height,
+            ctx
+        );
+    }, [position, zoom, width, height]);
+    const handlePointerDown: PointerEventHandler<HTMLCanvasElement> = (e) => {
+        //handle dragging into the canvas
+        if (!canvas.current) return;
+        isMouseDown.current = true;
+        const startX = e.pageX - canvas.current.offsetLeft;
+        const startY = e.pageY - canvas.current.offsetTop;
+        const scrollLeft = canvas.current.scrollLeft;
+        const scrollTop = canvas.current.scrollTop;
+        mouseCoords.current = { startX, startY, scrollLeft, scrollTop };
+    };
+    const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {
+        isMouseDown.current = false;
+        if (!canvas.current) return;
+    };
+    const handlePointerMove: PointerEventHandler<HTMLCanvasElement> = (e) => {
+        e.preventDefault();
+        //handle dragging into the canvas
+        if (!isMouseDown.current || !canvas.current) return;
+        const x = e.pageX - canvas.current.offsetLeft;
+        const y = e.pageY - canvas.current.offsetTop;
+        // 50 is an arbitrary number to make the walk distance smaller
+        const walkX = (x - mouseCoords.current.startX) / 200;
+        const walkY = (y - mouseCoords.current.startY) / 200;
+        setPosition({ x: position.x - walkX, y: position.y - walkY });
+    };
+
+    const handleScroll = (e: WheelEvent) => {
+        const { deltaY } = e;
+        if (!deltaY) return;
+        if (deltaY > 0) {
+            handleZoom("out");
+            return;
+        }
+        handleZoom("in");
+    };
+    const handleResize = () => {
+        if (!canvas.current) return;
+        setDimensions(window.innerWidth, window.innerHeight);
+        canvas.current.width = window.innerWidth;
+        canvas.current.height = window.innerHeight;
+    };
+    useGlobalEvent("wheel", handleScroll);
+    useGlobalEvent("resize", handleResize);
+    return (
+        <div>
+            <canvas
+                ref={canvas}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+            />
         </div>
-      </div>
-    </div>
-  )
+    );
 }
 
-export default App
+export default App;
