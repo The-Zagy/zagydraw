@@ -4,7 +4,7 @@ function drawGrid(
     width: number,
     height: number,
     ctx: CanvasRenderingContext2D,
-    color = "black",
+    color = "#282828",
     cellSide = 20,
     lineWidth = 1
 ) {
