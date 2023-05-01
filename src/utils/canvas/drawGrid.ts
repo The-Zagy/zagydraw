@@ -8,7 +8,6 @@ function drawGrid(
     cellSide = 20,
     lineWidth = 1
 ) {
-    console.log(x, y);
     const xStart = Math.floor(y) % cellSide;
     const yStart = Math.floor(x) % cellSide;
     ctx.strokeStyle = color;

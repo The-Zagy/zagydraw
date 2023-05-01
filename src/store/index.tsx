@@ -14,16 +14,21 @@ export type CanvasRectElement = CanvasElement & {
     w: number;
     h: number;
 };
-export type CanvasState = {
+
+export type CanvasLineElement = CanvasElement & {
+    w: number;
+};
+
+export type CanvasState<T extends CanvasElement = CanvasElement> = {
     width: number;
     height: number;
     position: { x: number; y: number };
     zoomLevel: number;
-    elements: CanvasElement[];
+    elements: T[];
 };
 
 type ConfigState = {
-    cursorFn: "drag" | "shape";
+    cursorFn: "drag" | "rect" | "line";
 };
 
 type CanvasActions = {

@@ -76,7 +76,7 @@ function App() {
         const startY = e.pageY;
         mouseCoords.current = { startX, startY };
         // draw shape logic?
-        if (cursorFn === "shape") {
+        if (cursorFn === "rect") {
             setElements((prev) => {
                 return [
                     ...prev,
@@ -84,7 +84,24 @@ function App() {
                         color: "blue",
                         x: startX,
                         y: startY,
-                        curPos: position
+                        curPos: position,
+                        // TODO w and h must be calclauted from mouse down pos to up pos
+                        h: 100,
+                        w: 100
+                    }
+                ];
+            });
+        } else if (cursorFn === "line") {
+            setElements((prev) => {
+                return [
+                    ...prev,
+                    {
+                        color: "blue",
+                        x: startX,
+                        y: startY,
+                        curPos: position,
+                        // TODO w must be calclauted from mouse down pos to up pos
+                        w: 100
                     }
                 ];
             });
@@ -99,15 +116,7 @@ function App() {
         //handle dragging into the canvas
         if (isMouseDown.current && canvas.current && cursorFn === "drag") {
             const x = e.pageX;
-            console.log(
-                "🪵 [App.tsx:104] ~ token ~ \x1b[0;32me.pageX\x1b[0m = ",
-                e.pageX
-            );
             const y = e.pageY;
-            console.log(
-                "🪵 [App.tsx:106] ~ token ~ \x1b[0;32me.pageY\x1b[0m = ",
-                e.pageY
-            );
 
             // 50 is an arbitrary number to make the walk distance smaller
             const walkX = (x - mouseCoords.current.startX) / 69;
@@ -137,19 +146,27 @@ function App() {
         <div className="h-screen w-screen overflow-hidden">
             <button
                 onClick={() => {
-                    setCursorFn("shape");
+                    setCursorFn("rect");
                 }}
-                className="fixed left-3 top-0 h-5 w-6 bg-slate-600 "
+                className="fixed left-3 top-0 h-5 w-8 bg-slate-600 "
             >
-                shape
+                Rect
             </button>
             <button
                 onClick={() => {
                     setCursorFn("drag");
                 }}
-                className="fixed left-12 top-0 h-5 w-6 bg-slate-600 "
+                className="fixed left-12 top-0 h-5 w-8 bg-slate-600 "
             >
                 drag
+            </button>
+            <button
+                onClick={() => {
+                    setCursorFn("line");
+                }}
+                className="fixed left-3 top-7 h-5 w-8 bg-slate-600 "
+            >
+                Line
             </button>
             <canvas
                 ref={canvas}
