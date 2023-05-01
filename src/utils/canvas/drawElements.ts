@@ -21,8 +21,8 @@ function drawElement(
     canvasState: CanvasState["position"]
 ) {
     ctx.rectangle(
-        element.x - canvasState.x,
-        element.y - canvasState.y,
+        canvasState.x - element.curPos.x + element.x,
+        canvasState.y - element.curPos.y + element.y,
         100,
         100,
         { stroke: element.color, roughness: 0 }

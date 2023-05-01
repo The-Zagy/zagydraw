@@ -9,8 +9,8 @@ function drawGrid(
     lineWidth = 1
 ) {
     console.log(x, y);
-    const xStart = y % cellSide;
-    const yStart = x % cellSide;
+    const xStart = Math.floor(y) % cellSide;
+    const yStart = Math.floor(x) % cellSide;
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
     ctx.beginPath();

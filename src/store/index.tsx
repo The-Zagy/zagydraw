@@ -8,6 +8,7 @@ export type CanvasElement = {
     x: number;
     y: number;
     color: "red" | "blue";
+    curPos: CanvasState["position"];
 };
 export type CanvasRectElement = CanvasElement & {
     w: number;
