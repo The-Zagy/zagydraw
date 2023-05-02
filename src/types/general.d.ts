@@ -20,5 +20,6 @@ export interface CanvasRectElement extends CanvasElement, Drawable {
 }
 
 export interface CanvasLineElement extends CanvasElement, Drawable {
+    shape: "line";
     length: number;
 }

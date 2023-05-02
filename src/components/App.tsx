@@ -6,7 +6,7 @@ import useGlobalEvent from "hooks/useGlobalEvent";
 import { RoughCanvas } from "roughjs/bin/canvas";
 
 import { normalize } from "utils";
-import { CanvasRectElement } from "types/general";
+import { CanvasLineElement, CanvasRectElement } from "types/general";
 import renderScene from "utils/canvas/renderScene";
 
 const {
@@ -80,26 +80,26 @@ function App() {
         if (!roughCanvas.current) return;
         const generator = roughCanvas.current.generator;
         if (cursorFn === "rect") {
-            const norm = normalize(position, startX, startY);
-            console.log(
-                "startX",
-                startX,
-                "startY",
-                startY,
-                "startXNormalized",
-                norm[0],
-                "startYNormalized",
-                norm[1]
-            );
+            // const norm = normalize(position, startX, startY);
+            // console.log(
+            //     "startX",
+            //     startX,
+            //     "startY",
+            //     startY,
+            //     "startXNormalized",
+            //     norm[0],
+            //     "startYNormalized",
+            //     norm[1]
+            // );
             const rect: CanvasRectElement = {
-                ...generator.rectangle(norm[0], norm[1], 100, 100, {
+                ...generator.rectangle(startX, startY, 100, 100, {
                     fill: "blue",
                     stroke: "red",
                     strokeWidth: 2,
                     roughness: 0
                 }),
-                x: norm[0],
-                y: norm[1],
+                x: startX,
+                y: startY,
                 w: 100,
                 h: 100,
                 color: "blue",
@@ -111,21 +111,23 @@ function App() {
                 return [...prev, rect];
             });
         } else if (cursorFn === "line") {
-            //     setElements((prev) => {
-            //         const norm = normalize(position, startX, startY);
-            //         return [
-            //             ...prev,
-            //             {
-            //                 color: "blue",
-            //                 x: norm[0],
-            //                 y: norm[1],
-            //                 curPos: position,
-            //                 // TODO w must be calclauted from mouse down pos to up pos
-            //                 w: 100
-            //             }
-            //         ];
-            //     });
-            // }
+            const line: CanvasLineElement = {
+                ...generator.line(startX, startY, startX + 100, startY, {
+                    fill: "blue",
+                    stroke: "red",
+                    strokeWidth: 2,
+                    roughness: 0
+                }),
+                x: startX,
+                y: startY,
+                color: "blue",
+                shape: "line",
+                curPos: position,
+                length: 20
+            };
+            setElements((prev) => {
+                return [...prev, line];
+            });
         }
     };
     const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {

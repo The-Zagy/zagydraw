@@ -20,10 +20,7 @@ function renderScene(
         ctx
     );
     ctx.save();
-    ctx.translate(
-        +canvasState.position.x.toPrecision(4),
-        +canvasState.position.y.toPrecision(4)
-    );
+    ctx.translate(canvasState.position.x, canvasState.position.y);
     drawElements(canvasState.elements, roughCanvas, canvasState);
     ctx.restore();
 }

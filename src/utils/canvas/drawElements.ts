@@ -19,22 +19,13 @@ function isRectVisible(
     const yDiff = Math.abs(rect.y - canvasState.position.x);
     return xDiff < canvasState.width && yDiff < canvasState.height;
 }
-function drawRectElement(element: CanvasRectElement, ctx: RoughCanvas) {
-    ctx.draw(element);
+function drawRectElement(element: CanvasRectElement, roughCanvas: RoughCanvas) {
+    roughCanvas.draw(element);
 }
 
 // TODO Alot of hard coded values, all need to be generic
-function drawLineElement(
-    element: CanvasLineElement,
-    ctx: RoughCanvas,
-    canvasState: CanvasState["position"]
-) {
-    const x1 = canvasState.x - element.curPos.x + element.x;
-    const y1 = canvasState.y - element.curPos.y + element.y;
-    ctx.line(x1, y1, x1 + 70, y1, {
-        stroke: element.color,
-        roughness: 0
-    });
+function drawLineElement(element: CanvasLineElement, roughCanvas: RoughCanvas) {
+    roughCanvas.draw(element);
 }
 
 function isRect(el: CanvasElement): el is CanvasRectElement {
@@ -42,7 +33,7 @@ function isRect(el: CanvasElement): el is CanvasRectElement {
 }
 
 function isLine(el: CanvasElement): el is CanvasLineElement {
-    return "w" in el && typeof el["w"] === "number";
+    return el.shape === "line";
 }
 
 // todo this function needs to take any element as argument and call different draw function for different elements
@@ -54,14 +45,14 @@ function drawElements<T extends CanvasElement>(
 ) {
     elements.forEach((el) => {
         if (isRect(el)) {
-            if (!isRectVisible(el, canvasState)) {
-                console.log("rect not rendered", el.curPos);
-                return;
-            }
+            // if (!isRectVisible(el, canvasState)) {
+            //     console.log("rect not rendered", el.curPos);
+            //     return;
+            // }
 
             drawRectElement(el, ctx);
         } else if (isLine(el)) {
-            const x = 4;
+            drawLineElement(el, ctx);
         }
     });
 }
