@@ -6,24 +6,6 @@ import type {
     CanvasState
 } from "store";
 
-// TODO NOT WORKING FIXXXXXXXXXXXXXXXXXXXXXXX6XX9X
-/**
- *
- * @param posX
- * @param posY
- * @returns [posX, posY]
- */
-function normalize(
-    pos: CanvasState["position"],
-    posX: number,
-    posY: number
-): [number, number] {
-    const xStart = Math.floor(pos.y) % 20;
-    const yStart = Math.floor(pos.x) % 20;
-    // return [Math.round(posX / 20) * 20, Math.round(posY / 20) * 20];
-    return [posX, posY];
-}
-
 // todo finish this
 function isRectVisible(
     rect: CanvasRectElement,
@@ -59,12 +41,9 @@ function drawLineElement(
     ctx: RoughCanvas,
     canvasState: CanvasState["position"]
 ) {
-    const pos = normalize(
-        canvasState,
-        canvasState.x - element.curPos.x + element.x,
-        canvasState.y - element.curPos.y + element.y
-    );
-    ctx.line(pos[0], pos[1], pos[0] + 50, pos[1], {
+    const x1 = canvasState.x - element.curPos.x + element.x;
+    const y1 = canvasState.y - element.curPos.y + element.y;
+    ctx.line(x1, y1, x1 + 70, y1, {
         stroke: element.color,
         roughness: 0
     });

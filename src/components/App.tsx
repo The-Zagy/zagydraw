@@ -5,6 +5,7 @@ import drawGrid from "utils/canvas/drawGrid";
 import useGlobalEvent from "hooks/useGlobalEvent";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import drawElements from "utils/canvas/drawElements";
+import { normalize } from "utils";
 
 const { setPosition, setZoomLevel, setDimensions, setCursorFn, setElements } =
     useStore.getState();
@@ -78,12 +79,13 @@ function App() {
         // draw shape logic?
         if (cursorFn === "rect") {
             setElements((prev) => {
+                const norm = normalize(position, startX, startY);
                 return [
                     ...prev,
                     {
+                        x: norm[0],
+                        y: norm[1],
                         color: "blue",
-                        x: startX,
-                        y: startY,
                         curPos: position,
                         // TODO w and h must be calclauted from mouse down pos to up pos
                         h: 100,
@@ -93,12 +95,13 @@ function App() {
             });
         } else if (cursorFn === "line") {
             setElements((prev) => {
+                const norm = normalize(position, startX, startY);
                 return [
                     ...prev,
                     {
                         color: "blue",
-                        x: startX,
-                        y: startY,
+                        x: norm[0],
+                        y: norm[1],
                         curPos: position,
                         // TODO w must be calclauted from mouse down pos to up pos
                         w: 100
