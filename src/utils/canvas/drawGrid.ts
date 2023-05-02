@@ -9,15 +9,7 @@ function drawGrid(
     lineWidth = 1
 ) {
     const xStart = Math.floor(y) % cellSide;
-    console.log(
-        "🪵 [drawGrid.ts:11] ~ token ~ \x1b[0;32mxStart\x1b[0m = ",
-        xStart
-    );
     const yStart = Math.floor(x) % cellSide;
-    console.log(
-        "🪵 [drawGrid.ts:13] ~ token ~ \x1b[0;32myStart\x1b[0m = ",
-        yStart
-    );
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
     ctx.beginPath();

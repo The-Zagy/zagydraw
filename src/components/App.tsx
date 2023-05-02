@@ -1,14 +1,22 @@
 import { PointerEventHandler, useEffect, useLayoutEffect, useRef } from "react";
 import rough from "roughjs";
 import { useStore } from "store";
-import drawGrid from "utils/canvas/drawGrid";
+
 import useGlobalEvent from "hooks/useGlobalEvent";
 import { RoughCanvas } from "roughjs/bin/canvas";
-import drawElements from "utils/canvas/drawElements";
-import { normalize } from "utils";
 
-const { setPosition, setZoomLevel, setDimensions, setCursorFn, setElements } =
-    useStore.getState();
+import { normalize } from "utils";
+import { CanvasRectElement } from "types/general";
+import renderScene from "utils/canvas/renderScene";
+
+const {
+    setPosition,
+    setZoomLevel,
+    setDimensions,
+    setCursorFn,
+    setElements,
+    getCanvasState
+} = useStore.getState();
 
 const MAX_ZOOM = 96;
 const MIN_ZOOM = 24;
@@ -18,6 +26,7 @@ type MouseCoords = {
 };
 
 function App() {
+    const canvasState = getCanvasState();
     const position = useStore((state) => state.position);
     const zoom = useStore((state) => state.zoomLevel);
     const width = useStore((state) => state.width);
@@ -56,18 +65,8 @@ function App() {
         const ctx = canvas.current.getContext("2d");
         if (!ctx) return;
         //clear the canvas
-        ctx.clearRect(0, 0, canvas.current.width, canvas.current.height);
-        ctx.fillStyle = "dark";
-        ctx.fillRect(0, 0, canvas.current.width, canvas.current.height);
-        //draw a the grid
-        drawGrid(
-            position.x,
-            position.y,
-            canvas.current.width,
-            canvas.current.height,
-            ctx
-        );
-        drawElements(canvasElements, roughCanvas.current, position);
+
+        renderScene(roughCanvas.current, ctx, canvasState);
     }, [position, zoom, width, height, canvasElements]);
     const handlePointerDown: PointerEventHandler<HTMLCanvasElement> = (e) => {
         //handle dragging into the canvas
@@ -75,39 +74,58 @@ function App() {
         isMouseDown.current = true;
         const startX = e.pageX;
         const startY = e.pageY;
+
         mouseCoords.current = { startX, startY };
         // draw shape logic?
+        if (!roughCanvas.current) return;
+        const generator = roughCanvas.current.generator;
         if (cursorFn === "rect") {
+            const norm = normalize(position, startX, startY);
+            console.log(
+                "startX",
+                startX,
+                "startY",
+                startY,
+                "startXNormalized",
+                norm[0],
+                "startYNormalized",
+                norm[1]
+            );
+            const rect: CanvasRectElement = {
+                ...generator.rectangle(norm[0], norm[1], 100, 100, {
+                    fill: "blue",
+                    stroke: "red",
+                    strokeWidth: 2,
+                    roughness: 0
+                }),
+                x: norm[0],
+                y: norm[1],
+                w: 100,
+                h: 100,
+                color: "blue",
+                shape: "rectangle",
+                curPos: position
+            };
+            console.log("rect", rect);
             setElements((prev) => {
-                const norm = normalize(position, startX, startY);
-                return [
-                    ...prev,
-                    {
-                        x: norm[0],
-                        y: norm[1],
-                        color: "blue",
-                        curPos: position,
-                        // TODO w and h must be calclauted from mouse down pos to up pos
-                        h: 100,
-                        w: 100
-                    }
-                ];
+                return [...prev, rect];
             });
         } else if (cursorFn === "line") {
-            setElements((prev) => {
-                const norm = normalize(position, startX, startY);
-                return [
-                    ...prev,
-                    {
-                        color: "blue",
-                        x: norm[0],
-                        y: norm[1],
-                        curPos: position,
-                        // TODO w must be calclauted from mouse down pos to up pos
-                        w: 100
-                    }
-                ];
-            });
+            //     setElements((prev) => {
+            //         const norm = normalize(position, startX, startY);
+            //         return [
+            //             ...prev,
+            //             {
+            //                 color: "blue",
+            //                 x: norm[0],
+            //                 y: norm[1],
+            //                 curPos: position,
+            //                 // TODO w must be calclauted from mouse down pos to up pos
+            //                 w: 100
+            //             }
+            //         ];
+            //     });
+            // }
         }
     };
     const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {

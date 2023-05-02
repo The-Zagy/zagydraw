@@ -1,23 +1,9 @@
 //gitkeep
 //init zustand store
+import { CanvasElement, CanvasRectElement } from "types/general";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { devtools } from "zustand/middleware";
-export type CanvasElement = {
-    // absolute x and y to GOD
-    x: number;
-    y: number;
-    color: "red" | "blue";
-    curPos: CanvasState["position"];
-};
-export type CanvasRectElement = CanvasElement & {
-    w: number;
-    h: number;
-};
-
-export type CanvasLineElement = CanvasElement & {
-    w: number;
-};
 
 export type CanvasState<T extends CanvasElement = CanvasElement> = {
     width: number;
@@ -32,6 +18,7 @@ type ConfigState = {
 };
 
 type CanvasActions = {
+    getCanvasState: () => CanvasState;
     setDimensions: (
         width: CanvasState["width"],
         height: CanvasState["height"]
@@ -50,7 +37,7 @@ export const useStore = create<
 >()(
     devtools(
         persist(
-            (set) => ({
+            (set, get) => ({
                 //state
                 position: { x: 0, y: 0 },
                 zoomLevel: 48,
@@ -59,6 +46,16 @@ export const useStore = create<
                 cursorFn: "drag",
                 elements: [],
                 //actions
+                //getCanvasState
+                getCanvasState: () => {
+                    return {
+                        position: get().position,
+                        zoomLevel: get().zoomLevel,
+                        width: get().width,
+                        height: get().height,
+                        elements: get().elements
+                    };
+                },
                 setPosition: (position) => set({ position }),
                 setZoomLevel: (zoomLevel) => set({ zoomLevel }),
                 setDimensions: (width, height) => set({ width, height }),
