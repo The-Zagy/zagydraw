@@ -142,7 +142,7 @@ function App() {
             // 50 is an arbitrary number to make the walk distance smaller
             const walkX = (x - mouseCoords.current.startX) / 69;
             const walkY = (y - mouseCoords.current.startY) / 69;
-            setPosition({ x: position.x - walkX, y: position.y - walkY });
+            setPosition({ x: position.x + walkX, y: position.y + walkY });
         }
     };
 
