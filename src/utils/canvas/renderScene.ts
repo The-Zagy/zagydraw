@@ -21,7 +21,16 @@ function renderScene(
     );
     ctx.save();
     ctx.translate(canvasState.position.x, canvasState.position.y);
-    drawElements(canvasState.elements, roughCanvas, canvasState);
+    // i hate this but don't think i can mutate the state
+    // and i want to sleep so i want add another argument
+    console.log(canvasState.notReadyElement);
+    drawElements(
+        canvasState.notReadyElement !== null
+            ? [...canvasState.elements, canvasState.notReadyElement]
+            : canvasState.elements,
+        roughCanvas,
+        canvasState
+    );
     ctx.restore();
 }
 export default renderScene;

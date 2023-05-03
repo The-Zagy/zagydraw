@@ -15,7 +15,8 @@ const {
     setDimensions,
     setCursorFn,
     setElements,
-    getCanvasState
+    getCanvasState,
+    setNotReady
 } = useStore.getState();
 
 const MAX_ZOOM = 96;
@@ -37,6 +38,8 @@ function App() {
         startX: 0,
         startY: 0
     });
+    const startPos = useRef([0, 0]);
+    const endPos = useRef([0, 0]);
     const canvasElements = useStore((state) => state.elements);
     const handleZoom = (zoomType: "in" | "out") => {
         if (zoomType === "in") {
@@ -84,40 +87,38 @@ function App() {
 
         mouseCoords.current = { startX, startY };
         // draw shape logic?
-        if (!roughCanvas.current) return;
-        const generator = roughCanvas.current.generator;
         if (cursorFn === "rect") {
             const norm = normalize(position, startX, startY);
-            const rect: CanvasRectElement = {
-                ...generator.rectangle(norm[0], norm[1], 100, 100, {
-                    fill: "blue",
-                    stroke: "red",
-                    strokeWidth: 2,
-                    roughness: 0
-                }),
-                x: startX,
-                y: startY,
-                w: 100,
-                h: 100,
-                color: "blue",
-                shape: "rectangle",
-                curPos: position
-            };
-            console.log("rect", rect);
-            setElements((prev) => {
-                return [...prev, rect];
-            });
+            startPos.current = norm;
         } else if (cursorFn === "line") {
             const norm = normalize(position, startX, startY);
+            startPos.current = norm;
+        }
+    };
+    const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {
+        isMouseDown.current = false;
+        document.body.style.cursor = "default";
+        if (!canvas.current) return;
+        if (!roughCanvas.current) return;
+        const generator = roughCanvas.current.generator;
+        if (cursorFn === "line") {
+            // todo don't repeat yourself => NOT WORKING
+            // setNotReady(null);
             const line: CanvasLineElement = {
-                ...generator.line(norm[0], norm[1], norm[0] + 100, norm[1], {
-                    fill: "blue",
-                    stroke: "red",
-                    strokeWidth: 2,
-                    roughness: 0
-                }),
-                x: startX,
-                y: startY,
+                ...generator.line(
+                    startPos.current[0],
+                    startPos.current[1],
+                    endPos.current[0],
+                    endPos.current[1],
+                    {
+                        fill: "blue",
+                        stroke: "red",
+                        strokeWidth: 2,
+                        roughness: 0
+                    }
+                ),
+                x: startPos.current[0],
+                y: startPos.current[1],
                 color: "blue",
                 shape: "line",
                 curPos: position,
@@ -126,14 +127,39 @@ function App() {
             setElements((prev) => {
                 return [...prev, line];
             });
+        } else if (cursorFn === "rect") {
+            // todo don't repeat yourself => NOT WORKING
+            // setNotReady(null);
+            const rect: CanvasRectElement = {
+                ...generator.rectangle(
+                    startPos.current[0],
+                    startPos.current[1],
+                    endPos.current[0] - startPos.current[0],
+                    endPos.current[1] - startPos.current[1],
+                    {
+                        fill: "blue",
+                        stroke: "red",
+                        strokeWidth: 2,
+                        roughness: 0
+                    }
+                ),
+                x: startPos.current[0],
+                y: startPos.current[1],
+                w: 100,
+                h: 100,
+                color: "blue",
+                shape: "rectangle",
+                curPos: position
+            };
+            setElements((prev) => {
+                return [...prev, rect];
+            });
         }
     };
-    const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {
-        isMouseDown.current = false;
-        document.body.style.cursor = "default";
-        if (!canvas.current) return;
-    };
     const handlePointerMove: PointerEventHandler<HTMLCanvasElement> = (e) => {
+        // get the current mouse position
+        const x = e.pageX;
+        const y = e.pageY;
         //handle dragging into the canvas
         if (isMouseDown.current && canvas.current && cursorFn === "drag") {
             e.preventDefault();
@@ -142,9 +168,6 @@ function App() {
                 cancelAnimationFrame(lastAnimationFrame.current);
             }
             lastAnimationFrame.current = requestAnimationFrame(() => {
-                // get the current mouse position
-                const x = e.pageX;
-                const y = e.pageY;
                 // calculate how far the mouse has been moved
                 const walkX = x - mouseCoords.current.startX;
                 const walkY = y - mouseCoords.current.startY;
@@ -153,6 +176,34 @@ function App() {
                 setPosition({ x: position.x + walkX, y: position.y + walkY });
                 lastAnimationFrame.current = null;
             });
+        }
+        if (isMouseDown.current && canvas.current && cursorFn !== "drag") {
+            // if (!roughCanvas.current) return;
+            // const generator = roughCanvas.current.generator;
+            const norm = normalize(position, x, y);
+            endPos.current = norm;
+            // TODO insertion preview not working
+            // const line: CanvasLineElement = {
+            //     ...generator.line(
+            //         startPos.current[0],
+            //         startPos.current[1],
+            //         norm[0],
+            //         norm[1],
+            //         {
+            //             fill: "blue",
+            //             stroke: "red",
+            //             strokeWidth: 2,
+            //             roughness: 0
+            //         }
+            //     ),
+            //     x: startPos.current[0],
+            //     y: startPos.current[1],
+            //     color: "blue",
+            //     shape: "line",
+            //     curPos: position,
+            //     length: 20
+            // };
+            // setNotReady(line);
         }
     };
 

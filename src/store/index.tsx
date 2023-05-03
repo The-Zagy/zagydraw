@@ -11,6 +11,7 @@ export type CanvasState<T extends CanvasElement = CanvasElement> = {
     position: { x: number; y: number };
     zoomLevel: number;
     elements: T[];
+    notReadyElement: T | null;
 };
 
 type ConfigState = {
@@ -26,6 +27,7 @@ type CanvasActions = {
     setPosition: (position: CanvasState["position"]) => void;
     setZoomLevel: (zoomLevel: CanvasState["zoomLevel"]) => void;
     setElements: (callback: (prev: CanvasElement[]) => CanvasElement[]) => void;
+    setNotReady: (el: CanvasState["notReadyElement"]) => void;
 };
 
 type ConfigActions = {
@@ -42,6 +44,7 @@ export const useStore = create<
     height: 300,
     cursorFn: "drag",
     elements: [],
+    notReadyElement: null,
     //actions
     //getCanvasState
     getCanvasState: () => {
@@ -50,7 +53,8 @@ export const useStore = create<
             zoomLevel: get().zoomLevel,
             width: get().width,
             height: get().height,
-            elements: get().elements
+            elements: get().elements,
+            notReadyElement: get().notReadyElement
         };
     },
     setPosition: (position) => set({ position }),
@@ -61,5 +65,8 @@ export const useStore = create<
     },
     setCursorFn(fn) {
         set({ cursorFn: fn });
+    },
+    setNotReady(el) {
+        set({ notReadyElement: el });
     }
 }));
