@@ -4,7 +4,7 @@ import { useStore } from "store";
 
 import useGlobalEvent from "hooks/useGlobalEvent";
 import { RoughCanvas } from "roughjs/bin/canvas";
-
+import { throttle } from "throttle-debounce";
 import { normalize } from "utils";
 import { CanvasLineElement, CanvasRectElement } from "types/general";
 import renderScene from "utils/canvas/renderScene";
@@ -51,26 +51,32 @@ function App() {
     };
     const canvas = useRef<HTMLCanvasElement>(null);
     const roughCanvas = useRef<RoughCanvas | null>(null);
+    const lastAnimationFrame = useRef<number | null>(null);
     useLayoutEffect(() => {
         if (canvas.current) {
             //make canvas fill the screen
             canvas.current.width = document.body.clientWidth;
             canvas.current.height = document.body.clientHeight;
-            // init rough canvas
-            roughCanvas.current = rough.canvas(canvas.current);
         }
+    }, []);
+    useEffect(() => {
+        //set canvas dimensions
+        setDimensions(document.body.clientWidth, document.body.clientHeight);
+        // init rough canvas
+        if (roughCanvas.current || !canvas.current) return;
+        roughCanvas.current = rough.canvas(canvas.current);
     }, []);
     useEffect(() => {
         if (!canvas.current || !roughCanvas.current) return;
         const ctx = canvas.current.getContext("2d");
         if (!ctx) return;
-        //clear the canvas
 
         renderScene(roughCanvas.current, ctx, canvasState);
     }, [position, zoom, width, height, canvasElements]);
     const handlePointerDown: PointerEventHandler<HTMLCanvasElement> = (e) => {
         //handle dragging into the canvas
         if (!canvas.current) return;
+        document.body.style.cursor = "dragging";
         isMouseDown.current = true;
         const startX = e.pageX;
         const startY = e.pageY;
@@ -132,19 +138,26 @@ function App() {
     };
     const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {
         isMouseDown.current = false;
+        document.body.style.cursor = "default";
         if (!canvas.current) return;
     };
     const handlePointerMove: PointerEventHandler<HTMLCanvasElement> = (e) => {
-        e.preventDefault();
         //handle dragging into the canvas
         if (isMouseDown.current && canvas.current && cursorFn === "drag") {
-            const x = e.pageX;
-            const y = e.pageY;
+            e.preventDefault();
 
-            // 50 is an arbitrary number to make the walk distance smaller
-            const walkX = (x - mouseCoords.current.startX) / 69;
-            const walkY = (y - mouseCoords.current.startY) / 69;
-            setPosition({ x: position.x + walkX, y: position.y + walkY });
+            if (lastAnimationFrame.current) {
+                cancelAnimationFrame(lastAnimationFrame.current);
+            }
+            lastAnimationFrame.current = requestAnimationFrame(() => {
+                const x = e.pageX;
+                const y = e.pageY;
+                const walkX = x - mouseCoords.current.startX;
+                const walkY = y - mouseCoords.current.startY;
+                mouseCoords.current = { startX: x, startY: y };
+                setPosition({ x: position.x + walkX, y: position.y + walkY });
+                lastAnimationFrame.current = null;
+            });
         }
     };
 
@@ -166,7 +179,7 @@ function App() {
     useGlobalEvent("wheel", handleScroll);
     useGlobalEvent("resize", handleResize);
     return (
-        <div className="h-screen w-screen overflow-hidden">
+        <>
             <button
                 onClick={() => {
                     setCursorFn("rect");
@@ -192,12 +205,13 @@ function App() {
                 Line
             </button>
             <canvas
+                className="h-screen w-screen overflow-hidden"
                 ref={canvas}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
             />
-        </div>
+        </>
     );
 }
 
