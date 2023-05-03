@@ -67,6 +67,7 @@ function App() {
         roughCanvas.current = rough.canvas(canvas.current);
     }, []);
     useEffect(() => {
+        console.log("pos", position.x, position.y);
         if (!canvas.current || !roughCanvas.current) return;
         const ctx = canvas.current.getContext("2d");
         if (!ctx) return;
@@ -86,30 +87,14 @@ function App() {
         if (!roughCanvas.current) return;
         const generator = roughCanvas.current.generator;
         if (cursorFn === "rect") {
-            // const norm = normalize(position, startX, startY);
-            // console.log(
-            //     "startX",
-            //     startX,
-            //     "startY",
-            //     startY,
-            //     "startXNormalized",
-            //     norm[0],
-            //     "startYNormalized",
-            //     norm[1]
-            // );
+            const norm = normalize(position, startX, startY);
             const rect: CanvasRectElement = {
-                ...generator.rectangle(
-                    startX - position.x,
-                    startY - position.y,
-                    100,
-                    100,
-                    {
-                        fill: "blue",
-                        stroke: "red",
-                        strokeWidth: 2,
-                        roughness: 0
-                    }
-                ),
+                ...generator.rectangle(norm[0], norm[1], 100, 100, {
+                    fill: "blue",
+                    stroke: "red",
+                    strokeWidth: 2,
+                    roughness: 0
+                }),
                 x: startX,
                 y: startY,
                 w: 100,
@@ -123,19 +108,14 @@ function App() {
                 return [...prev, rect];
             });
         } else if (cursorFn === "line") {
+            const norm = normalize(position, startX, startY);
             const line: CanvasLineElement = {
-                ...generator.line(
-                    startX - position.x,
-                    startY - position.y,
-                    startX + 100,
-                    startY,
-                    {
-                        fill: "blue",
-                        stroke: "red",
-                        strokeWidth: 2,
-                        roughness: 0
-                    }
-                ),
+                ...generator.line(norm[0], norm[1], norm[0] + 100, norm[1], {
+                    fill: "blue",
+                    stroke: "red",
+                    strokeWidth: 2,
+                    roughness: 0
+                }),
                 x: startX,
                 y: startY,
                 color: "blue",
