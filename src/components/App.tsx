@@ -98,12 +98,18 @@ function App() {
             //     norm[1]
             // );
             const rect: CanvasRectElement = {
-                ...generator.rectangle(startX, startY, 100, 100, {
-                    fill: "blue",
-                    stroke: "red",
-                    strokeWidth: 2,
-                    roughness: 0
-                }),
+                ...generator.rectangle(
+                    startX - position.x,
+                    startY - position.y,
+                    100,
+                    100,
+                    {
+                        fill: "blue",
+                        stroke: "red",
+                        strokeWidth: 2,
+                        roughness: 0
+                    }
+                ),
                 x: startX,
                 y: startY,
                 w: 100,
@@ -118,12 +124,18 @@ function App() {
             });
         } else if (cursorFn === "line") {
             const line: CanvasLineElement = {
-                ...generator.line(startX, startY, startX + 100, startY, {
-                    fill: "blue",
-                    stroke: "red",
-                    strokeWidth: 2,
-                    roughness: 0
-                }),
+                ...generator.line(
+                    startX - position.x,
+                    startY - position.y,
+                    startX + 100,
+                    startY,
+                    {
+                        fill: "blue",
+                        stroke: "red",
+                        strokeWidth: 2,
+                        roughness: 0
+                    }
+                ),
                 x: startX,
                 y: startY,
                 color: "blue",
@@ -150,10 +162,13 @@ function App() {
                 cancelAnimationFrame(lastAnimationFrame.current);
             }
             lastAnimationFrame.current = requestAnimationFrame(() => {
+                // get the current mouse position
                 const x = e.pageX;
                 const y = e.pageY;
+                // calculate how far the mouse has been moved
                 const walkX = x - mouseCoords.current.startX;
                 const walkY = y - mouseCoords.current.startY;
+                // set the mouse position to the current position
                 mouseCoords.current = { startX: x, startY: y };
                 setPosition({ x: position.x + walkX, y: position.y + walkY });
                 lastAnimationFrame.current = null;
