@@ -34,42 +34,32 @@ type ConfigActions = {
 
 export const useStore = create<
     CanvasState & CanvasActions & ConfigActions & ConfigState
->()(
-    devtools(
-        persist(
-            (set, get) => ({
-                //state
-                position: { x: 0, y: 0 },
-                zoomLevel: 48,
-                width: 400,
-                height: 300,
-                cursorFn: "drag",
-                elements: [],
-                //actions
-                //getCanvasState
-                getCanvasState: () => {
-                    return {
-                        position: get().position,
-                        zoomLevel: get().zoomLevel,
-                        width: get().width,
-                        height: get().height,
-                        elements: get().elements
-                    };
-                },
-                setPosition: (position) => set({ position }),
-                setZoomLevel: (zoomLevel) => set({ zoomLevel }),
-                setDimensions: (width, height) => set({ width, height }),
-                setElements: (callback) => {
-                    set((state) => ({ elements: callback(state.elements) }));
-                },
-                setCursorFn(fn) {
-                    set({ cursorFn: fn });
-                }
-            }),
-            {
-                name: "canvas-store",
-                getStorage: () => sessionStorage
-            }
-        )
-    )
-);
+>()((set, get) => ({
+    //state
+    position: { x: 0, y: 0 },
+    zoomLevel: 48,
+    width: 400,
+    height: 300,
+    cursorFn: "drag",
+    elements: [],
+    //actions
+    //getCanvasState
+    getCanvasState: () => {
+        return {
+            position: get().position,
+            zoomLevel: get().zoomLevel,
+            width: get().width,
+            height: get().height,
+            elements: get().elements
+        };
+    },
+    setPosition: (position) => set({ position }),
+    setZoomLevel: (zoomLevel) => set({ zoomLevel }),
+    setDimensions: (width, height) => set({ width, height }),
+    setElements: (callback) => {
+        set((state) => ({ elements: callback(state.elements) }));
+    },
+    setCursorFn(fn) {
+        set({ cursorFn: fn });
+    }
+}));
