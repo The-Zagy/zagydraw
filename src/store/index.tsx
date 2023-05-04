@@ -1,9 +1,7 @@
 //gitkeep
 //init zustand store
-import { CanvasElement, CanvasRectElement } from "types/general";
+import { CanvasElement, CursorFn } from "types/general";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { devtools } from "zustand/middleware";
 
 export type CanvasState<T extends CanvasElement = CanvasElement> = {
     width: number;
@@ -11,11 +9,11 @@ export type CanvasState<T extends CanvasElement = CanvasElement> = {
     position: { x: number; y: number };
     zoomLevel: number;
     elements: T[];
-    notReadyElement: T | null;
+    previewElement: T | null;
 };
 
 type ConfigState = {
-    cursorFn: "drag" | "rect" | "line";
+    cursorFn: CursorFn;
 };
 
 type CanvasActions = {
@@ -27,7 +25,7 @@ type CanvasActions = {
     setPosition: (position: CanvasState["position"]) => void;
     setZoomLevel: (zoomLevel: CanvasState["zoomLevel"]) => void;
     setElements: (callback: (prev: CanvasElement[]) => CanvasElement[]) => void;
-    setNotReady: (el: CanvasState["notReadyElement"]) => void;
+    setPreviewElement: (el: CanvasState["previewElement"]) => void;
 };
 
 type ConfigActions = {
@@ -42,9 +40,9 @@ export const useStore = create<
     zoomLevel: 48,
     width: 400,
     height: 300,
-    cursorFn: "drag",
+    cursorFn: CursorFn.Drag,
     elements: [],
-    notReadyElement: null,
+    previewElement: null,
     //actions
     //getCanvasState
     getCanvasState: () => {
@@ -54,7 +52,7 @@ export const useStore = create<
             width: get().width,
             height: get().height,
             elements: get().elements,
-            notReadyElement: get().notReadyElement
+            previewElement: get().previewElement
         };
     },
     setPosition: (position) => set({ position }),
@@ -66,7 +64,7 @@ export const useStore = create<
     setCursorFn(fn) {
         set({ cursorFn: fn });
     },
-    setNotReady(el) {
-        set({ notReadyElement: el });
+    setPreviewElement(el) {
+        set({ previewElement: el });
     }
 }));

@@ -4,25 +4,24 @@ export function classNames(...classes: unknown[]): string {
     return classes.filter(Boolean).join(" ");
 }
 
-// TODO NOT WORKING FIXXXXXXXXXXXXXXXXXXXXXXX6XX9X
 /**
  *
- * @param posX
- * @param posY
- * @returns [posX, posY]
+ * @param mousePosX
+ * @param mousePosY
+ * @returns  {[posX, posY]} normalized to 20px grid
  */
 export function normalize(
     pos: CanvasState["position"],
-    posX: number,
-    posY: number
+    mousePosX: number,
+    mousePosY: number
 ): [number, number] {
     const xStart = Math.floor(pos.y) % 20;
     const yStart = Math.floor(pos.x) % 20;
     // for perfect square this would be the normalized x pos
-    let x = Math.round((posX - yStart) / 20);
-    x = yStart + x * 20;
+    const columnNumber = Math.round((mousePosX - yStart) / 20);
+    const columnPos = yStart + columnNumber * 20;
     // for perfect square this would be the normalized y pos
-    let y = Math.round((posY - xStart) / 20);
-    y = xStart + y * 20;
-    return [x - pos.x, y - pos.y];
+    const rowNumber = Math.round((mousePosY - xStart) / 20);
+    const rowPosition = xStart + rowNumber * 20;
+    return [columnPos - pos.x, rowPosition - pos.y];
 }

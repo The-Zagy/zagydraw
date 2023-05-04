@@ -3,7 +3,8 @@ import type { CanvasState } from "store";
 import type {
     CanvasElement,
     CanvasLineElement,
-    CanvasRectElement
+    CanvasRectElement,
+    CanvasRoughElement
 } from "types/general";
 // todo finish this
 function isRectVisible(
@@ -19,15 +20,12 @@ function isRectVisible(
     const yDiff = Math.abs(rect.y - canvasState.position.x);
     return xDiff < canvasState.width && yDiff < canvasState.height;
 }
-function drawRectElement(element: CanvasRectElement, roughCanvas: RoughCanvas) {
-    roughCanvas.draw(element);
+export function renderRoughElement(
+    el: CanvasRoughElement,
+    roughCanvas: RoughCanvas
+) {
+    roughCanvas.draw(el);
 }
-
-// TODO Alot of hard coded values, all need to be generic
-function drawLineElement(element: CanvasLineElement, roughCanvas: RoughCanvas) {
-    roughCanvas.draw(element);
-}
-
 function isRect(el: CanvasElement): el is CanvasRectElement {
     return el.shape === "rectangle";
 }
@@ -38,22 +36,16 @@ function isLine(el: CanvasElement): el is CanvasLineElement {
 
 // todo this function needs to take any element as argument and call different draw function for different elements
 // todo change it to drawScene and include draw the grid in it
-function drawElements<T extends CanvasElement>(
+function renderElements<T extends CanvasElement>(
     elements: T[],
     ctx: RoughCanvas,
     canvasState: CanvasState
 ) {
     elements.forEach((el) => {
-        if (isRect(el)) {
-            // if (!isRectVisible(el, canvasState)) {
-            //     console.log("rect not rendered", el.curPos);
-            //     return;
-            // }
-
-            drawRectElement(el, ctx);
-        } else if (isLine(el)) {
-            drawLineElement(el, ctx);
-        }
+        //todo fix this later when more types are added
+        // eslint-disable-next-line
+        //@ts-ignore
+        renderRoughElement(el as CanvasRoughElement, ctx);
     });
 }
-export default drawElements;
+export default renderElements;

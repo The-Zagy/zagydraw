@@ -1,7 +1,7 @@
 import { RoughCanvas } from "roughjs/bin/canvas";
 import { CanvasState } from "store";
-import drawElements from "./drawElements";
-import drawGrid from "./drawGrid";
+import renderElements from "./renderElements";
+import drawGrid from "./renderGrid";
 
 function renderScene(
     roughCanvas: RoughCanvas,
@@ -21,12 +21,10 @@ function renderScene(
     );
     ctx.save();
     ctx.translate(canvasState.position.x, canvasState.position.y);
-    // i hate this but don't think i can mutate the state
-    // and i want to sleep so i want add another argument
-    console.log(canvasState.notReadyElement);
-    drawElements(
-        canvasState.notReadyElement !== null
-            ? [...canvasState.elements, canvasState.notReadyElement]
+
+    renderElements(
+        canvasState.previewElement !== null
+            ? [...canvasState.elements, canvasState.previewElement]
             : canvasState.elements,
         roughCanvas,
         canvasState

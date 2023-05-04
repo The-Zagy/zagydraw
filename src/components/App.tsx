@@ -1,13 +1,20 @@
-import { PointerEventHandler, useEffect, useLayoutEffect, useRef } from "react";
+import {
+    PointerEventHandler,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState
+} from "react";
 import rough from "roughjs";
 import { useStore } from "store";
 
 import useGlobalEvent from "hooks/useGlobalEvent";
 import { RoughCanvas } from "roughjs/bin/canvas";
-import { throttle } from "throttle-debounce";
+
 import { normalize } from "utils";
-import { CanvasLineElement, CanvasRectElement } from "types/general";
+import { CanvasLineElement, CanvasRectElement, CursorFn } from "types/general";
 import renderScene from "utils/canvas/renderScene";
+import useCursor from "hooks/useCursor";
 
 const {
     setPosition,
@@ -16,7 +23,7 @@ const {
     setCursorFn,
     setElements,
     getCanvasState,
-    setNotReady
+    setPreviewElement
 } = useStore.getState();
 
 const MAX_ZOOM = 96;
@@ -27,13 +34,14 @@ type MouseCoords = {
 };
 
 function App() {
-    const canvasState = getCanvasState();
     const position = useStore((state) => state.position);
     const zoom = useStore((state) => state.zoomLevel);
     const width = useStore((state) => state.width);
     const height = useStore((state) => state.height);
     const cursorFn = useStore((state) => state.cursorFn);
-    const isMouseDown = useRef<boolean>(false);
+    const previewElement = useStore((state) => state.previewElement);
+    const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
+
     const mouseCoords = useRef<MouseCoords>({
         startX: 0,
         startY: 0
@@ -55,6 +63,7 @@ function App() {
     const canvas = useRef<HTMLCanvasElement>(null);
     const roughCanvas = useRef<RoughCanvas | null>(null);
     const lastAnimationFrame = useRef<number | null>(null);
+
     useLayoutEffect(() => {
         if (canvas.current) {
             //make canvas fill the screen
@@ -70,38 +79,44 @@ function App() {
         roughCanvas.current = rough.canvas(canvas.current);
     }, []);
     useEffect(() => {
-        console.log("pos", position.x, position.y);
         if (!canvas.current || !roughCanvas.current) return;
         const ctx = canvas.current.getContext("2d");
         if (!ctx) return;
-
-        renderScene(roughCanvas.current, ctx, canvasState);
-    }, [position, zoom, width, height, canvasElements]);
+        renderScene(roughCanvas.current, ctx, {
+            width,
+            height,
+            position,
+            elements: canvasElements,
+            zoomLevel: zoom,
+            previewElement: previewElement
+        });
+    }, [width, height, position, zoom, canvasElements, previewElement]);
+    useCursor(cursorFn, isMouseDown);
     const handlePointerDown: PointerEventHandler<HTMLCanvasElement> = (e) => {
         //handle dragging into the canvas
         if (!canvas.current) return;
-        document.body.style.cursor = "dragging";
-        isMouseDown.current = true;
+
+        setIsMouseDown(true);
         const startX = e.pageX;
         const startY = e.pageY;
 
         mouseCoords.current = { startX, startY };
         // draw shape logic?
-        if (cursorFn === "rect") {
+        if (cursorFn === CursorFn.Rect) {
             const norm = normalize(position, startX, startY);
             startPos.current = norm;
-        } else if (cursorFn === "line") {
+        } else if (cursorFn === CursorFn.Line) {
             const norm = normalize(position, startX, startY);
             startPos.current = norm;
         }
     };
     const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {
-        isMouseDown.current = false;
-        document.body.style.cursor = "default";
+        setIsMouseDown(false);
         if (!canvas.current) return;
         if (!roughCanvas.current) return;
         const generator = roughCanvas.current.generator;
-        if (cursorFn === "line") {
+        setPreviewElement(null);
+        if (cursorFn === CursorFn.Line) {
             // todo don't repeat yourself => NOT WORKING
             // setNotReady(null);
             const line: CanvasLineElement = {
@@ -111,15 +126,15 @@ function App() {
                     endPos.current[0],
                     endPos.current[1],
                     {
-                        fill: "blue",
-                        stroke: "red",
+                        fill: "#0b7285",
+                        stroke: "#0b7285",
                         strokeWidth: 2,
                         roughness: 0
                     }
                 ),
                 x: startPos.current[0],
                 y: startPos.current[1],
-                color: "blue",
+                color: "#0b7285",
                 shape: "line",
                 curPos: position,
                 length: 20
@@ -127,7 +142,7 @@ function App() {
             setElements((prev) => {
                 return [...prev, line];
             });
-        } else if (cursorFn === "rect") {
+        } else if (cursorFn === CursorFn.Rect) {
             // todo don't repeat yourself => NOT WORKING
             // setNotReady(null);
             const rect: CanvasRectElement = {
@@ -137,8 +152,8 @@ function App() {
                     endPos.current[0] - startPos.current[0],
                     endPos.current[1] - startPos.current[1],
                     {
-                        fill: "blue",
-                        stroke: "red",
+                        fill: "#0b7285",
+                        stroke: "#0b7285",
                         strokeWidth: 2,
                         roughness: 0
                     }
@@ -147,7 +162,7 @@ function App() {
                 y: startPos.current[1],
                 w: 100,
                 h: 100,
-                color: "blue",
+                color: "#0b7285",
                 shape: "rectangle",
                 curPos: position
             };
@@ -161,7 +176,7 @@ function App() {
         const x = e.pageX;
         const y = e.pageY;
         //handle dragging into the canvas
-        if (isMouseDown.current && canvas.current && cursorFn === "drag") {
+        if (isMouseDown && canvas.current && cursorFn === CursorFn.Drag) {
             e.preventDefault();
 
             if (lastAnimationFrame.current) {
@@ -177,33 +192,36 @@ function App() {
                 lastAnimationFrame.current = null;
             });
         }
-        if (isMouseDown.current && canvas.current && cursorFn !== "drag") {
+        if (isMouseDown && canvas.current && cursorFn !== CursorFn.Drag) {
             // if (!roughCanvas.current) return;
             // const generator = roughCanvas.current.generator;
+
             const norm = normalize(position, x, y);
             endPos.current = norm;
+            if (!roughCanvas.current) return;
+            const generator = roughCanvas.current.generator;
             // TODO insertion preview not working
-            // const line: CanvasLineElement = {
-            //     ...generator.line(
-            //         startPos.current[0],
-            //         startPos.current[1],
-            //         norm[0],
-            //         norm[1],
-            //         {
-            //             fill: "blue",
-            //             stroke: "red",
-            //             strokeWidth: 2,
-            //             roughness: 0
-            //         }
-            //     ),
-            //     x: startPos.current[0],
-            //     y: startPos.current[1],
-            //     color: "blue",
-            //     shape: "line",
-            //     curPos: position,
-            //     length: 20
-            // };
-            // setNotReady(line);
+            const rect: CanvasRectElement = {
+                ...generator.rectangle(
+                    startPos.current[0],
+                    startPos.current[1],
+                    endPos.current[0] - startPos.current[0],
+                    endPos.current[1] - startPos.current[1],
+                    {
+                        fill: "blue",
+                        stroke: "red",
+                        strokeWidth: 2,
+                        roughness: 0
+                    }
+                ),
+                x: startPos.current[0],
+                y: startPos.current[1],
+                color: "blue",
+                shape: "rectangle",
+                curPos: position,
+                length: 20
+            };
+            setPreviewElement(rect);
         }
     };
 
@@ -228,7 +246,7 @@ function App() {
         <>
             <button
                 onClick={() => {
-                    setCursorFn("rect");
+                    setCursorFn(CursorFn.Rect);
                 }}
                 className="fixed left-3 top-0 h-5 w-8 bg-slate-600 "
             >
@@ -236,7 +254,7 @@ function App() {
             </button>
             <button
                 onClick={() => {
-                    setCursorFn("drag");
+                    setCursorFn(CursorFn.Drag);
                 }}
                 className="fixed left-12 top-0 h-5 w-8 bg-slate-600 "
             >
@@ -244,7 +262,7 @@ function App() {
             </button>
             <button
                 onClick={() => {
-                    setCursorFn("line");
+                    setCursorFn(CursorFn.Line);
                 }}
                 className="fixed left-3 top-7 h-5 w-8 bg-slate-600 "
             >
