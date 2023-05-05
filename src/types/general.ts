@@ -26,6 +26,7 @@ interface CanvasLineElement extends CanvasRoughElement {
 }
 
 enum CursorFn {
+    Default,
     Drag,
     Rect,
     Line
