@@ -15,6 +15,9 @@ export default function useCursor(cursorFn: CursorFn, isMouseDown: boolean) {
             case CursorFn.Line:
                 document.body.style.cursor = "crosshair";
                 break;
+            case CursorFn.Default:
+                document.body.style.cursor = "default";
+                break;
             default:
                 return;
         }
