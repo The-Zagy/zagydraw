@@ -24,8 +24,9 @@ const genereateRectElement = (
         ),
         x: startPos[0],
         y: startPos[1],
-        w: 100,
-        h: 100,
+        endX: endPos[0],
+        endY: endPos[1],
+
         color: "#0b7285",
         shape: "rectangle",
         curPos: position

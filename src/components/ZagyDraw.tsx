@@ -11,7 +11,7 @@ import { useStore } from "store";
 import useGlobalEvent from "hooks/useGlobalEvent";
 import { RoughCanvas } from "roughjs/bin/canvas";
 
-import { normalize } from "utils";
+import { getHitElement, normalize } from "utils";
 import { CanvasLineElement, CanvasRectElement, CursorFn } from "types/general";
 import renderScene from "utils/canvas/renderScene";
 import useCursor from "hooks/useCursor";
@@ -20,7 +20,7 @@ const {
     setPosition,
     setZoomLevel,
     setDimensions,
-    setCursorFn,
+
     setElements,
 
     setPreviewElement
@@ -108,6 +108,10 @@ function ZagyDraw() {
         } else if (cursorFn === CursorFn.Line) {
             const norm = normalize(position, startX, startY);
             startPos.current = norm;
+        } else if (cursorFn === CursorFn.Default) {
+            console.log(
+                getHitElement(canvasElements, [startX, startY], position)
+            );
         }
     };
     const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {
@@ -134,10 +138,11 @@ function ZagyDraw() {
                 ),
                 x: startPos.current[0],
                 y: startPos.current[1],
+                endX: endPos.current[0],
+                endY: endPos.current[1],
                 color: "#0b7285",
                 shape: "line",
-                curPos: position,
-                length: 20
+                curPos: position
             };
             setElements((prev) => {
                 return [...prev, line];
@@ -160,12 +165,13 @@ function ZagyDraw() {
                 ),
                 x: startPos.current[0],
                 y: startPos.current[1],
-                w: 100,
-                h: 100,
+                endX: endPos.current[0],
+                endY: endPos.current[1],
                 color: "#0b7285",
                 shape: "rectangle",
                 curPos: position
             };
+            console.log(rect);
             setElements((prev) => {
                 return [...prev, rect];
             });
@@ -192,7 +198,12 @@ function ZagyDraw() {
                 lastAnimationFrame.current = null;
             });
         }
-        if (isMouseDown && canvas.current && cursorFn !== CursorFn.Drag) {
+        if (
+            isMouseDown &&
+            canvas.current &&
+            cursorFn !== CursorFn.Drag &&
+            cursorFn !== CursorFn.Default
+        ) {
             // if (!roughCanvas.current) return;
             // const generator = roughCanvas.current.generator;
 
@@ -216,10 +227,11 @@ function ZagyDraw() {
                 ),
                 x: startPos.current[0],
                 y: startPos.current[1],
-                color: "blue",
+                endX: endPos.current[0],
+                endY: endPos.current[1],
+                color: "#0b7285",
                 shape: "rectangle",
-                curPos: position,
-                length: 20
+                curPos: position
             };
             setPreviewElement(rect);
         }

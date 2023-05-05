@@ -35,7 +35,7 @@ function isLine(el: CanvasElement): el is CanvasLineElement {
 }
 
 // todo this function needs to take any element as argument and call different draw function for different elements
-// todo change it to drawScene and include draw the grid in it
+
 function renderElements<T extends CanvasElement>(
     elements: T[],
     ctx: RoughCanvas,

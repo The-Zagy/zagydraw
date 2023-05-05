@@ -1,4 +1,5 @@
 import type { CanvasState } from "store";
+import { CanvasLineElement, CanvasRectElement } from "types/general";
 
 export function classNames(...classes: unknown[]): string {
     return classes.filter(Boolean).join(" ");
@@ -24,4 +25,91 @@ export function normalize(
     const rowNumber = Math.round((mousePosY - xStart) / 20);
     const rowPosition = xStart + rowNumber * 20;
     return [columnPos - pos.x, rowPosition - pos.y];
+}
+const distance = (p1: [number, number], p2: [number, number]) => {
+    return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2));
+};
+
+const dotProduct = (v1: [number, number], v2: [number, number]) => {
+    return v1[0] * v2[0] + v1[1] * v2[1];
+};
+const makeVector = (
+    p1: [number, number],
+    p2: [number, number]
+): [number, number] => {
+    return [p2[0] - p1[0], p2[1] - p1[1]];
+};
+/**
+ *
+ * @param A  point A of rectangle
+ * @param B  point B of rectangle
+ * @param _  point C of rectangle
+ * @param D  point D of rectangle
+ * @param M  point M to check
+ * @returns  true if point M is inside rectangle
+ */
+const pointNearLine = (
+    A: [number, number],
+    B: [number, number],
+    M: [number, number]
+) => {
+    A = [Math.round(A[0]), Math.round(A[1])];
+    B = [Math.round(B[0]), Math.round(B[1])];
+    M = [Math.round(M[0]), Math.round(M[1])];
+    const AM = distance(A, M);
+    const MB = distance(M, B);
+    const AB = distance(A, B);
+    const diff = Math.abs(AB - (AM + MB));
+    // 3 is the threshold for now
+    if (diff < 3) return true;
+};
+
+const pointInRectangle = (
+    A: [number, number],
+    B: [number, number],
+    _: [number, number],
+    D: [number, number],
+    M: [number, number]
+): boolean => {
+    // https://math.stackexchange.com/questions/190111/how-to-check-if-a-point-is-inside-a-rectangle
+    const AB = makeVector(A, B);
+    const AM = makeVector(A, M);
+    const AD = makeVector(A, D);
+    const AM_AB = dotProduct(AM, AB);
+    const AB_AB = dotProduct(AB, AB);
+    const AM_AD = dotProduct(AM, AD);
+    const AD_AD = dotProduct(AD, AD);
+    return 0 < AM_AB && AM_AB < AB_AB && 0 < AM_AD && AM_AD < AD_AD;
+};
+
+export function getHitElement(
+    elements: CanvasState["elements"],
+    mousePos: [number, number],
+    pos: CanvasState["position"]
+): null | CanvasState["elements"][number] {
+    //todo deal with stacking elements when stacking is implemented
+    mousePos = [mousePos[0] - pos.x, mousePos[1] - pos.y];
+    for (let i = 0; i < elements.length; i++) {
+        if (elements[i].shape === "rectangle") {
+            const { x, y, endX, endY } = elements[i] as CanvasRectElement;
+            if (
+                pointInRectangle(
+                    [x, y],
+                    [endX, y],
+                    [endX, endY],
+                    [x, endY],
+                    mousePos
+                )
+            ) {
+                return elements[i];
+            }
+        }
+        if (elements[i].shape === "line") {
+            const { x, y, endX, endY } = elements[i] as CanvasLineElement;
+            if (pointNearLine([x, y], [endX, endY], mousePos)) {
+                return elements[i];
+            }
+        }
+    }
+    return null;
 }

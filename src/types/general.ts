@@ -16,13 +16,14 @@ interface CanvasElement {
 interface CanvasRoughElement extends CanvasElement, Drawable {}
 interface CanvasRectElement extends CanvasRoughElement {
     shape: "rectangle";
-    w: number;
-    h: number;
+    endX: number;
+    endY: number;
 }
 
 interface CanvasLineElement extends CanvasRoughElement {
     shape: "line";
-    length: number;
+    endX: number;
+    endY: number;
 }
 
 enum CursorFn {
