@@ -82,7 +82,7 @@ export default function ToolbarLeft() {
     );
 
     if (selectedElements.length == 0) {
-        return;
+        return null;
     }
 
     return (

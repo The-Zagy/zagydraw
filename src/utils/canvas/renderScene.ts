@@ -27,6 +27,7 @@ function renderScene(
             ? [...canvasState.elements, canvasState.previewElement]
             : canvasState.elements,
         roughCanvas,
+        ctx,
         canvasState
     );
     ctx.restore();

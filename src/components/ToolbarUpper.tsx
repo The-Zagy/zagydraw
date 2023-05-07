@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { BsSquare, BsSquareFill } from "react-icons/bs";
+import { BsSquare, BsSquareFill, BsPencil, BsPencilFill } from "react-icons/bs";
 import { RiCursorLine, RiCursorFill } from "react-icons/ri";
 import {
     MdOutlineHorizontalRule,
@@ -29,6 +29,24 @@ export default function ToolbarUpper() {
                         <RiCursorFill className="m-auto" color="white" />
                     ) : (
                         <RiCursorLine className="m-auto" color="white" />
+                    )}
+                </button>
+                <button
+                    onClick={() => setCursorFn(CursorFn.FreeDraw)}
+                    className={clsx(
+                        "h-12 w-16 cursor-pointer sm:w-14",
+                        {
+                            "bg-zinc-500": cursorFn === CursorFn.FreeDraw
+                        },
+                        {
+                            "hover:bg-zinc-700": cursorFn !== CursorFn.FreeDraw
+                        }
+                    )}
+                >
+                    {cursorFn === CursorFn.FreeDraw ? (
+                        <BsPencilFill className="m-auto" color="white" />
+                    ) : (
+                        <BsPencil className="m-auto" color="white" />
                     )}
                 </button>
                 <button
@@ -79,12 +97,7 @@ export default function ToolbarUpper() {
                         }
                     )}
                 >
-                    <MdOutlineHorizontalRule
-                        className={clsx("m-auto", {
-                            "text-lg": cursorFn === CursorFn.Line
-                        })}
-                        color="white"
-                    />
+                    <MdOutlineHorizontalRule className="m-auto" color="white" />
                 </button>
 
                 <button className="h-12 w-16 cursor-pointer hover:bg-zinc-700 sm:w-14">

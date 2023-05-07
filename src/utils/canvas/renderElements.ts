@@ -2,6 +2,7 @@ import { RoughCanvas } from "roughjs/bin/canvas";
 import type { CanvasState } from "store";
 import type {
     CanvasElement,
+    CanvasHandDrawnElement,
     CanvasLineElement,
     CanvasRectElement,
     CanvasRoughElement
@@ -33,19 +34,31 @@ function isRect(el: CanvasElement): el is CanvasRectElement {
 function isLine(el: CanvasElement): el is CanvasLineElement {
     return el.shape === "line";
 }
+const renderFreeDrawElement = (
+    el: CanvasHandDrawnElement,
+    ctx: CanvasRenderingContext2D,
 
+) => {
+    ctx.save()
+    ctx.fillStyle = "white";
+    ctx.fill(el.path)
+    ctx.restore()
+}
 // todo this function needs to take any element as argument and call different draw function for different elements
 
 function renderElements<T extends CanvasElement>(
     elements: T[],
-    ctx: RoughCanvas,
+    roughCanvas: RoughCanvas,
+    ctx: CanvasRenderingContext2D,
     canvasState: CanvasState
 ) {
     elements.forEach((el) => {
         //todo fix this later when more types are added
+
+        if(isRect(el) ||isLine(el))renderRoughElement(el as CanvasRoughElement, roughCanvas);
         // eslint-disable-next-line
         //@ts-ignore
-        renderRoughElement(el as CanvasRoughElement, ctx);
+        else renderFreeDrawElement(el, ctx, canvasState);
     });
 }
 export default renderElements;

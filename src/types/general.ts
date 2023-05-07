@@ -27,11 +27,17 @@ interface CanvasLineElement extends CanvasRoughElement {
     endY: number;
 }
 
+interface CanvasHandDrawnElement extends CanvasElement {
+    shape: "handdrawn";
+    path: Path2D;
+}
+
 enum CursorFn {
     Default,
     Drag,
     Rect,
-    Line
+    Line,
+    FreeDraw
 }
 
 export type {
@@ -39,6 +45,7 @@ export type {
     CanvasLineElement,
     CanvasRoughElement,
     CanvasRectElement,
+    CanvasHandDrawnElement,
     ElementTypes,
     Position
 };

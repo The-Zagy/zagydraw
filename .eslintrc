@@ -40,7 +40,13 @@
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "tailwindcss/classnames-order": "warn",
-    "tailwindcss/no-custom-classname": "warn",
+    "tailwindcss/no-custom-classname": {
+      "severity": "warning",
+      "whiteList": [
+        //help needed math scrollbar-* for the tailwind-scrollbar plugin
+        "scrollbar-*"
+      ]
+    },
     "tailwindcss/no-contradicting-classname": "error",
     "semi": [
       "error",

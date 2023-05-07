@@ -6,16 +6,26 @@ import {
     useState
 } from "react";
 import rough from "roughjs";
-import { nanoid } from "nanoid";
 import { useStore } from "store";
-
+import { getStroke } from "perfect-freehand";
 import useGlobalEvent from "hooks/useGlobalEvent";
 import { RoughCanvas } from "roughjs/bin/canvas";
 
-import { getHitElement, normalize } from "utils";
-import { CanvasLineElement, CanvasRectElement, CursorFn } from "types/general";
+import { getHitElement, getSvgPathFromStroke, normalize } from "utils";
+import {
+    CanvasHandDrawnElement,
+    CanvasLineElement,
+    CanvasRectElement,
+    CursorFn
+} from "types/general";
 import renderScene from "utils/canvas/renderScene";
 import useCursor from "hooks/useCursor";
+import {
+    generateHandDrawnElement,
+    generateLineElement,
+    generateRectElement
+} from "utils/canvas/generateElement";
+import { nanoid } from "nanoid";
 
 const {
     setPosition,
@@ -42,19 +52,21 @@ function ZagyDraw() {
     const height = useStore((state) => state.height);
     const cursorFn = useStore((state) => state.cursorFn);
     const previewElement = useStore((state) => state.previewElement);
+    const selectedElements = useStore((state) => state.selectedElements);
+    const currentSeed = useRef<number>(Math.random() * 1000000);
+    const [currentlyDrawnFreeHand, setCurrentlyDrawnFreeHand] = useState<
+        [number, number][]
+    >([]);
     const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
 
     const mouseCoords = useRef<MouseCoords>({
         startX: 0,
         startY: 0
     });
-    const startPos = useRef([0, 0]);
-    const endPos = useRef([0, 0]);
+    const startPos = useRef<[number, number]>([0, 0]);
+    const endPos = useRef<[number, number]>([0, 0]);
     const canvasElements = useStore((state) => state.elements);
-    console.log(
-        "🪵 [ZagyDraw.tsx:52] ~ token ~ \x1b[0;32mcanvasElements\x1b[0m = ",
-        canvasElements
-    );
+
     const handleZoom = (zoomType: "in" | "out") => {
         if (zoomType === "in") {
             const currentZoom = zoom + 12;
@@ -66,6 +78,7 @@ function ZagyDraw() {
         if (currentZoom <= MIN_ZOOM) return;
         setZoomLevel(currentZoom);
     };
+
     const canvas = useRef<HTMLCanvasElement>(null);
     const roughCanvas = useRef<RoughCanvas | null>(null);
     const lastAnimationFrame = useRef<number | null>(null);
@@ -94,9 +107,18 @@ function ZagyDraw() {
             position,
             elements: canvasElements,
             zoomLevel: zoom,
-            previewElement: previewElement
+            previewElement: previewElement,
+            selectedElements: selectedElements
         });
-    }, [width, height, position, zoom, canvasElements, previewElement]);
+    }, [
+        width,
+        height,
+        position,
+        zoom,
+        canvasElements,
+        previewElement,
+        selectedElements
+    ]);
     useCursor(cursorFn, isMouseDown);
     const handlePointerDown: PointerEventHandler<HTMLCanvasElement> = (e) => {
         //handle dragging into the canvas
@@ -109,11 +131,16 @@ function ZagyDraw() {
         mouseCoords.current = { startX, startY };
         // draw shape logic?
         if (cursorFn === CursorFn.Rect) {
+            currentSeed.current = Math.random() * 1000000;
             const norm = normalize(position, startX, startY);
             startPos.current = norm;
         } else if (cursorFn === CursorFn.Line) {
             const norm = normalize(position, startX, startY);
             startPos.current = norm;
+        } else if (cursorFn === CursorFn.FreeDraw) {
+            setCurrentlyDrawnFreeHand([
+                [startX - position.x, startY - position.y]
+            ]);
         } else if (cursorFn === CursorFn.Default) {
             const el = getHitElement(
                 canvasElements,
@@ -121,10 +148,6 @@ function ZagyDraw() {
                 position
             );
 
-            console.log(
-                "🪵 [ZagyDraw.tsx:113] ~ token ~ \x1b[0;32mel\x1b[0m = ",
-                el
-            );
             if (el !== null) {
                 setSelectedElements(() => [el]);
             } else {
@@ -141,59 +164,44 @@ function ZagyDraw() {
         if (cursorFn === CursorFn.Line) {
             // todo don't repeat yourself => NOT WORKING
             // setNotReady(null);
-            const line: CanvasLineElement = {
-                ...generator.line(
-                    startPos.current[0],
-                    startPos.current[1],
-                    endPos.current[0],
-                    endPos.current[1],
-                    {
-                        fill: "#0b7285",
-                        stroke: "#0b7285",
-                        strokeWidth: 2,
-                        roughness: 0
-                    }
-                ),
-                id: nanoid(),
-                x: startPos.current[0],
-                y: startPos.current[1],
-                endX: endPos.current[0],
-                endY: endPos.current[1],
-                color: "#0b7285",
-                shape: "line",
-                curPos: position
-            };
+            const line: CanvasLineElement = generateLineElement(
+                generator,
+                startPos.current,
+                endPos.current,
+                position
+            );
             setElements((prev) => {
                 return [...prev, line];
             });
         } else if (cursorFn === CursorFn.Rect) {
             // todo don't repeat yourself => NOT WORKING
             // setNotReady(null);
-            const rect: CanvasRectElement = {
-                ...generator.rectangle(
-                    startPos.current[0],
-                    startPos.current[1],
-                    endPos.current[0] - startPos.current[0],
-                    endPos.current[1] - startPos.current[1],
-                    {
-                        fill: "#0b7285",
-                        stroke: "#B223DB",
-                        strokeWidth: 2,
-                        roughness: 2
-                    }
-                ),
-                id: nanoid(),
-                x: startPos.current[0],
-                y: startPos.current[1],
-                endX: endPos.current[0],
-                endY: endPos.current[1],
-                color: "#0b7285",
-                shape: "rectangle",
-                curPos: position
-            };
-            console.log(rect);
+            const rect: CanvasRectElement = generateRectElement(
+                generator,
+                startPos.current,
+                endPos.current,
+                position,
+                {
+                    seed: currentSeed.current
+                }
+            );
+
             setElements((prev) => {
                 return [...prev, rect];
+            });
+        } else if (cursorFn === CursorFn.FreeDraw) {
+            const path = generateHandDrawnElement(currentlyDrawnFreeHand);
+            const el: CanvasHandDrawnElement = {
+                id: nanoid(),
+                shape: "handdrawn",
+                x: 0,
+                y: 0,
+                curPos: position,
+                color: "#fffffff",
+                path: path
+            };
+            setElements((prev) => {
+                return [...prev, el];
             });
         }
     };
@@ -202,9 +210,8 @@ function ZagyDraw() {
         const x = e.pageX;
         const y = e.pageY;
         //handle dragging into the canvas
+        e.preventDefault();
         if (isMouseDown && canvas.current && cursorFn === CursorFn.Drag) {
-            e.preventDefault();
-
             if (lastAnimationFrame.current) {
                 cancelAnimationFrame(lastAnimationFrame.current);
             }
@@ -218,42 +225,51 @@ function ZagyDraw() {
                 lastAnimationFrame.current = null;
             });
         }
-        if (
-            isMouseDown &&
-            canvas.current &&
-            cursorFn !== CursorFn.Drag &&
-            cursorFn !== CursorFn.Default
-        ) {
+        if (isMouseDown && canvas.current && roughCanvas.current) {
             // if (!roughCanvas.current) return;
             // const generator = roughCanvas.current.generator;
-
             const norm = normalize(position, x, y);
             endPos.current = norm;
-            if (!roughCanvas.current) return;
             const generator = roughCanvas.current.generator;
-            const rect: CanvasRectElement = {
-                ...generator.rectangle(
-                    startPos.current[0],
-                    startPos.current[1],
-                    endPos.current[0] - startPos.current[0],
-                    endPos.current[1] - startPos.current[1],
+            if (cursorFn === CursorFn.Rect) {
+                const rect: CanvasRectElement = generateRectElement(
+                    generator,
+                    startPos.current,
+                    endPos.current,
+                    position,
                     {
-                        fill: "blue",
-                        stroke: "red",
-                        strokeWidth: 2,
-                        roughness: 0
+                        seed: currentSeed.current
                     }
-                ),
-                id: nanoid(),
-                x: startPos.current[0],
-                y: startPos.current[1],
-                endX: endPos.current[0],
-                endY: endPos.current[1],
-                color: "#0b7285",
-                shape: "rectangle",
-                curPos: position
-            };
-            setPreviewElement(rect);
+                );
+                setPreviewElement(rect);
+            }
+            if (cursorFn === CursorFn.Line) {
+                const line: CanvasLineElement = generateLineElement(
+                    generator,
+                    startPos.current,
+                    endPos.current,
+                    position
+                );
+                setPreviewElement(line);
+            }
+
+            if (cursorFn === CursorFn.FreeDraw) {
+                setCurrentlyDrawnFreeHand((prev) => [
+                    ...prev,
+                    [x - position.x, y - position.y]
+                ]);
+
+                const path = generateHandDrawnElement(currentlyDrawnFreeHand);
+                setPreviewElement({
+                    id: nanoid(),
+                    shape: "handdrawn",
+                    x: 0,
+                    y: 0,
+                    curPos: position,
+                    color: "#fffffff",
+                    path: path
+                } as CanvasHandDrawnElement);
+            }
         }
     };
 
