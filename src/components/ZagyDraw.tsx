@@ -6,6 +6,7 @@ import {
     useState
 } from "react";
 import rough from "roughjs";
+import { nanoid } from "nanoid";
 import { useStore } from "store";
 
 import useGlobalEvent from "hooks/useGlobalEvent";
@@ -23,7 +24,8 @@ const {
 
     setElements,
 
-    setPreviewElement
+    setPreviewElement,
+    setSelectedElements
 } = useStore.getState();
 
 const MAX_ZOOM = 96;
@@ -49,6 +51,10 @@ function ZagyDraw() {
     const startPos = useRef([0, 0]);
     const endPos = useRef([0, 0]);
     const canvasElements = useStore((state) => state.elements);
+    console.log(
+        "🪵 [ZagyDraw.tsx:52] ~ token ~ \x1b[0;32mcanvasElements\x1b[0m = ",
+        canvasElements
+    );
     const handleZoom = (zoomType: "in" | "out") => {
         if (zoomType === "in") {
             const currentZoom = zoom + 12;
@@ -109,9 +115,21 @@ function ZagyDraw() {
             const norm = normalize(position, startX, startY);
             startPos.current = norm;
         } else if (cursorFn === CursorFn.Default) {
-            console.log(
-                getHitElement(canvasElements, [startX, startY], position)
+            const el = getHitElement(
+                canvasElements,
+                [startX, startY],
+                position
             );
+
+            console.log(
+                "🪵 [ZagyDraw.tsx:113] ~ token ~ \x1b[0;32mel\x1b[0m = ",
+                el
+            );
+            if (el !== null) {
+                setSelectedElements(() => [el]);
+            } else {
+                setSelectedElements(() => []);
+            }
         }
     };
     const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {
@@ -136,6 +154,7 @@ function ZagyDraw() {
                         roughness: 0
                     }
                 ),
+                id: nanoid(),
                 x: startPos.current[0],
                 y: startPos.current[1],
                 endX: endPos.current[0],
@@ -158,11 +177,12 @@ function ZagyDraw() {
                     endPos.current[1] - startPos.current[1],
                     {
                         fill: "#0b7285",
-                        stroke: "#0b7285",
+                        stroke: "#B223DB",
                         strokeWidth: 2,
-                        roughness: 0
+                        roughness: 2
                     }
                 ),
+                id: nanoid(),
                 x: startPos.current[0],
                 y: startPos.current[1],
                 endX: endPos.current[0],
@@ -211,7 +231,6 @@ function ZagyDraw() {
             endPos.current = norm;
             if (!roughCanvas.current) return;
             const generator = roughCanvas.current.generator;
-            // TODO insertion preview not working
             const rect: CanvasRectElement = {
                 ...generator.rectangle(
                     startPos.current[0],
@@ -225,6 +244,7 @@ function ZagyDraw() {
                         roughness: 0
                     }
                 ),
+                id: nanoid(),
                 x: startPos.current[0],
                 y: startPos.current[1],
                 endX: endPos.current[0],

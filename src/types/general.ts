@@ -6,6 +6,7 @@ interface Position {
     y: number;
 }
 interface CanvasElement {
+    id: string;
     // absolute x and y to GOD
     shape: Drawable["shape"] | ElementTypes;
     x: number;

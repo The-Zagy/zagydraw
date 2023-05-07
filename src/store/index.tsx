@@ -10,6 +10,7 @@ export type CanvasState<T extends CanvasElement = CanvasElement> = {
     zoomLevel: number;
     elements: T[];
     previewElement: T | null;
+    selectedElements: T[];
 };
 
 type ConfigState = {
@@ -17,7 +18,6 @@ type ConfigState = {
 };
 
 type CanvasActions = {
-    getCanvasState: () => CanvasState;
     setDimensions: (
         width: CanvasState["width"],
         height: CanvasState["height"]
@@ -26,6 +26,9 @@ type CanvasActions = {
     setZoomLevel: (zoomLevel: CanvasState["zoomLevel"]) => void;
     setElements: (callback: (prev: CanvasElement[]) => CanvasElement[]) => void;
     setPreviewElement: (el: CanvasState["previewElement"]) => void;
+    setSelectedElements: (
+        callback: (prev: CanvasElement[]) => CanvasElement[]
+    ) => void;
 };
 
 type ConfigActions = {
@@ -43,18 +46,9 @@ export const useStore = create<
     cursorFn: CursorFn.Drag,
     elements: [],
     previewElement: null,
+    selectedElements: [],
     //actions
     //getCanvasState
-    getCanvasState: () => {
-        return {
-            position: get().position,
-            zoomLevel: get().zoomLevel,
-            width: get().width,
-            height: get().height,
-            elements: get().elements,
-            previewElement: get().previewElement
-        };
-    },
     setPosition: (position) => set({ position }),
     setZoomLevel: (zoomLevel) => set({ zoomLevel }),
     setDimensions: (width, height) => set({ width, height }),
@@ -66,5 +60,10 @@ export const useStore = create<
     },
     setPreviewElement(el) {
         set({ previewElement: el });
+    },
+    setSelectedElements(callback) {
+        set((state) => ({
+            selectedElements: callback(state.selectedElements)
+        }));
     }
 }));
