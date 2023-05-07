@@ -1,13 +1,20 @@
+import rough from "roughjs";
+import clsx from "clsx";
+import { HiOutlineMinus } from "react-icons/hi";
 import { useStore } from "store/index";
 import { CanvasRectElement } from "types/general";
 import InputWithIcon from "./form/input";
+import { generateRectElement } from "utils/canvas/generateElement";
+
+const gen = rough.generator();
 
 const ToolbarLine = () => {
     return <div className=""></div>;
 };
 
 const ToolbarRect: React.FC<{ rect: CanvasRectElement }> = (props) => {
-    const { setElements } = useStore.getState();
+    console.log(props.rect.options.seed);
+    const { setElements, setSelectedElements } = useStore.getState();
     return (
         <div className="flex flex-col gap-3 p-3 text-white">
             <InputWithIcon
@@ -17,14 +24,23 @@ const ToolbarRect: React.FC<{ rect: CanvasRectElement }> = (props) => {
                     defaultValue: props.rect.options.stroke,
                     onKeyDown(e) {
                         if (e.key === "Enter") {
-                            props.rect.options.stroke = (
-                                e.target as HTMLInputElement
-                            ).value;
+                            const rect = generateRectElement(
+                                gen,
+                                [props.rect.x, props.rect.y],
+                                [props.rect.endX, props.rect.endY],
+                                props.rect.curPos,
+                                {
+                                    ...props.rect.options,
+                                    stroke: (e.target as HTMLInputElement).value
+                                }
+                            );
+                            // if i didn't change the selected state will conflict with new id returned from new generate
+                            setSelectedElements(() => [rect]);
                             setElements((prev) => [
                                 ...prev.filter(
                                     (val) => val.id !== props.rect.id
                                 ),
-                                props.rect
+                                rect
                             ]);
                         }
                     }
@@ -37,14 +53,23 @@ const ToolbarRect: React.FC<{ rect: CanvasRectElement }> = (props) => {
                     defaultValue: props.rect.options.fill,
                     onKeyDown(e) {
                         if (e.key === "Enter") {
-                            props.rect.options.fill = (
-                                e.target as HTMLInputElement
-                            ).value;
+                            const rect = generateRectElement(
+                                gen,
+                                [props.rect.x, props.rect.y],
+                                [props.rect.endX, props.rect.endY],
+                                props.rect.curPos,
+                                {
+                                    ...props.rect.options,
+                                    fill: (e.target as HTMLInputElement).value
+                                }
+                            );
+                            // if i didn't change the selected state will conflict with new id returned from new generate
+                            setSelectedElements(() => [rect]);
                             setElements((prev) => [
                                 ...prev.filter(
                                     (val) => val.id !== props.rect.id
                                 ),
-                                props.rect
+                                rect
                             ]);
                         }
                     }
@@ -56,11 +81,21 @@ const ToolbarRect: React.FC<{ rect: CanvasRectElement }> = (props) => {
                     className="text-black"
                     defaultValue={props.rect.options.fillStyle}
                     onChange={(e) => {
-                        // todo => not working guess i need to regenrate shape
-                        props.rect.options.fillStyle = e.target.value;
+                        const rect = generateRectElement(
+                            gen,
+                            [props.rect.x, props.rect.y],
+                            [props.rect.endX, props.rect.endY],
+                            props.rect.curPos,
+                            {
+                                ...props.rect.options,
+                                fillStyle: e.target.value
+                            }
+                        );
+                        // if i didn't change the selected state will conflict with new id returned from new generate
+                        setSelectedElements(() => [rect]);
                         setElements((prev) => [
                             ...prev.filter((val) => val.id !== props.rect.id),
-                            props.rect
+                            rect
                         ]);
                     }}
                 >
@@ -68,6 +103,97 @@ const ToolbarRect: React.FC<{ rect: CanvasRectElement }> = (props) => {
                     <option value="zigzag">Zigzag</option>
                     <option value="dots">dots</option>
                     <option value="hachure">hachure</option>
+                </select>
+            </label>
+            <label>
+                Stroke Width
+                <select
+                    className="text-black"
+                    defaultValue={props.rect.options.fillStyle}
+                    onChange={(e) => {
+                        const rect = generateRectElement(
+                            gen,
+                            [props.rect.x, props.rect.y],
+                            [props.rect.endX, props.rect.endY],
+                            props.rect.curPos,
+                            {
+                                ...props.rect.options,
+                                strokeWidth: +e.target.value
+                            }
+                        );
+                        // if i didn't change the selected state will conflict with new id returned from new generate
+                        setSelectedElements(() => [rect]);
+                        setElements((prev) => [
+                            ...prev.filter((val) => val.id !== props.rect.id),
+                            rect
+                        ]);
+                    }}
+                >
+                    <option value={1}>1</option>
+                    <option value={3}>3</option>
+                    <option value={5}>5</option>
+                </select>
+                {/* <input
+                    className={clsx(
+                        "h-12 w-16 cursor-pointer rounded-l-lg sm:w-14"
+                    )}
+                    type="radio"
+                    value={1}
+                    name="stroke-width"
+                />
+                <HiOutlineMinus className="" /> */}
+            </label>
+            {/* <label>
+                Stroke Width
+                <input
+                    className={clsx(
+                        "h-12 w-16 cursor-pointer rounded-l-lg sm:w-14"
+                    )}
+                    type="radio"
+                    value={2}
+                    name="stroke-width"
+                />
+                <HiOutlineMinus className="" />
+            </label>
+            <label>
+                Stroke Width
+                <input
+                    className={clsx(
+                        "h-12 w-16 cursor-pointer rounded-l-lg sm:w-14"
+                    )}
+                    type="radio"
+                    value={3}
+                    name="stroke-width"
+                />
+                <HiOutlineMinus className="" />
+            </label> */}
+            <label>
+                Stroke style
+                <select
+                    className="text-black"
+                    defaultValue={props.rect.options.fillStyle}
+                    onChange={(e) => {
+                        const rect = generateRectElement(
+                            gen,
+                            [props.rect.x, props.rect.y],
+                            [props.rect.endX, props.rect.endY],
+                            props.rect.curPos,
+                            {
+                                ...props.rect.options,
+                                strokeLineDash:
+                                    +e.target.value === 1 ? [] : [5, 10]
+                            }
+                        );
+                        // if i didn't change the selected state will conflict with new id returned from new generate
+                        setSelectedElements(() => [rect]);
+                        setElements((prev) => [
+                            ...prev.filter((val) => val.id !== props.rect.id),
+                            rect
+                        ]);
+                    }}
+                >
+                    <option value={1}>1</option>
+                    <option value={3}>3</option>
                 </select>
             </label>
         </div>
