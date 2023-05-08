@@ -1,6 +1,7 @@
 import rough from "roughjs";
 import clsx from "clsx";
 import { HiOutlineMinus } from "react-icons/hi";
+import { MdDeleteOutline } from "react-icons/md";
 import { useStore } from "store/index";
 import { CanvasRectElement } from "types/general";
 import InputWithIcon from "./form/input";
@@ -196,6 +197,17 @@ const ToolbarRect: React.FC<{ rect: CanvasRectElement }> = (props) => {
                     <option value={3}>3</option>
                 </select>
             </label>
+            <button
+                className="h-10 w-12 cursor-pointer sm:w-14 hover:bg-zinc-700"
+                onClick={() => {
+                    setSelectedElements(() => []);
+                    setElements((prev) => [
+                        ...prev.filter((val) => val.id !== props.rect.id)
+                    ]);
+                }}
+            >
+                <MdDeleteOutline className="m-auto text-lg" color="white" />
+            </button>
         </div>
     );
 };

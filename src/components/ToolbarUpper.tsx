@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 import { BsSquare, BsSquareFill, BsPencil, BsPencilFill } from "react-icons/bs";
 import { RiCursorLine, RiCursorFill } from "react-icons/ri";
+import { CiEraser } from "react-icons/ci";
 import {
     MdOutlineHorizontalRule,
     MdOutlineBackHand,
@@ -108,6 +109,20 @@ export default function ToolbarUpper() {
                 </button>
                 <button className="h-12 w-16 cursor-pointer rounded-r-lg hover:bg-zinc-700 sm:w-14">
                     <MdOutlineBackHand className="m-auto" color="white" />
+                </button>
+                <button
+                    onClick={() => setCursorFn(CursorFn.Erase)}
+                    className={clsx(
+                        "h-12 w-16 cursor-pointer sm:w-14",
+                        {
+                            "bg-zinc-500": cursorFn === CursorFn.Erase
+                        },
+                        {
+                            "hover:bg-zinc-700": cursorFn !== CursorFn.Erase
+                        }
+                    )}
+                >
+                    <CiEraser className="m-auto" color="white" />
                 </button>
             </div>
         </div>

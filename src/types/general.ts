@@ -37,7 +37,8 @@ enum CursorFn {
     Drag,
     Rect,
     Line,
-    FreeDraw
+    FreeDraw,
+    Erase
 }
 
 export type {

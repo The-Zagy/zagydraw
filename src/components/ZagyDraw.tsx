@@ -66,6 +66,10 @@ function ZagyDraw() {
     const startPos = useRef<[number, number]>([0, 0]);
     const endPos = useRef<[number, number]>([0, 0]);
     const canvasElements = useStore((state) => state.elements);
+    console.log(
+        "🪵 [ZagyDraw.tsx:68] ~ token ~ \x1b[0;32mcanvasElements\x1b[0m = ",
+        canvasElements
+    );
 
     const handleZoom = (zoomType: "in" | "out") => {
         if (zoomType === "in") {
@@ -273,6 +277,22 @@ function ZagyDraw() {
         }
     };
 
+    // todo chaneg to pointer move and delete any hit along the way
+    const handleOnClick: React.MouseEventHandler<HTMLCanvasElement> = (e) => {
+        if (cursorFn === CursorFn.Erase) {
+            const startX = e.pageX;
+            const startY = e.pageY;
+            const el = getHitElement(
+                canvasElements,
+                [startX, startY],
+                position
+            );
+            if (el !== null) {
+                setElements((prev) => prev.filter((val) => val.id !== el.id));
+            }
+        }
+    };
+
     const handleScroll = (e: WheelEvent) => {
         const { deltaY } = e;
         if (!deltaY) return;
@@ -297,6 +317,7 @@ function ZagyDraw() {
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
+            onClick={handleOnClick}
         />
     );
 }
