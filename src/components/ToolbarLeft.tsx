@@ -208,6 +208,37 @@ const ToolbarRect: React.FC<{ rect: CanvasRectElement }> = (props) => {
             >
                 <MdDeleteOutline className="m-auto text-lg" color="white" />
             </button>
+
+            <label className="flex flex-col gap-4 mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                Opacity
+                <input
+                    id="opacity"
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.1}
+                    defaultValue={props.rect.opacity}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                    onChange={(e) => {
+                        const rect = generateRectElement(
+                            gen,
+                            [props.rect.x, props.rect.y],
+                            [props.rect.endX, props.rect.endY],
+                            props.rect.curPos,
+                            {
+                                ...props.rect.options
+                            },
+                            +e.target.value
+                        );
+                        // if i didn't change the selected state will conflict with new id returned from new generate
+                        setSelectedElements(() => [rect]);
+                        setElements((prev) => [
+                            ...prev.filter((val) => val.id !== props.rect.id),
+                            rect
+                        ]);
+                    }}
+                />
+            </label>
         </div>
     );
 };

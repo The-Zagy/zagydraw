@@ -202,7 +202,8 @@ function ZagyDraw() {
                 y: 0,
                 curPos: position,
                 color: "#fffffff",
-                path: path
+                path: path,
+                opacity: 1
             };
             setElements((prev) => {
                 return [...prev, el];
@@ -271,7 +272,8 @@ function ZagyDraw() {
                     y: 0,
                     curPos: position,
                     color: "#fffffff",
-                    path: path
+                    path: path,
+                    opacity: 1
                 } as CanvasHandDrawnElement);
             }
         }

@@ -21,11 +21,16 @@ function isRectVisible(
     const yDiff = Math.abs(rect.y - canvasState.position.x);
     return xDiff < canvasState.width && yDiff < canvasState.height;
 }
+
 export function renderRoughElement(
     el: CanvasRoughElement,
+    ctx: CanvasRenderingContext2D,
     roughCanvas: RoughCanvas
 ) {
+    ctx.save();
+    ctx.globalAlpha = el.opacity;
     roughCanvas.draw(el);
+    ctx.restore();
 }
 function isRect(el: CanvasElement): el is CanvasRectElement {
     return el.shape === "rectangle";
@@ -36,14 +41,13 @@ function isLine(el: CanvasElement): el is CanvasLineElement {
 }
 const renderFreeDrawElement = (
     el: CanvasHandDrawnElement,
-    ctx: CanvasRenderingContext2D,
-
+    ctx: CanvasRenderingContext2D
 ) => {
-    ctx.save()
+    ctx.save();
     ctx.fillStyle = "white";
-    ctx.fill(el.path)
-    ctx.restore()
-}
+    ctx.fill(el.path);
+    ctx.restore();
+};
 // todo this function needs to take any element as argument and call different draw function for different elements
 
 function renderElements<T extends CanvasElement>(
@@ -55,7 +59,8 @@ function renderElements<T extends CanvasElement>(
     elements.forEach((el) => {
         //todo fix this later when more types are added
 
-        if(isRect(el) ||isLine(el))renderRoughElement(el as CanvasRoughElement, roughCanvas);
+        if (isRect(el) || isLine(el))
+            renderRoughElement(el as CanvasRoughElement, ctx, roughCanvas);
         // eslint-disable-next-line
         //@ts-ignore
         else renderFreeDrawElement(el, ctx, canvasState);

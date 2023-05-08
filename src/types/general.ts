@@ -13,6 +13,8 @@ interface CanvasElement {
     y: number;
     color: Color;
     curPos: Position;
+    // todo make it range from 0 to 1
+    opacity: number;
 }
 interface CanvasRoughElement extends CanvasElement, Drawable {}
 interface CanvasRectElement extends CanvasRoughElement {

@@ -4,12 +4,14 @@ import { CanvasLineElement, CanvasRectElement } from "types/general";
 import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
 import { getSvgPathFromStroke } from "utils";
+
 const generateRectElement = (
     generator: RoughGenerator,
     startPos: [number, number],
     endPos: [number, number],
     position: CanvasRectElement["curPos"],
-    options: Options = {}
+    options: Options = {},
+    opacity?: number
 ): CanvasRectElement => {
     return {
         ...generator.rectangle(
@@ -32,44 +34,40 @@ const generateRectElement = (
         endY: endPos[1],
         color: "#0b7285",
         shape: "rectangle",
-        curPos: position
+        curPos: position,
+        opacity: opacity !== undefined ? opacity : 1
     };
 };
+
 const generateLineElement = (
     generator: RoughGenerator,
     startPos: [number, number],
     endPos: [number, number],
     position: CanvasRectElement["curPos"],
-    options: Options = {}
+    options: Options = {},
+    opacity?: number
 ): CanvasLineElement => {
-    return (
-        {
-            ...generator.line(
-                startPos[0],
-                startPos[1],
-                endPos[0],
-                endPos[1],
-                {
-                    fill: "#0b7285",
-                    stroke: "#0b7285",
-                    strokeWidth: 2,
-                    roughness: 0,
-                    ...options
-                }
-            ),
-            id: nanoid(),
-            x: startPos[0],
-            y: startPos[1],
-            endX: endPos[0],
-            endY: endPos[1],
-            color: "#0b7285",
-            shape: "line",
-            curPos: position
-        }
-    )
-}
-        
-const generateHandDrawnElement = (paths:[number,number][])=>{
+    return {
+        ...generator.line(startPos[0], startPos[1], endPos[0], endPos[1], {
+            fill: "#0b7285",
+            stroke: "#0b7285",
+            strokeWidth: 2,
+            roughness: 0,
+            ...options
+        }),
+        id: nanoid(),
+        x: startPos[0],
+        y: startPos[1],
+        endX: endPos[0],
+        endY: endPos[1],
+        color: "#0b7285",
+        shape: "line",
+        curPos: position,
+        opacity: opacity !== undefined ? opacity : 1
+    };
+};
+
+const generateHandDrawnElement = (paths: [number, number][]) => {
     const stroke = getStroke(paths, {
         size: 4,
         smoothing: 0,
@@ -86,9 +84,7 @@ const generateHandDrawnElement = (paths:[number,number][])=>{
         }
     });
     const svgFromStroke = getSvgPathFromStroke(stroke);
-    console.log(svgFromStroke);
-   return new Path2D(svgFromStroke);
-}
-    
+    return new Path2D(svgFromStroke);
+};
 
-export { generateRectElement, generateLineElement,generateHandDrawnElement  };
+export { generateRectElement, generateLineElement, generateHandDrawnElement };
