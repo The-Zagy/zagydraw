@@ -4,6 +4,22 @@ import { Color } from "./util";
 type ElementTypes = "rectangle" | "line" | "text" | "handdrawn";
 type FontsTypeOption = "code" | "hand" | "minecraft";
 
+enum FillStyleOpts {
+    solid,
+    zigzag,
+    dots,
+    hachure
+}
+
+type GlobalConfigOpts = {
+    opacity: number; // 0 -> 1
+    fillStyle: FillStyleOpts;
+    stroke: Color;
+    fill: Color; // bg
+    strokeWidth: 1 | 3 | 6;
+    strokeLineDash: 1 | 3 | 5; // stroke
+};
+
 interface Position {
     x: number;
     y: number;
