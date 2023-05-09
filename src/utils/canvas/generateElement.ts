@@ -1,6 +1,10 @@
 import { RoughGenerator } from "roughjs/bin/generator";
 import { Options } from "roughjs/bin/core";
-import { CanvasLineElement, CanvasRectElement } from "types/general";
+import {
+    CanvasLineElement,
+    CanvasRectElement,
+    CanvasTextElement
+} from "types/general";
 import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
 import { getSvgPathFromStroke } from "utils";
@@ -10,8 +14,7 @@ const generateRectElement = (
     startPos: [number, number],
     endPos: [number, number],
     position: CanvasRectElement["curPos"],
-    options: Options = {},
-    opacity?: number
+    options: Options & { opacity?: number } = {}
 ): CanvasRectElement => {
     return {
         ...generator.rectangle(
@@ -35,7 +38,7 @@ const generateRectElement = (
         color: "#0b7285",
         shape: "rectangle",
         curPos: position,
-        opacity: opacity !== undefined ? opacity : 1
+        opacity: options.opacity !== undefined ? options.opacity : 1
     };
 };
 
@@ -44,8 +47,7 @@ const generateLineElement = (
     startPos: [number, number],
     endPos: [number, number],
     position: CanvasRectElement["curPos"],
-    options: Options = {},
-    opacity?: number
+    options: Options & { opacity?: number } = {}
 ): CanvasLineElement => {
     return {
         ...generator.line(startPos[0], startPos[1], endPos[0], endPos[1], {
@@ -63,7 +65,29 @@ const generateLineElement = (
         color: "#0b7285",
         shape: "line",
         curPos: position,
-        opacity: opacity !== undefined ? opacity : 1
+        opacity: options.opacity !== undefined ? options.opacity : 1
+    };
+};
+
+const generateTextElement = (
+    text: string,
+    startPos: [number, number],
+    endPos: [number, number],
+    position: CanvasRectElement["curPos"],
+    options: { opacity?: number; font?: string } = {}
+): CanvasTextElement => {
+    return {
+        id: nanoid(),
+        text: text,
+        x: startPos[0],
+        y: startPos[1],
+        endX: endPos[0],
+        endY: endPos[1],
+        color: "#FFFFFF",
+        shape: "text",
+        curPos: position,
+        opacity: options.opacity !== undefined ? options.opacity : 1,
+        font: "24px sans-serif"
     };
 };
 
@@ -87,4 +111,9 @@ const generateHandDrawnElement = (paths: [number, number][]) => {
     return new Path2D(svgFromStroke);
 };
 
-export { generateRectElement, generateLineElement, generateHandDrawnElement };
+export {
+    generateRectElement,
+    generateLineElement,
+    generateHandDrawnElement,
+    generateTextElement
+};

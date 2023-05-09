@@ -5,7 +5,8 @@ import type {
     CanvasHandDrawnElement,
     CanvasLineElement,
     CanvasRectElement,
-    CanvasRoughElement
+    CanvasRoughElement,
+    CanvasTextElement
 } from "types/general";
 // todo finish this
 function isRectVisible(
@@ -39,12 +40,35 @@ function isRect(el: CanvasElement): el is CanvasRectElement {
 function isLine(el: CanvasElement): el is CanvasLineElement {
     return el.shape === "line";
 }
+
+function isText(el: CanvasElement): el is CanvasTextElement {
+    return el.shape === "text";
+}
+
+function isHanddrawn(el: CanvasElement): el is CanvasHandDrawnElement {
+    return el.shape === "handdrawn";
+}
+
+function renderTextElement(
+    el: CanvasTextElement,
+    ctx: CanvasRenderingContext2D
+) {
+    ctx.save();
+    ctx.globalAlpha = el.opacity;
+    ctx.font = el.font;
+    ctx.fillStyle = el.color;
+    ctx.textBaseline = "top";
+    ctx.fillText(el.text, el.x, el.y);
+    ctx.restore();
+}
+
 const renderFreeDrawElement = (
     el: CanvasHandDrawnElement,
     ctx: CanvasRenderingContext2D
 ) => {
     ctx.save();
     ctx.fillStyle = "white";
+    ctx.globalAlpha = el.opacity;
     ctx.fill(el.path);
     ctx.restore();
 };
@@ -57,13 +81,13 @@ function renderElements<T extends CanvasElement>(
     canvasState: CanvasState
 ) {
     elements.forEach((el) => {
-        //todo fix this later when more types are added
-
         if (isRect(el) || isLine(el))
             renderRoughElement(el as CanvasRoughElement, ctx, roughCanvas);
-        // eslint-disable-next-line
-        //@ts-ignore
-        else renderFreeDrawElement(el, ctx, canvasState);
+        else if (isText(el)) {
+            renderTextElement(el, ctx);
+        } else if (isHanddrawn(el)) {
+            renderFreeDrawElement(el, ctx);
+        }
     });
 }
 export default renderElements;

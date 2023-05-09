@@ -7,15 +7,15 @@ import {
 } from "react";
 import rough from "roughjs";
 import { useStore } from "store";
-import { getStroke } from "perfect-freehand";
 import useGlobalEvent from "hooks/useGlobalEvent";
 import { RoughCanvas } from "roughjs/bin/canvas";
 
-import { getHitElement, getSvgPathFromStroke, normalize } from "utils";
+import { getHitElement, getSvgPathFromStroke, normalizeToGrid } from "utils";
 import {
     CanvasHandDrawnElement,
     CanvasLineElement,
     CanvasRectElement,
+    CanvasTextElement,
     CursorFn
 } from "types/general";
 import renderScene from "utils/canvas/renderScene";
@@ -23,7 +23,8 @@ import useCursor from "hooks/useCursor";
 import {
     generateHandDrawnElement,
     generateLineElement,
-    generateRectElement
+    generateRectElement,
+    generateTextElement
 } from "utils/canvas/generateElement";
 import { nanoid } from "nanoid";
 
@@ -33,7 +34,7 @@ const {
     setDimensions,
 
     setElements,
-
+    setCursorFn,
     setPreviewElement,
     setSelectedElements
 } = useStore.getState();
@@ -63,6 +64,7 @@ function ZagyDraw() {
         startX: 0,
         startY: 0
     });
+    const [isWriting, setIsWriting] = useState(false);
     const startPos = useRef<[number, number]>([0, 0]);
     const endPos = useRef<[number, number]>([0, 0]);
     const canvasElements = useStore((state) => state.elements);
@@ -86,6 +88,7 @@ function ZagyDraw() {
     const canvas = useRef<HTMLCanvasElement>(null);
     const roughCanvas = useRef<RoughCanvas | null>(null);
     const lastAnimationFrame = useRef<number | null>(null);
+    const textareaInput = useRef<HTMLTextAreaElement>(null);
 
     useLayoutEffect(() => {
         if (canvas.current) {
@@ -123,10 +126,23 @@ function ZagyDraw() {
         previewElement,
         selectedElements
     ]);
+    useEffect(() => {
+        console.log("eff");
+        if (
+            cursorFn === CursorFn.Text &&
+            textareaInput.current !== null &&
+            previewElement !== null &&
+            isWriting === true
+        ) {
+            console.log("run");
+            textareaInput.current.focus();
+        }
+    }, [previewElement, isWriting]);
     useCursor(cursorFn, isMouseDown);
     const handlePointerDown: PointerEventHandler<HTMLCanvasElement> = (e) => {
         //handle dragging into the canvas
         if (!canvas.current) return;
+        if (isWriting && cursorFn === CursorFn.Text) return;
 
         setIsMouseDown(true);
         const startX = e.pageX;
@@ -136,15 +152,19 @@ function ZagyDraw() {
         // draw shape logic?
         if (cursorFn === CursorFn.Rect) {
             currentSeed.current = Math.random() * 1000000;
-            const norm = normalize(position, startX, startY);
+            const norm = normalizeToGrid(position, startX, startY);
             startPos.current = norm;
         } else if (cursorFn === CursorFn.Line) {
-            const norm = normalize(position, startX, startY);
+            const norm = normalizeToGrid(position, startX, startY);
             startPos.current = norm;
         } else if (cursorFn === CursorFn.FreeDraw) {
             setCurrentlyDrawnFreeHand([
                 [startX - position.x, startY - position.y]
             ]);
+        } else if (cursorFn === CursorFn.Text) {
+            const norm = normalizeToGrid(position, startX, startY);
+            startPos.current = norm;
+            setIsWriting(true);
         } else if (cursorFn === CursorFn.Default) {
             const el = getHitElement(
                 canvasElements,
@@ -161,13 +181,28 @@ function ZagyDraw() {
     };
     const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {
         setIsMouseDown(false);
+        // why handle before remove preview? because we want the preview to be set to the current text until finish editing in the text area
+        // in other words we need to take control of preview element from this handler
+        console.log("is", isWriting);
+        if (cursorFn === CursorFn.Text && isWriting) {
+            console.log("prevvvvvvv");
+            const textEl = generateTextElement(
+                "",
+                startPos.current,
+                // todo change start pos to correct pos
+                startPos.current,
+                position
+            );
+            setPreviewElement(textEl);
+            return;
+        }
+        console.log("hrer");
         if (!canvas.current) return;
         if (!roughCanvas.current) return;
         const generator = roughCanvas.current.generator;
+
         setPreviewElement(null);
         if (cursorFn === CursorFn.Line) {
-            // todo don't repeat yourself => NOT WORKING
-            // setNotReady(null);
             const line: CanvasLineElement = generateLineElement(
                 generator,
                 startPos.current,
@@ -178,8 +213,6 @@ function ZagyDraw() {
                 return [...prev, line];
             });
         } else if (cursorFn === CursorFn.Rect) {
-            // todo don't repeat yourself => NOT WORKING
-            // setNotReady(null);
             const rect: CanvasRectElement = generateRectElement(
                 generator,
                 startPos.current,
@@ -233,7 +266,7 @@ function ZagyDraw() {
         if (isMouseDown && canvas.current && roughCanvas.current) {
             // if (!roughCanvas.current) return;
             // const generator = roughCanvas.current.generator;
-            const norm = normalize(position, x, y);
+            const norm = normalizeToGrid(position, x, y);
             endPos.current = norm;
             const generator = roughCanvas.current.generator;
             if (cursorFn === CursorFn.Rect) {
@@ -295,6 +328,22 @@ function ZagyDraw() {
         }
     };
 
+    const handleTextAreaBlur: React.FocusEventHandler<HTMLTextAreaElement> = (
+        e
+    ) => {
+        console.log("blur");
+        console.log("prev", previewElement);
+        if (isWriting && previewElement !== null) {
+            console.log("here2");
+            // todo change to use generate element
+            const el = { ...previewElement, text: e.target.value };
+            setCursorFn(CursorFn.Default);
+            setElements((prev) => [...prev, el]);
+            setPreviewElement(null);
+            setIsWriting(false);
+        }
+    };
+
     const handleScroll = (e: WheelEvent) => {
         const { deltaY } = e;
         if (!deltaY) return;
@@ -313,14 +362,27 @@ function ZagyDraw() {
     useGlobalEvent("wheel", handleScroll);
     useGlobalEvent("resize", handleResize);
     return (
-        <canvas
-            className="h-screen w-screen overflow-hidden"
-            ref={canvas}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onClick={handleOnClick}
-        />
+        <>
+            {cursorFn === CursorFn.Text && isWriting === true ? (
+                <textarea
+                    ref={textareaInput}
+                    onBlur={handleTextAreaBlur}
+                    className="pointer-events-none fixed bg-transparent overflow-hidden resize-none border-2 border-white h-7 text-white outline-none border-none"
+                    style={{
+                        top: mouseCoords.current.startY,
+                        left: mouseCoords.current.startX
+                    }}
+                ></textarea>
+            ) : null}
+            <canvas
+                className="h-screen w-screen overflow-hidden"
+                ref={canvas}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onClick={handleOnClick}
+            />
+        </>
     );
 }
 

@@ -226,9 +226,9 @@ const ToolbarRect: React.FC<{ rect: CanvasRectElement }> = (props) => {
                             [props.rect.endX, props.rect.endY],
                             props.rect.curPos,
                             {
-                                ...props.rect.options
-                            },
-                            +e.target.value
+                                ...props.rect.options,
+                                opacity: +e.target.value
+                            }
                         );
                         // if i didn't change the selected state will conflict with new id returned from new generate
                         setSelectedElements(() => [rect]);

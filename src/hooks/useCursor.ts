@@ -1,6 +1,11 @@
 import { useEffect } from "react";
 import { CursorFn } from "types/general";
 
+/**
+ * hook that set cursor shape according to its current function
+ * @param cursorFn
+ * @param isMouseDown
+ */
 export default function useCursor(cursorFn: CursorFn, isMouseDown: boolean) {
     useEffect(() => {
         switch (cursorFn) {
@@ -20,6 +25,9 @@ export default function useCursor(cursorFn: CursorFn, isMouseDown: boolean) {
                 break;
             case CursorFn.FreeDraw:
                 document.body.style.cursor = "crosshair";
+                break;
+            case CursorFn.Text:
+                document.body.style.cursor = "text";
                 break;
             default:
                 return;

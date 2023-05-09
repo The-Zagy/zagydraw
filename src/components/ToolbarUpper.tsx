@@ -110,7 +110,18 @@ export default function ToolbarUpper() {
                 <button className="h-12 w-16 cursor-pointer rounded-r-lg hover:bg-zinc-700 sm:w-14">
                     <MdOutlineBackHand className="m-auto" color="white" />
                 </button>
-                <button className="h-12 w-16 cursor-pointer rounded-r-lg hover:bg-zinc-700 sm:w-14">
+                <button
+                    onClick={() => setCursorFn(CursorFn.Text)}
+                    className={clsx(
+                        "h-12 w-16 cursor-pointer sm:w-14",
+                        {
+                            "bg-zinc-500": cursorFn === CursorFn.Text
+                        },
+                        {
+                            "hover:bg-zinc-700": cursorFn !== CursorFn.Text
+                        }
+                    )}
+                >
                     <RiText className="m-auto" color="white" />
                 </button>
                 <button
