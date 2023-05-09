@@ -1,23 +1,47 @@
 import { Drawable } from "roughjs/bin/core";
 import { Color } from "./util";
+import { BsType } from "react-icons/bs";
 
 type ElementTypes = "rectangle" | "line" | "text" | "handdrawn";
-type FontsTypeOption = "code" | "hand" | "minecraft";
 
-enum FillStyleOpts {
-    solid,
-    zigzag,
-    dots,
-    hachure
+enum FontTypeOptions {
+    code,
+    hand,
+    minecraft
+
 }
+type FillStyleOptions=
+    "solid"|
+    "zigzag"|
+    "dots"|
+    "hachure"
 
-type GlobalConfigOpts = {
-    opacity: number; // 0 -> 1
-    fillStyle: FillStyleOpts;
+interface SharedOptions   {
+    opacity?: number;
     stroke: Color;
-    fill: Color; // bg
-    strokeWidth: 1 | 3 | 6;
-    strokeLineDash: 1 | 3 | 5; // stroke
+}
+type StrokeLineDash = 1 | 3 | 5;
+type StrokeWidth = 1 | 3 | 6;
+type FontSize = 16 | 24 | 32 | 48;
+interface RoughDrawableOptions extends SharedOptions {
+    strokeWidth: number;
+    strokeLineDash:StrokeLineDash ;
+}
+interface RectOptions extends RoughDrawableOptions {
+    fill: Color;
+    fillStyle: FillStyleOptions;
+    
+}
+interface LineOptions extends RoughDrawableOptions {
+    fill: Color;
+    fillStyle: FillStyleOptions;}
+
+interface TextOptions extends SharedOptions {
+    font:FontTypeOptions
+    fontSize:FontSize
+}
+type GlobalConfigOptions = TextOptions & RectOptions & LineOptions &  {
+    cursorFn: CursorFn;
 };
 
 interface Position {
@@ -77,8 +101,16 @@ export type {
     CanvasRoughElement,
     CanvasRectElement,
     CanvasTextElement,
+    GlobalConfigOptions,
     CanvasHandDrawnElement,
     ElementTypes,
-    Position
+    Position,
+    LineOptions,
+    RectOptions,
+    TextOptions,
+    StrokeLineDash,
+    StrokeWidth,
+    FontSize,
+    FillStyleOptions
 };
-export { CursorFn };
+export { CursorFn,FontTypeOptions };

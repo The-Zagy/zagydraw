@@ -16,7 +16,8 @@ import {
     CanvasLineElement,
     CanvasRectElement,
     CanvasTextElement,
-    CursorFn
+    CursorFn,
+    FontTypeOptions
 } from "types/general";
 import renderScene from "utils/canvas/renderScene";
 import useCursor from "hooks/useCursor";
@@ -27,6 +28,7 @@ import {
     generateTextElement
 } from "utils/canvas/generateElement";
 import { nanoid } from "nanoid";
+import clsx from "clsx";
 
 const {
     setPosition,
@@ -48,6 +50,8 @@ type MouseCoords = {
 
 function ZagyDraw() {
     const position = useStore((state) => state.position);
+    const font = useStore((state) => state.font);
+    const fontSize = useStore((state) => state.fontSize);
     const zoom = useStore((state) => state.zoomLevel);
     const width = useStore((state) => state.width);
     const height = useStore((state) => state.height);
@@ -218,9 +222,8 @@ function ZagyDraw() {
                 startPos.current,
                 endPos.current,
                 position,
-                {
-                    seed: currentSeed.current
-                }
+                {},
+                currentSeed.current
             );
 
             setElements((prev) => {
@@ -275,9 +278,8 @@ function ZagyDraw() {
                     startPos.current,
                     endPos.current,
                     position,
-                    {
-                        seed: currentSeed.current
-                    }
+                    {},
+                    currentSeed.current
                 );
                 setPreviewElement(rect);
             }
@@ -367,7 +369,15 @@ function ZagyDraw() {
                 <textarea
                     ref={textareaInput}
                     onBlur={handleTextAreaBlur}
-                    className="pointer-events-none fixed bg-transparent overflow-hidden resize-none border-2 border-white h-7 text-white outline-none border-none"
+                    className={clsx(
+                        { "font-firacode": font === FontTypeOptions.code },
+                        { "font-handwritten": font === FontTypeOptions.hand },
+                        {
+                            "font-minecraft": font === FontTypeOptions.minecraft
+                        },
+
+                        "pointer-events-none fixed bg-transparent overflow-hidden resize-none border-2 border-white h-7 text-white outline-none border-none"
+                    )}
                     style={{
                         top: mouseCoords.current.startY,
                         left: mouseCoords.current.startX

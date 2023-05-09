@@ -3,7 +3,9 @@ import { Options } from "roughjs/bin/core";
 import {
     CanvasLineElement,
     CanvasRectElement,
-    CanvasTextElement
+    CanvasTextElement,
+    FillStyleOptions,
+    RectOptions
 } from "types/general";
 import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
@@ -14,8 +16,16 @@ const generateRectElement = (
     startPos: [number, number],
     endPos: [number, number],
     position: CanvasRectElement["curPos"],
-    options: Options & { opacity?: number } = {}
+    options: Partial<RectOptions>,
+    seed?: number
 ): CanvasRectElement => {
+    const {opacity,strokeLineDash : tempStrokeLineDash, ...rest} = options;
+    let strokeLineDash:number[]|undefined;
+    if(tempStrokeLineDash === 3 ){
+        strokeLineDash = [5,5]
+    }else if(tempStrokeLineDash === 5){
+        strokeLineDash = [10,10]
+    }
     return {
         ...generator.rectangle(
             startPos[0],
@@ -27,7 +37,9 @@ const generateRectElement = (
                 stroke: "#B223DB",
                 strokeWidth: 2,
                 roughness: 2,
-                ...options
+                strokeLineDash,
+                seed,
+                ...rest
             }
         ),
         id: nanoid(),
@@ -38,7 +50,7 @@ const generateRectElement = (
         color: "#0b7285",
         shape: "rectangle",
         curPos: position,
-        opacity: options.opacity !== undefined ? options.opacity : 1
+        opacity: opacity !== undefined ? opacity : 1
     };
 };
 
@@ -87,7 +99,7 @@ const generateTextElement = (
         shape: "text",
         curPos: position,
         opacity: options.opacity !== undefined ? options.opacity : 1,
-        font: "24px sans-serif"
+        font: "24px Minecraft"
     };
 };
 

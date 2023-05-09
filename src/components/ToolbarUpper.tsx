@@ -14,7 +14,7 @@ export default function ToolbarUpper() {
     const cursorFn = useStore((state) => state.cursorFn);
 
     return (
-        <div className="scrollbar-thin scrollbar-thumb-zinc-600 fixed left-1/2 top-4 w-11/12 -translate-x-1/2 overflow-auto  whitespace-nowrap  rounded-md bg-zinc-800 sm:m-0 sm:w-auto sm:max-w-none">
+        <div className="withFira scrollbar-thin scrollbar-thumb-zinc-600 fixed left-1/2 top-4 w-11/12 -translate-x-1/2 overflow-auto  whitespace-nowrap  rounded-md bg-zinc-800 sm:m-0 sm:w-auto sm:max-w-none">
             <div className="mx-auto w-fit">
                 <button
                     onClick={() => setCursorFn(CursorFn.Default)}
@@ -101,15 +101,6 @@ export default function ToolbarUpper() {
                     <MdOutlineHorizontalRule className="m-auto" color="white" />
                 </button>
 
-                <button className="h-12 w-16 cursor-pointer hover:bg-zinc-700 sm:w-14">
-                    <MdOutlineBackHand className="m-auto" color="white" />
-                </button>
-                <button className="h-12 w-16 cursor-pointer hover:bg-zinc-700 sm:w-14">
-                    <MdOutlineBackHand className="m-auto" color="white" />
-                </button>
-                <button className="h-12 w-16 cursor-pointer rounded-r-lg hover:bg-zinc-700 sm:w-14">
-                    <MdOutlineBackHand className="m-auto" color="white" />
-                </button>
                 <button
                     onClick={() => setCursorFn(CursorFn.Text)}
                     className={clsx(

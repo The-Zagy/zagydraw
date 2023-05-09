@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "FiraCode";
+    src: url("../assets/fonts/FiraCode-VariableFont_wght.ttf")
+        format("truetype");
+}
+@font-face {
+    font-family: "HandWritten";
+    src: url("../assets/fonts/GochiHand-Regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Minecraft";
+    src: url("../assets/fonts/PressStart2P-Regular.ttf") format("truetype");
+}
+
+@layer utilities {
+    .font-firacode {
+        font-family: "FiraCode", monospace;
+    }
+    .font-handwritten {
+        font-family: "HandWritten", Helvetica;
+    }
+    .font-minecraft {
+        font-family: "Minecraft", sans-serif;
+    }
+}

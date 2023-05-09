@@ -1,7 +1,15 @@
 //gitkeep
 //init zustand store
-import { CanvasElement, CursorFn } from "types/general";
+import {
+    CanvasElement,
+    CursorFn,
+    GlobalConfigOptions,
+    FillStyleOptions,
+    FontTypeOptions
+} from "types/general";
 import { create } from "zustand";
+
+type ConfigState = GlobalConfigOptions;
 
 export type CanvasState<T extends CanvasElement = CanvasElement> = {
     width: number;
@@ -11,10 +19,6 @@ export type CanvasState<T extends CanvasElement = CanvasElement> = {
     elements: T[];
     previewElement: T | null;
     selectedElements: T[];
-};
-
-type ConfigState = {
-    cursorFn: CursorFn;
 };
 
 type CanvasActions = {
@@ -30,13 +34,14 @@ type CanvasActions = {
         callback: (prev: CanvasElement[]) => CanvasElement[]
     ) => void;
 };
-
-type ConfigActions = {
-    setCursorFn: (fn: ConfigState["cursorFn"]) => void;
+type ConfigStateActions = {
+    [K in keyof ConfigState as `set${Capitalize<K & string>}`]: (
+        value: ConfigState[K]
+    ) => void;
 };
 
 export const useStore = create<
-    CanvasState & CanvasActions & ConfigActions & ConfigState
+    CanvasState & CanvasActions & ConfigStateActions & ConfigState
 >()((set, get) => ({
     //state
     position: { x: 0, y: 0 },
@@ -65,5 +70,40 @@ export const useStore = create<
         set((state) => ({
             selectedElements: callback(state.selectedElements)
         }));
+    },
+    //ConfigState
+    fill: "#ffffff0",
+    stroke: "#000000",
+    strokeWidth: 1,
+    strokeLineDash: 1,
+    fillStyle: "solid",
+    font: FontTypeOptions.hand,
+    fontSize: 16,
+    opacity: 1,
+
+    //setConfigState
+    setFill(fill) {
+        set({ fill });
+    },
+    setStroke(stroke) {
+        set({ stroke });
+    },
+    setStrokeWidth(strokeWidth) {
+        set({ strokeWidth });
+    },
+    setStrokeLineDash(strokeLineDash) {
+        set({ strokeLineDash });
+    },
+    setFillStyle(fillStyle) {
+        set({ fillStyle });
+    },
+    setFont(font) {
+        set({ font });
+    },
+    setFontSize(fontSize) {
+        set({ fontSize });
+    },
+    setOpacity(opacity) {
+        set({ opacity });
     }
 }));
