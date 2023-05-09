@@ -3,9 +3,10 @@ import clsx from "clsx";
 import { HiOutlineMinus } from "react-icons/hi";
 import { MdDeleteOutline } from "react-icons/md";
 import { useStore } from "store/index";
-import { CanvasRectElement } from "types/general";
+import { ZagyCanvasRectElement } from "types/general";
 import InputWithIcon from "./form/input";
 import { generateRectElement } from "utils/canvas/generateElement";
+import { Color } from "types/util";
 
 const gen = rough.generator();
 
@@ -13,11 +14,12 @@ const ToolbarLine = () => {
     return <div className=""></div>;
 };
 
-const ToolbarRect: React.FC<{ rect: CanvasRectElement }> = (props) => {
+const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
     console.log(props.rect.options.seed);
     const { setElements, setSelectedElements } = useStore.getState();
     return (
         <div className="flex flex-col gap-3 p-3 text-white">
+            {props.rect.text !== undefined ? props.rect.text : null}
             <InputWithIcon
                 labelName={"Stroke"}
                 inputProps={{
@@ -32,7 +34,8 @@ const ToolbarRect: React.FC<{ rect: CanvasRectElement }> = (props) => {
                                 props.rect.curPos,
                                 {
                                     ...props.rect.options,
-                                    stroke: (e.target as HTMLInputElement).value
+                                    stroke: (e.target as HTMLInputElement)
+                                        .value as Color
                                 }
                             );
                             // if i didn't change the selected state will conflict with new id returned from new generate
@@ -61,7 +64,8 @@ const ToolbarRect: React.FC<{ rect: CanvasRectElement }> = (props) => {
                                 props.rect.curPos,
                                 {
                                     ...props.rect.options,
-                                    fill: (e.target as HTMLInputElement).value
+                                    fill: (e.target as HTMLInputElement)
+                                        .value as Color
                                 }
                             );
                             // if i didn't change the selected state will conflict with new id returned from new generate
@@ -259,9 +263,10 @@ export default function ToolbarLeft() {
             <div className="scrollbar-thin scrollbar-thumb-zinc-600 fixed left-2 top-10 h-3/5 w-1/5 overflow-auto  whitespace-nowrap  rounded-md bg-zinc-800 sm:m-0 sm:w-auto sm:max-w-none">
                 <div className="mx-auto w-fit">
                     {/* TODO fix as */}
-                    {selectedElements[0].shape === "rectangle" && (
+                    {(selectedElements[0].shape === "rectangle" ||
+                        selectedElements[0].shape === "text") && (
                         <ToolbarRect
-                            rect={selectedElements[0] as CanvasRectElement}
+                            rect={selectedElements[0] as ZagyCanvasRectElement}
                         />
                     )}
                 </div>

@@ -1,10 +1,23 @@
 import type { CanvasState } from "store";
-import { CanvasLineElement, CanvasRectElement } from "types/general";
+import { ZagyCanvasLineElement, ZagyCanvasRectElement } from "types/general";
 
 export function classNames(...classes: unknown[]): string {
     return classes.filter(Boolean).join(" ");
 }
 
+/**
+ *
+ * @param mousePosX
+ * @param mousePosY
+ * @returns  {[posX, posY]} normalized to 20px grid
+ */
+export function normalizePos(
+    pos: CanvasState["position"],
+    mousePosX: number,
+    mousePosY: number
+): [number, number] {
+    return [mousePosX - pos.x, mousePosY - pos.y];
+}
 /**
  *
  * @param mousePosX
@@ -90,8 +103,8 @@ export function getHitElement(
     //todo deal with stacking elements when stacking is implemented
     mousePos = [mousePos[0] - pos.x, mousePos[1] - pos.y];
     for (let i = 0; i < elements.length; i++) {
-        if (elements[i].shape === "rectangle") {
-            const { x, y, endX, endY } = elements[i] as CanvasRectElement;
+        if (elements[i].shape === "rectangle" || elements[i].shape === "text") {
+            const { x, y, endX, endY } = elements[i] as ZagyCanvasRectElement;
             if (
                 pointInRectangle(
                     [x, y],
@@ -105,7 +118,7 @@ export function getHitElement(
             }
         }
         if (elements[i].shape === "line") {
-            const { x, y, endX, endY } = elements[i] as CanvasLineElement;
+            const { x, y, endX, endY } = elements[i] as ZagyCanvasLineElement;
             if (pointNearLine([x, y], [endX, endY], mousePos)) {
                 return elements[i];
             }

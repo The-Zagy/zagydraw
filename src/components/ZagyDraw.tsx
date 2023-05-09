@@ -10,12 +10,17 @@ import { useStore } from "store";
 import useGlobalEvent from "hooks/useGlobalEvent";
 import { RoughCanvas } from "roughjs/bin/canvas";
 
-import { getHitElement, getSvgPathFromStroke, normalizeToGrid } from "utils";
 import {
-    CanvasHandDrawnElement,
-    CanvasLineElement,
-    CanvasRectElement,
-    CanvasTextElement,
+    getHitElement,
+    getSvgPathFromStroke,
+    normalizePos,
+    normalizeToGrid
+} from "utils";
+import {
+    ZagyCanvasHandDrawnElement,
+    ZagyCanvasLineElement,
+    ZagyCanvasRectElement,
+    ZagyCanvasTextElement,
     CursorFn,
     FontTypeOptions
 } from "types/general";
@@ -34,7 +39,6 @@ const {
     setPosition,
     setZoomLevel,
     setDimensions,
-
     setElements,
     setCursorFn,
     setPreviewElement,
@@ -52,6 +56,8 @@ function ZagyDraw() {
     const position = useStore((state) => state.position);
     const font = useStore((state) => state.font);
     const fontSize = useStore((state) => state.fontSize);
+    const stroke = useStore((state) => state.stroke);
+    const opacity = useStore((state) => state.opacity);
     const zoom = useStore((state) => state.zoomLevel);
     const width = useStore((state) => state.width);
     const height = useStore((state) => state.height);
@@ -131,18 +137,33 @@ function ZagyDraw() {
         selectedElements
     ]);
     useEffect(() => {
-        console.log("eff");
         if (
             cursorFn === CursorFn.Text &&
             textareaInput.current !== null &&
             previewElement !== null &&
             isWriting === true
         ) {
-            console.log("run");
             textareaInput.current.focus();
         }
     }, [previewElement, isWriting]);
+    // each time the global font/fontSize changes i need to sync the canvas context with it because
+    // the ctx font affect how the canvas measure text width/height
+    useEffect(() => {
+        if (!canvas.current || !roughCanvas.current) return;
+        const ctx = canvas.current.getContext("2d");
+        if (!ctx) return;
+        ctx.font =
+            `${fontSize}px ` +
+            (font === FontTypeOptions.code
+                ? "FiraCode"
+                : font === FontTypeOptions.hand
+                ? "HandWritten"
+                : "Minecraft");
+    }, [font, fontSize]);
     useCursor(cursorFn, isMouseDown);
+
+    console.log("sel", selectedElements);
+
     const handlePointerDown: PointerEventHandler<HTMLCanvasElement> = (e) => {
         //handle dragging into the canvas
         if (!canvas.current) return;
@@ -187,37 +208,36 @@ function ZagyDraw() {
         setIsMouseDown(false);
         // why handle before remove preview? because we want the preview to be set to the current text until finish editing in the text area
         // in other words we need to take control of preview element from this handler
-        console.log("is", isWriting);
         if (cursorFn === CursorFn.Text && isWriting) {
-            console.log("prevvvvvvv");
             const textEl = generateTextElement(
                 "",
                 startPos.current,
                 // todo change start pos to correct pos
                 startPos.current,
-                position
+                position,
+                {}
             );
             setPreviewElement(textEl);
             return;
         }
-        console.log("hrer");
         if (!canvas.current) return;
         if (!roughCanvas.current) return;
         const generator = roughCanvas.current.generator;
 
         setPreviewElement(null);
         if (cursorFn === CursorFn.Line) {
-            const line: CanvasLineElement = generateLineElement(
+            const line: ZagyCanvasLineElement = generateLineElement(
                 generator,
                 startPos.current,
                 endPos.current,
-                position
+                position,
+                {}
             );
             setElements((prev) => {
                 return [...prev, line];
             });
         } else if (cursorFn === CursorFn.Rect) {
-            const rect: CanvasRectElement = generateRectElement(
+            const rect: ZagyCanvasRectElement = generateRectElement(
                 generator,
                 startPos.current,
                 endPos.current,
@@ -230,16 +250,21 @@ function ZagyDraw() {
                 return [...prev, rect];
             });
         } else if (cursorFn === CursorFn.FreeDraw) {
+            // todo change this to one function like any other element
             const path = generateHandDrawnElement(currentlyDrawnFreeHand);
-            const el: CanvasHandDrawnElement = {
+            const el: ZagyCanvasHandDrawnElement = {
                 id: nanoid(),
                 shape: "handdrawn",
                 x: 0,
                 y: 0,
                 curPos: position,
-                color: "#fffffff",
                 path: path,
-                opacity: 1
+                options: {
+                    opacity: 1,
+                    stroke: "transparent",
+                    strokeLineDash: [],
+                    strokeWidth: 1
+                }
             };
             setElements((prev) => {
                 return [...prev, el];
@@ -273,7 +298,7 @@ function ZagyDraw() {
             endPos.current = norm;
             const generator = roughCanvas.current.generator;
             if (cursorFn === CursorFn.Rect) {
-                const rect: CanvasRectElement = generateRectElement(
+                const rect: ZagyCanvasRectElement = generateRectElement(
                     generator,
                     startPos.current,
                     endPos.current,
@@ -284,11 +309,12 @@ function ZagyDraw() {
                 setPreviewElement(rect);
             }
             if (cursorFn === CursorFn.Line) {
-                const line: CanvasLineElement = generateLineElement(
+                const line: ZagyCanvasLineElement = generateLineElement(
                     generator,
                     startPos.current,
                     endPos.current,
-                    position
+                    position,
+                    {}
                 );
                 setPreviewElement(line);
             }
@@ -306,10 +332,14 @@ function ZagyDraw() {
                     x: 0,
                     y: 0,
                     curPos: position,
-                    color: "#fffffff",
                     path: path,
-                    opacity: 1
-                } as CanvasHandDrawnElement);
+                    options: {
+                        opacity: 1,
+                        stroke: "transparent",
+                        strokeLineDash: [],
+                        strokeWidth: 1
+                    }
+                } as ZagyCanvasHandDrawnElement);
             }
         }
     };
@@ -333,14 +363,26 @@ function ZagyDraw() {
     const handleTextAreaBlur: React.FocusEventHandler<HTMLTextAreaElement> = (
         e
     ) => {
-        console.log("blur");
-        console.log("prev", previewElement);
+        if (canvas.current === null) return;
+        const ctx = canvas.current.getContext("2d");
+        if (ctx === null) return;
         if (isWriting && previewElement !== null) {
-            console.log("here2");
-            // todo change to use generate element
-            const el = { ...previewElement, text: e.target.value };
+            const text = e.target.value;
+            const width = ctx.measureText(text).width;
+            const norm = normalizePos(
+                previewElement.curPos,
+                previewElement.x + width,
+                previewElement.y + fontSize
+            );
+            const t = generateTextElement(
+                text,
+                [previewElement.x, previewElement.y],
+                [norm[0], norm[1]],
+                previewElement.curPos,
+                {}
+            );
             setCursorFn(CursorFn.Default);
-            setElements((prev) => [...prev, el]);
+            setElements((prev) => [...prev, t]);
             setPreviewElement(null);
             setIsWriting(false);
         }
@@ -365,7 +407,7 @@ function ZagyDraw() {
     useGlobalEvent("resize", handleResize);
     return (
         <>
-            {cursorFn === CursorFn.Text && isWriting === true ? (
+            {isWriting === true ? (
                 <textarea
                     ref={textareaInput}
                     onBlur={handleTextAreaBlur}
@@ -376,11 +418,13 @@ function ZagyDraw() {
                             "font-minecraft": font === FontTypeOptions.minecraft
                         },
 
-                        "pointer-events-none fixed bg-transparent overflow-hidden resize-none border-2 border-white h-7 text-white outline-none border-none"
+                        "pointer-events-none fixed bg-transparent overflow-hidden resize-none border-2 border-white h-7 text-white outline-none border-none p-0 m-0"
                     )}
                     style={{
                         top: mouseCoords.current.startY,
-                        left: mouseCoords.current.startX
+                        left: mouseCoords.current.startX,
+                        fontSize: fontSize + "px",
+                        opacity
                     }}
                 ></textarea>
             ) : null}
