@@ -1,56 +1,75 @@
 import { RoughGenerator } from "roughjs/bin/generator";
 import { Options } from "roughjs/bin/core";
 import {
-    CanvasLineElement,
-    CanvasRectElement,
-    CanvasTextElement,
+    ZagyCanvasLineElement,
+    ZagyCanvasRectElement,
+    ZagyCanvasTextElement,
     FillStyleOptions,
-    RectOptions
+    RectOptions,
+    TextOptions,
+    LineOptions
 } from "types/general";
 import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
 import { getSvgPathFromStroke } from "utils";
+import { useStore } from "store";
+
+const { getConfigState } = useStore.getState();
+
+function normalizeTextOptions(options: Partial<TextOptions>): TextOptions {
+    const globalConfig = getConfigState();
+    return {
+        opacity: options.opacity || globalConfig.opacity,
+        stroke: options.stroke || globalConfig.stroke,
+        strokeLineDash: options.strokeLineDash || globalConfig.strokeLineDash,
+        strokeWidth: options.strokeWidth || globalConfig.strokeWidth,
+        font: options.font || globalConfig.font,
+        fontSize: options.fontSize || globalConfig.fontSize
+    };
+}
+
+function normalizeRectOptions(options: Partial<RectOptions>): RectOptions {
+    const globalConfig = getConfigState();
+    return {
+        fill: options.fill || globalConfig.fill,
+        fillStyle: options.fillStyle || globalConfig.fillStyle,
+        opacity: options.opacity || globalConfig.opacity,
+        stroke: options.stroke || globalConfig.stroke,
+        strokeLineDash: options.strokeLineDash || globalConfig.strokeLineDash,
+        strokeWidth: options.strokeWidth || globalConfig.strokeWidth
+    };
+}
 
 const generateRectElement = (
     generator: RoughGenerator,
     startPos: [number, number],
     endPos: [number, number],
-    position: CanvasRectElement["curPos"],
-    options: Partial<RectOptions>,
+    curPos: ZagyCanvasRectElement["curPos"],
+    options: Partial<RectOptions & { id: string }>,
     seed?: number
-): CanvasRectElement => {
-    const {opacity,strokeLineDash : tempStrokeLineDash, ...rest} = options;
-    let strokeLineDash:number[]|undefined;
-    if(tempStrokeLineDash === 3 ){
-        strokeLineDash = [5,5]
-    }else if(tempStrokeLineDash === 5){
-        strokeLineDash = [10,10]
-    }
+): ZagyCanvasRectElement => {
+    const opts = normalizeRectOptions(options);
+    const r = generator.rectangle(
+        startPos[0],
+        startPos[1],
+        endPos[0] - startPos[0],
+        endPos[1] - startPos[1],
+        {
+            ...opts,
+            roughness: 2,
+            seed
+        }
+    );
     return {
-        ...generator.rectangle(
-            startPos[0],
-            startPos[1],
-            endPos[0] - startPos[0],
-            endPos[1] - startPos[1],
-            {
-                fill: "#0b7285",
-                stroke: "#B223DB",
-                strokeWidth: 2,
-                roughness: 2,
-                strokeLineDash,
-                seed,
-                ...rest
-            }
-        ),
-        id: nanoid(),
+        ...r,
+        id: options.id !== undefined ? options.id : nanoid(),
         x: startPos[0],
         y: startPos[1],
         endX: endPos[0],
         endY: endPos[1],
-        color: "#0b7285",
         shape: "rectangle",
-        curPos: position,
-        opacity: opacity !== undefined ? opacity : 1
+        curPos: curPos,
+        opacity: opts.opacity
     };
 };
 
@@ -58,26 +77,25 @@ const generateLineElement = (
     generator: RoughGenerator,
     startPos: [number, number],
     endPos: [number, number],
-    position: CanvasRectElement["curPos"],
-    options: Options & { opacity?: number } = {}
-): CanvasLineElement => {
+    curPos: ZagyCanvasRectElement["curPos"],
+    options: Partial<LineOptions & { id: string }>
+): ZagyCanvasLineElement => {
+    // todo create normalize line options
+    const opts = normalizeRectOptions(options);
+    const l = generator.line(startPos[0], startPos[1], endPos[0], endPos[1], {
+        roughness: 0,
+        ...opts
+    });
     return {
-        ...generator.line(startPos[0], startPos[1], endPos[0], endPos[1], {
-            fill: "#0b7285",
-            stroke: "#0b7285",
-            strokeWidth: 2,
-            roughness: 0,
-            ...options
-        }),
-        id: nanoid(),
+        ...l,
+        id: options.id || nanoid(),
         x: startPos[0],
         y: startPos[1],
         endX: endPos[0],
         endY: endPos[1],
-        color: "#0b7285",
         shape: "line",
-        curPos: position,
-        opacity: options.opacity !== undefined ? options.opacity : 1
+        curPos: curPos,
+        opacity: opts.opacity
     };
 };
 
@@ -85,21 +103,22 @@ const generateTextElement = (
     text: string,
     startPos: [number, number],
     endPos: [number, number],
-    position: CanvasRectElement["curPos"],
-    options: { opacity?: number; font?: string } = {}
-): CanvasTextElement => {
+    curPos: ZagyCanvasTextElement["curPos"],
+    options: Partial<TextOptions & { id: string }>
+): ZagyCanvasTextElement => {
+    const opts = normalizeTextOptions(options);
     return {
-        id: nanoid(),
+        id: options.id || nanoid(),
         text: text,
         x: startPos[0],
         y: startPos[1],
         endX: endPos[0],
         endY: endPos[1],
-        color: "#FFFFFF",
         shape: "text",
-        curPos: position,
-        opacity: options.opacity !== undefined ? options.opacity : 1,
-        font: "24px Minecraft"
+        curPos: curPos,
+        options: {
+            ...opts
+        }
     };
 };
 

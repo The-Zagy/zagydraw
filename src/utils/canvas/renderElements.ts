@@ -1,16 +1,21 @@
 import { RoughCanvas } from "roughjs/bin/canvas";
 import type { CanvasState } from "store";
-import type {
-    CanvasElement,
-    CanvasHandDrawnElement,
-    CanvasLineElement,
-    CanvasRectElement,
-    CanvasRoughElement,
-    CanvasTextElement
+import {
+    FontTypeOptions,
+    type ZagyCanvasElement,
+    type ZagyCanvasHandDrawnElement,
+    type ZagyCanvasRectElement,
+    type CanvasRoughElement,
+    type ZagyCanvasTextElement,
+    isLine,
+    isRect,
+    isText,
+    isHanddrawn
 } from "types/general";
+
 // todo finish this
 function isRectVisible(
-    rect: CanvasRectElement,
+    rect: ZagyCanvasRectElement,
     canvasState: CanvasState
 ): boolean {
     // we assume that the infinte canvas is in the 4th quarter
@@ -23,6 +28,12 @@ function isRectVisible(
     return xDiff < canvasState.width && yDiff < canvasState.height;
 }
 
+/**
+ * draw any element that extend RoughDrawable, and apply the shared options
+ * @param el
+ * @param ctx
+ * @param roughCanvas
+ */
 export function renderRoughElement(
     el: CanvasRoughElement,
     ctx: CanvasRenderingContext2D,
@@ -33,56 +44,45 @@ export function renderRoughElement(
     roughCanvas.draw(el);
     ctx.restore();
 }
-function isRect(el: CanvasElement): el is CanvasRectElement {
-    return el.shape === "rectangle";
-}
-
-function isLine(el: CanvasElement): el is CanvasLineElement {
-    return el.shape === "line";
-}
-
-function isText(el: CanvasElement): el is CanvasTextElement {
-    return el.shape === "text";
-}
-
-function isHanddrawn(el: CanvasElement): el is CanvasHandDrawnElement {
-    return el.shape === "handdrawn";
-}
 
 function renderTextElement(
-    el: CanvasTextElement,
+    el: ZagyCanvasTextElement,
     ctx: CanvasRenderingContext2D
 ) {
     ctx.save();
-    ctx.globalAlpha = el.opacity;
-    ctx.font = el.font;
-    ctx.fillStyle = el.color;
+    ctx.globalAlpha = el.options.opacity;
+    ctx.font =
+        `${el.options.fontSize}px ` +
+        (el.options.font === FontTypeOptions.code
+            ? "FiraCode"
+            : el.options.font === FontTypeOptions.hand
+            ? "HandWritten"
+            : "Minecraft");
+    ctx.fillStyle = el.options.stroke;
     ctx.textBaseline = "top";
     ctx.fillText(el.text, el.x, el.y);
     ctx.restore();
 }
 
 const renderFreeDrawElement = (
-    el: CanvasHandDrawnElement,
+    el: ZagyCanvasHandDrawnElement,
     ctx: CanvasRenderingContext2D
 ) => {
     ctx.save();
     ctx.fillStyle = "white";
-    ctx.globalAlpha = el.opacity;
+    ctx.globalAlpha = el.options.opacity;
     ctx.fill(el.path);
     ctx.restore();
 };
-// todo this function needs to take any element as argument and call different draw function for different elements
 
-function renderElements<T extends CanvasElement>(
+// todo this function needs to take any element as argument and call different draw function for different elements
+function renderElements<T extends ZagyCanvasElement>(
     elements: T[],
     roughCanvas: RoughCanvas,
-    ctx: CanvasRenderingContext2D,
-    canvasState: CanvasState
+    ctx: CanvasRenderingContext2D
 ) {
     elements.forEach((el) => {
-        if (isRect(el) || isLine(el))
-            renderRoughElement(el as CanvasRoughElement, ctx, roughCanvas);
+        if (isRect(el) || isLine(el)) renderRoughElement(el, ctx, roughCanvas);
         else if (isText(el)) {
             renderTextElement(el, ctx);
         } else if (isHanddrawn(el)) {

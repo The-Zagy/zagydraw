@@ -1,7 +1,7 @@
 //gitkeep
 //init zustand store
 import {
-    CanvasElement,
+    ZagyCanvasElement,
     CursorFn,
     GlobalConfigOptions,
     FillStyleOptions,
@@ -11,7 +11,7 @@ import { create } from "zustand";
 
 type ConfigState = GlobalConfigOptions;
 
-export type CanvasState<T extends CanvasElement = CanvasElement> = {
+export type CanvasState<T extends ZagyCanvasElement = ZagyCanvasElement> = {
     width: number;
     height: number;
     position: { x: number; y: number };
@@ -28,16 +28,20 @@ type CanvasActions = {
     ) => void;
     setPosition: (position: CanvasState["position"]) => void;
     setZoomLevel: (zoomLevel: CanvasState["zoomLevel"]) => void;
-    setElements: (callback: (prev: CanvasElement[]) => CanvasElement[]) => void;
+    setElements: (
+        callback: (prev: ZagyCanvasElement[]) => ZagyCanvasElement[]
+    ) => void;
     setPreviewElement: (el: CanvasState["previewElement"]) => void;
     setSelectedElements: (
-        callback: (prev: CanvasElement[]) => CanvasElement[]
+        callback: (prev: ZagyCanvasElement[]) => ZagyCanvasElement[]
     ) => void;
 };
 type ConfigStateActions = {
     [K in keyof ConfigState as `set${Capitalize<K & string>}`]: (
         value: ConfigState[K]
     ) => void;
+} & {
+    getConfigState: () => ConfigState;
 };
 
 export const useStore = create<
@@ -72,15 +76,27 @@ export const useStore = create<
         }));
     },
     //ConfigState
-    fill: "#ffffff0",
-    stroke: "#000000",
+    fill: "transparent",
+    stroke: "#FFFFFF",
     strokeWidth: 1,
-    strokeLineDash: 1,
-    fillStyle: "solid",
-    font: FontTypeOptions.hand,
-    fontSize: 16,
+    strokeLineDash: [],
+    fillStyle: "hachure",
+    font: FontTypeOptions.minecraft,
+    fontSize: 32,
     opacity: 1,
-
+    getConfigState() {
+        return {
+            cursorFn: get().cursorFn,
+            fill: get().fill,
+            fillStyle: get().fillStyle,
+            font: get().font,
+            fontSize: get().fontSize,
+            opacity: get().opacity,
+            stroke: get().stroke,
+            strokeLineDash: get().strokeLineDash,
+            strokeWidth: get().strokeWidth
+        };
+    },
     //setConfigState
     setFill(fill) {
         set({ fill });

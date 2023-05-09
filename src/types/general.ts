@@ -1,6 +1,5 @@
 import { Drawable } from "roughjs/bin/core";
 import { Color } from "./util";
-import { BsType } from "react-icons/bs";
 
 type ElementTypes = "rectangle" | "line" | "text" | "handdrawn";
 
@@ -8,81 +7,80 @@ enum FontTypeOptions {
     code,
     hand,
     minecraft
-
 }
-type FillStyleOptions=
-    "solid"|
-    "zigzag"|
-    "dots"|
-    "hachure"
+type FillStyleOptions = "solid" | "zigzag" | "dots" | "hachure";
 
-interface SharedOptions   {
-    opacity?: number;
+interface SharedOptions {
+    opacity: number;
     stroke: Color;
+    strokeWidth: number;
+    strokeLineDash: StrokeLineDash;
 }
-type StrokeLineDash = 1 | 3 | 5;
+type StrokeLineDash = number[];
 type StrokeWidth = 1 | 3 | 6;
 type FontSize = 16 | 24 | 32 | 48;
-interface RoughDrawableOptions extends SharedOptions {
-    strokeWidth: number;
-    strokeLineDash:StrokeLineDash ;
-}
-interface RectOptions extends RoughDrawableOptions {
+
+interface RectOptions extends SharedOptions {
     fill: Color;
     fillStyle: FillStyleOptions;
-    
+    opacity: number;
 }
-interface LineOptions extends RoughDrawableOptions {
+
+interface LineOptions extends SharedOptions {
     fill: Color;
-    fillStyle: FillStyleOptions;}
+    fillStyle: FillStyleOptions;
+}
 
 interface TextOptions extends SharedOptions {
-    font:FontTypeOptions
-    fontSize:FontSize
+    font: FontTypeOptions;
+    fontSize: FontSize;
 }
-type GlobalConfigOptions = TextOptions & RectOptions & LineOptions &  {
-    cursorFn: CursorFn;
-};
+
+type GlobalConfigOptions = TextOptions &
+    RectOptions &
+    LineOptions & {
+        cursorFn: CursorFn;
+    };
 
 interface Position {
     x: number;
     y: number;
 }
-interface CanvasElement {
+
+interface ZagyCanvasElement {
     id: string;
-    // absolute x and y to GOD
     shape: ElementTypes;
     x: number;
     y: number;
-    color: Color;
     curPos: Position;
-    // todo make it range from 0 to 1
-    opacity: number;
 }
-type CanvasRoughElement = CanvasElement & Drawable;
-interface CanvasRectElement extends CanvasRoughElement {
+
+type CanvasRoughElement = ZagyCanvasElement & Drawable & { opacity: number };
+
+interface ZagyCanvasRectElement extends CanvasRoughElement {
     shape: "rectangle";
     endX: number;
     endY: number;
 }
 
-interface CanvasLineElement extends CanvasRoughElement {
+interface ZagyCanvasLineElement extends CanvasRoughElement {
     shape: "line";
     endX: number;
     endY: number;
 }
 
-interface CanvasTextElement extends CanvasElement {
+interface ZagyCanvasTextElement extends ZagyCanvasElement {
     shape: "text";
     text: string;
     endX: number;
     endY: number;
-    font: string; // same as css font prop
+    options: TextOptions;
 }
 
-interface CanvasHandDrawnElement extends CanvasElement {
+interface ZagyCanvasHandDrawnElement extends ZagyCanvasElement {
     shape: "handdrawn";
     path: Path2D;
+    options: SharedOptions;
 }
 
 enum CursorFn {
@@ -95,14 +93,30 @@ enum CursorFn {
     Erase
 }
 
+function isRect(el: ZagyCanvasElement): el is ZagyCanvasRectElement {
+    return el.shape === "rectangle";
+}
+
+function isLine(el: ZagyCanvasElement): el is ZagyCanvasLineElement {
+    return el.shape === "line";
+}
+
+function isText(el: ZagyCanvasElement): el is ZagyCanvasTextElement {
+    return el.shape === "text";
+}
+
+function isHanddrawn(el: ZagyCanvasElement): el is ZagyCanvasHandDrawnElement {
+    return el.shape === "handdrawn";
+}
+
 export type {
-    CanvasElement,
-    CanvasLineElement,
+    ZagyCanvasElement,
+    ZagyCanvasLineElement,
     CanvasRoughElement,
-    CanvasRectElement,
-    CanvasTextElement,
+    ZagyCanvasRectElement,
+    ZagyCanvasTextElement,
     GlobalConfigOptions,
-    CanvasHandDrawnElement,
+    ZagyCanvasHandDrawnElement,
     ElementTypes,
     Position,
     LineOptions,
@@ -113,4 +127,4 @@ export type {
     FontSize,
     FillStyleOptions
 };
-export { CursorFn,FontTypeOptions };
+export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn };
