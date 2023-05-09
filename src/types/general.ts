@@ -1,6 +1,6 @@
 import { Drawable } from "roughjs/bin/core";
 import { Color } from "./util";
-import { BsType } from "react-icons/bs";
+
 
 type ElementTypes = "rectangle" | "line" | "text" | "handdrawn";
 
