@@ -65,9 +65,11 @@ function ZagyDraw() {
     const previewElement = useStore((state) => state.previewElement);
     const selectedElements = useStore((state) => state.selectedElements);
     const currentSeed = useRef<number>(Math.random() * 1000000);
+    const [currentText, setCurrentText] = useState<string>("");
     const [currentlyDrawnFreeHand, setCurrentlyDrawnFreeHand] = useState<
         [number, number][]
     >([]);
+
     const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
 
     const mouseCoords = useRef<MouseCoords>({
@@ -78,10 +80,6 @@ function ZagyDraw() {
     const startPos = useRef<[number, number]>([0, 0]);
     const endPos = useRef<[number, number]>([0, 0]);
     const canvasElements = useStore((state) => state.elements);
-    console.log(
-        "🪵 [ZagyDraw.tsx:68] ~ token ~ \x1b[0;32mcanvasElements\x1b[0m = ",
-        canvasElements
-    );
 
     const handleZoom = (zoomType: "in" | "out") => {
         if (zoomType === "in") {
@@ -161,8 +159,6 @@ function ZagyDraw() {
                 : "Minecraft");
     }, [font, fontSize]);
     useCursor(cursorFn, isMouseDown);
-
-    console.log("sel", selectedElements);
 
     const handlePointerDown: PointerEventHandler<HTMLCanvasElement> = (e) => {
         //handle dragging into the canvas
@@ -363,6 +359,7 @@ function ZagyDraw() {
     const handleTextAreaBlur: React.FocusEventHandler<HTMLTextAreaElement> = (
         e
     ) => {
+        setCurrentText("");
         if (canvas.current === null) return;
         const ctx = canvas.current.getContext("2d");
         if (ctx === null) return;
@@ -374,6 +371,7 @@ function ZagyDraw() {
                 previewElement.x + width,
                 previewElement.y + fontSize
             );
+            console.log("text", text);
             const t = generateTextElement(
                 text,
                 [previewElement.x, previewElement.y],
@@ -408,25 +406,36 @@ function ZagyDraw() {
     return (
         <>
             {isWriting === true ? (
-                <textarea
-                    ref={textareaInput}
-                    onBlur={handleTextAreaBlur}
-                    className={clsx(
-                        { "font-firacode": font === FontTypeOptions.code },
-                        { "font-handwritten": font === FontTypeOptions.hand },
-                        {
-                            "font-minecraft": font === FontTypeOptions.minecraft
-                        },
-
-                        "pointer-events-none fixed bg-transparent overflow-hidden resize-none border-2 border-white h-7 text-white outline-none border-none p-0 m-0"
-                    )}
+                <div
+                    className="grow-wrap pointer-events-none fixed bg-transparent border"
+                    data-replicated-value={currentText}
                     style={{
                         top: mouseCoords.current.startY,
                         left: mouseCoords.current.startX,
                         fontSize: fontSize + "px",
                         opacity
                     }}
-                ></textarea>
+                >
+                    <textarea
+                        ref={textareaInput}
+                        onBlur={handleTextAreaBlur}
+                        value={currentText}
+                        onChange={(e) => setCurrentText(e.target.value)}
+                        className={clsx(
+                            { "font-firacode": font === FontTypeOptions.code },
+                            {
+                                "font-handwritten":
+                                    font === FontTypeOptions.hand
+                            },
+                            {
+                                "font-minecraft":
+                                    font === FontTypeOptions.minecraft
+                            },
+
+                            " bg-transparent  text-white outline-none  p-0 m-0"
+                        )}
+                    />
+                </div>
             ) : null}
             <canvas
                 className="h-screen w-screen overflow-hidden"
