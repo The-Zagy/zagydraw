@@ -161,11 +161,10 @@ function ZagyDraw() {
     useCursor(cursorFn, isMouseDown);
 
     const handlePointerDown: PointerEventHandler<HTMLCanvasElement> = (e) => {
-        //handle dragging into the canvas
-        if (!canvas.current) return;
-        if (isWriting && cursorFn === CursorFn.Text) return;
-
         setIsMouseDown(true);
+        if (!canvas.current) return;
+        // if (isWriting && cursorFn === CursorFn.Text) return;
+
         const startX = e.pageX;
         const startY = e.pageY;
 
