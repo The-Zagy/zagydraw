@@ -23,7 +23,8 @@ import {
     ZagyCanvasRectElement,
     ZagyCanvasTextElement,
     CursorFn,
-    FontTypeOptions
+    FontTypeOptions,
+    ZagyCanvasElement
 } from "types/general";
 import renderScene from "utils/canvas/renderScene";
 import useCursor from "hooks/useCursor";
@@ -36,6 +37,7 @@ import {
 import { nanoid } from "nanoid";
 import clsx from "clsx";
 import useRenderScene from "hooks/useRenderScene";
+import { d } from "vitest/dist/types-e3c9754d";
 
 const {
     setPosition,
@@ -67,6 +69,8 @@ function ZagyDraw() {
     const previewElement = useStore((state) => state.previewElement);
     const selectedElements = useStore((state) => state.selectedElements);
     const currentSeed = useRef<number>(Math.random() * 1000000);
+    const willDelete = useRef<boolean>(false);
+    const [deletedElements, setDeletedElements] = useState<string[]>([]);
     const [currentText, setCurrentText] = useState<string>("");
     const [currentlyDrawnFreeHand, setCurrentlyDrawnFreeHand] = useState<
         [number, number][]
@@ -189,6 +193,10 @@ function ZagyDraw() {
     };
 
     const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {
+        if (willDelete.current) {
+            setElements((prev) => prev.filter((val) => !val.willDelete));
+            willDelete.current = false;
+        }
         if (!canvas.current) return;
         if (!roughCanvas.current) return;
         const generator = roughCanvas.current.generator;
@@ -287,8 +295,7 @@ function ZagyDraw() {
                     currentSeed.current
                 );
                 setPreviewElement(rect);
-            }
-            if (cursorFn === CursorFn.Line) {
+            } else if (cursorFn === CursorFn.Line) {
                 const line: ZagyCanvasLineElement = generateLineElement(
                     generator,
                     startPos.current,
@@ -297,9 +304,7 @@ function ZagyDraw() {
                     {}
                 );
                 setPreviewElement(line);
-            }
-
-            if (cursorFn === CursorFn.FreeDraw) {
+            } else if (cursorFn === CursorFn.FreeDraw) {
                 setCurrentlyDrawnFreeHand((prev) => [
                     ...prev,
                     [x - position.x, y - position.y]
@@ -320,22 +325,18 @@ function ZagyDraw() {
                         strokeWidth: 1
                     }
                 } as ZagyCanvasHandDrawnElement);
-            }
-        }
-    };
-
-    // todo chaneg to pointer move and delete any hit along the way
-    const handleOnClick: React.MouseEventHandler<HTMLCanvasElement> = (e) => {
-        if (cursorFn === CursorFn.Erase) {
-            const startX = e.pageX;
-            const startY = e.pageY;
-            const el = getHitElement(
-                canvasElements,
-                [startX, startY],
-                position
-            );
-            if (el !== null) {
-                setElements((prev) => prev.filter((val) => val.id !== el.id));
+            } else if (cursorFn === CursorFn.Erase) {
+                const el = getHitElement(canvasElements, [x, y], position);
+                if (el !== null) {
+                    willDelete.current = true;
+                    setElements((prev) =>
+                        prev.map((val) =>
+                            val.id === el.id
+                                ? { ...val, willDelete: true }
+                                : val
+                        )
+                    );
+                }
             }
         }
     };
@@ -420,7 +421,6 @@ function ZagyDraw() {
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
-                onClick={handleOnClick}
             />
         </>
     );

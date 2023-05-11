@@ -40,7 +40,13 @@ export function renderRoughElement(
     roughCanvas: RoughCanvas
 ) {
     ctx.save();
-    ctx.globalAlpha = el.opacity;
+    let opacity:number;
+    if(el.willDelete){
+        opacity = el.opacity * .5;
+    }else{
+        opacity = el.opacity;
+    }
+    ctx.globalAlpha =opacity ;
     roughCanvas.draw(el);
     ctx.restore();
 }
@@ -84,12 +90,14 @@ function renderElements<T extends ZagyCanvasElement>(
     ctx: CanvasRenderingContext2D
 ) {
     elements.forEach((el) => {
+
         if (isRect(el) || isLine(el)) renderRoughElement(el, ctx, roughCanvas);
         else if (isText(el)) {
             renderTextElement(el, ctx);
         } else if (isHanddrawn(el)) {
             renderFreeDrawElement(el, ctx);
         }
+ 
     });
 }
 export default renderElements;

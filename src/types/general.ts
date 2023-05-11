@@ -53,6 +53,7 @@ interface ZagyCanvasElement {
     x: number;
     y: number;
     curPos: Position;
+    willDelete?: boolean;
 }
 
 type CanvasRoughElement = ZagyCanvasElement & Drawable & { opacity: number };

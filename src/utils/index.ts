@@ -52,15 +52,7 @@ const makeVector = (
 ): [number, number] => {
     return [p2[0] - p1[0], p2[1] - p1[1]];
 };
-/**
- *
- * @param A  point A of rectangle
- * @param B  point B of rectangle
- * @param _  point C of rectangle
- * @param D  point D of rectangle
- * @param M  point M to check
- * @returns  true if point M is inside rectangle
- */
+
 const pointNearLine = (
     A: [number, number],
     B: [number, number],
@@ -76,7 +68,15 @@ const pointNearLine = (
     // 3 is the threshold for now
     if (diff < 3) return true;
 };
-
+/**
+ *
+ * @param A  point A of rectangle
+ * @param B  point B of rectangle
+ * @param _  point C of rectangle
+ * @param D  point D of rectangle
+ * @param M  point M to check
+ * @returns  true if point M is inside rectangle
+ */
 const pointInRectangle = (
     A: [number, number],
     B: [number, number],
