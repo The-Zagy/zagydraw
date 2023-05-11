@@ -14,20 +14,21 @@ export default function ToolbarUpper() {
     const cursorFn = useStore((state) => state.cursorFn);
 
     return (
-        <div className="withFira scrollbar-thin scrollbar-thumb-zinc-600 fixed left-1/2 top-4 w-11/12 -translate-x-1/2 overflow-auto  whitespace-nowrap  rounded-md bg-zinc-800 sm:m-0 sm:w-auto sm:max-w-none">
+        <div className="withFira scrollbar-thin scrollbar-thumb-zinc-600 fixed left-1/2 top-4 w-11/12 -translate-x-1/2 overflow-auto  whitespace-nowrap  rounded-md bg-primary-600 sm:m-0 sm:w-auto sm:max-w-none py-1">
             <div className="mx-auto w-fit">
                 <button
                     onClick={() => setCursorFn(CursorFn.Default)}
                     className={clsx(
-                        "h-12 w-16 cursor-pointer rounded-l-lg sm:w-14",
-                        { "bg-zinc-500": cursorFn === CursorFn.Default },
+                        "h-12 w-16 cursor-pointer rounded-l-lg sm:w-14 rounded-2xl text-xl",
+                        { "bg-background-700": cursorFn === CursorFn.Default },
                         {
-                            "hover:bg-zinc-700": cursorFn !== CursorFn.Default
+                            "hover:bg-primary-400":
+                                cursorFn !== CursorFn.Default
                         }
                     )}
                 >
                     {cursorFn === CursorFn.Default ? (
-                        <RiCursorFill className="m-auto" color="white" />
+                        <RiCursorFill className="m-auto text-white" />
                     ) : (
                         <RiCursorLine className="m-auto" color="white" />
                     )}
@@ -35,12 +36,13 @@ export default function ToolbarUpper() {
                 <button
                     onClick={() => setCursorFn(CursorFn.FreeDraw)}
                     className={clsx(
-                        "h-12 w-16 cursor-pointer sm:w-14",
+                        "h-12 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
                         {
-                            "bg-zinc-500": cursorFn === CursorFn.FreeDraw
+                            "bg-background-700": cursorFn === CursorFn.FreeDraw
                         },
                         {
-                            "hover:bg-zinc-700": cursorFn !== CursorFn.FreeDraw
+                            "hover:bg-primary-400":
+                                cursorFn !== CursorFn.FreeDraw
                         }
                     )}
                 >
@@ -52,12 +54,12 @@ export default function ToolbarUpper() {
                 </button>
                 <button
                     className={clsx(
-                        "h-12 w-16 cursor-pointer sm:w-14",
+                        "h-12 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
                         {
-                            "bg-zinc-500": cursorFn === CursorFn.Drag
+                            "bg-background-700": cursorFn === CursorFn.Drag
                         },
                         {
-                            "hover:bg-zinc-700": cursorFn !== CursorFn.Drag
+                            "hover:bg-primary-400": cursorFn !== CursorFn.Drag
                         }
                     )}
                     onClick={() => setCursorFn(CursorFn.Drag)}
@@ -71,12 +73,12 @@ export default function ToolbarUpper() {
                 <button
                     onClick={() => setCursorFn(CursorFn.Rect)}
                     className={clsx(
-                        "h-12 w-16 cursor-pointer sm:w-14",
+                        "h-12 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
                         {
-                            "bg-zinc-500": cursorFn === CursorFn.Rect
+                            "bg-background-700": cursorFn === CursorFn.Rect
                         },
                         {
-                            "hover:bg-zinc-700": cursorFn !== CursorFn.Rect
+                            "hover:bg-primary-400": cursorFn !== CursorFn.Rect
                         }
                     )}
                 >
@@ -89,12 +91,12 @@ export default function ToolbarUpper() {
                 <button
                     onClick={() => setCursorFn(CursorFn.Line)}
                     className={clsx(
-                        "h-12 w-16 cursor-pointer sm:w-14",
+                        "h-12 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
                         {
-                            "bg-zinc-500": cursorFn === CursorFn.Line
+                            "bg-background-700": cursorFn === CursorFn.Line
                         },
                         {
-                            "hover:bg-zinc-700": cursorFn !== CursorFn.Line
+                            "hover:bg-primary-400": cursorFn !== CursorFn.Line
                         }
                     )}
                 >
@@ -104,12 +106,12 @@ export default function ToolbarUpper() {
                 <button
                     onClick={() => setCursorFn(CursorFn.Text)}
                     className={clsx(
-                        "h-12 w-16 cursor-pointer sm:w-14",
+                        "h-12 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
                         {
-                            "bg-zinc-500": cursorFn === CursorFn.Text
+                            "bg-background-700": cursorFn === CursorFn.Text
                         },
                         {
-                            "hover:bg-zinc-700": cursorFn !== CursorFn.Text
+                            "hover:bg-primary-400": cursorFn !== CursorFn.Text
                         }
                     )}
                 >
@@ -118,12 +120,12 @@ export default function ToolbarUpper() {
                 <button
                     onClick={() => setCursorFn(CursorFn.Erase)}
                     className={clsx(
-                        "h-12 w-16 cursor-pointer sm:w-14",
+                        "h-12 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
                         {
-                            "bg-zinc-500": cursorFn === CursorFn.Erase
+                            "bg-background-700": cursorFn === CursorFn.Erase
                         },
                         {
-                            "hover:bg-zinc-700": cursorFn !== CursorFn.Erase
+                            "hover:bg-primary-400": cursorFn !== CursorFn.Erase
                         }
                     )}
                 >

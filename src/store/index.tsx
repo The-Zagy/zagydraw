@@ -76,13 +76,13 @@ export const useStore = create<
         }));
     },
     //ConfigState
-    fill: "transparent",
-    stroke: "#28B99A",
-    strokeWidth: 1,
+    fill: "#A7A7A7",
+    stroke: "#9b59b6",
+    strokeWidth: 5,
     strokeLineDash: [],
-    fillStyle: "hachure",
-    font: FontTypeOptions.hand,
-    fontSize: 32,
+    fillStyle: "solid",
+    font: FontTypeOptions.minecraft,
+    fontSize: 48,
     opacity: 1,
     getConfigState() {
         return {
