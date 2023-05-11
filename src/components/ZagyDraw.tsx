@@ -5,6 +5,7 @@ import {
     useRef,
     useState
 } from "react";
+import { throttle } from "throttle-debounce";
 import rough from "roughjs";
 import { useStore } from "store";
 import useGlobalEvent from "hooks/useGlobalEvent";
@@ -116,14 +117,20 @@ function ZagyDraw() {
         if (!canvas.current || !roughCanvas.current) return;
         const ctx = canvas.current.getContext("2d");
         if (!ctx) return;
-        renderScene(roughCanvas.current, ctx, {
-            width,
-            height,
-            position,
-            elements: canvasElements,
-            zoomLevel: zoom,
-            previewElement: previewElement,
-            selectedElements: selectedElements
+        if (lastAnimationFrame.current) {
+            cancelAnimationFrame(lastAnimationFrame.current);
+        }
+        lastAnimationFrame.current = requestAnimationFrame(() => {
+            renderScene(roughCanvas.current, ctx, {
+                width,
+                height,
+                position,
+                elements: canvasElements,
+                zoomLevel: zoom,
+                previewElement: previewElement,
+                selectedElements: selectedElements
+            });
+            lastAnimationFrame.current = null;
         });
     }, [
         width,
@@ -273,18 +280,13 @@ function ZagyDraw() {
         //handle dragging into the canvas
         e.preventDefault();
         if (isMouseDown && canvas.current && cursorFn === CursorFn.Drag) {
-            if (lastAnimationFrame.current) {
-                cancelAnimationFrame(lastAnimationFrame.current);
-            }
-            lastAnimationFrame.current = requestAnimationFrame(() => {
-                // calculate how far the mouse has been moved
-                const walkX = x - mouseCoords.current.startX;
-                const walkY = y - mouseCoords.current.startY;
-                // set the mouse position to the current position
-                mouseCoords.current = { startX: x, startY: y };
-                setPosition({ x: position.x + walkX, y: position.y + walkY });
-                lastAnimationFrame.current = null;
-            });
+            // calculate how far the mouse has been moved
+            const walkX = x - mouseCoords.current.startX;
+            const walkY = y - mouseCoords.current.startY;
+            // set the mouse position to the current position
+            mouseCoords.current = { startX: x, startY: y };
+            setPosition({ x: position.x + walkX, y: position.y + walkY });
+            lastAnimationFrame.current = null;
         }
         if (isMouseDown && canvas.current && roughCanvas.current) {
             // if (!roughCanvas.current) return;

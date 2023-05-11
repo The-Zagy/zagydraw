@@ -28,7 +28,7 @@ function renderScene(
             : canvasState.elements,
         roughCanvas,
         ctx,
-        canvasState
+        
     );
     ctx.restore();
 }

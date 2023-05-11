@@ -16,7 +16,6 @@ export default function useCursor(cursorFn: CursorFn, isMouseDown: boolean) {
             case CursorFn.Rect:
                 document.body.style.cursor = "crosshair";
                 break;
-
             case CursorFn.Line:
                 document.body.style.cursor = "crosshair";
                 break;
@@ -28,6 +27,9 @@ export default function useCursor(cursorFn: CursorFn, isMouseDown: boolean) {
                 break;
             case CursorFn.Text:
                 document.body.style.cursor = "text";
+                break;
+            case CursorFn.Erase:
+                document.body.style.cursor = "crosshair";
                 break;
             default:
                 return;
