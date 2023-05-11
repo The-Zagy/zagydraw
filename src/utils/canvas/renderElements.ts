@@ -78,7 +78,14 @@ const renderFreeDrawElement = (
 ) => {
     ctx.save();
     ctx.fillStyle = "white";
-    ctx.globalAlpha = el.options.opacity;
+    let opacity:number;
+    if(el.willDelete){
+        opacity = el.options.opacity * .5;
+    }else{
+        opacity = el.options.opacity;
+    }
+  
+    ctx.globalAlpha = opacity;
     ctx.fill(el.path);
     ctx.restore();
 };

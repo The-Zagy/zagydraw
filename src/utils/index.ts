@@ -1,5 +1,5 @@
 import type { CanvasState } from "store";
-import { ZagyCanvasLineElement, ZagyCanvasRectElement } from "types/general";
+import { ZagyCanvasHandDrawnElement, ZagyCanvasLineElement, ZagyCanvasRectElement } from "types/general";
 
 export function classNames(...classes: unknown[]): string {
     return classes.filter(Boolean).join(" ");
@@ -94,9 +94,12 @@ const pointInRectangle = (
     const AD_AD = dotProduct(AD, AD);
     return 0 < AM_AB && AM_AB < AB_AB && 0 < AM_AD && AM_AD < AD_AD;
 };
-
+const pointInPath = (ctx: CanvasRenderingContext2D ,path: Path2D, x: number, y: number): boolean => {
+    return ctx.isPointInPath(path, x, y);
+};
 export function getHitElement(
     elements: CanvasState["elements"],
+    ctx: CanvasRenderingContext2D,
     mousePos: [number, number],
     pos: CanvasState["position"]
 ): null | CanvasState["elements"][number] {
@@ -117,12 +120,19 @@ export function getHitElement(
                 return elements[i];
             }
         }
-        if (elements[i].shape === "line") {
+        else if (elements[i].shape === "line") {
             const { x, y, endX, endY } = elements[i] as ZagyCanvasLineElement;
             if (pointNearLine([x, y], [endX, endY], mousePos)) {
                 return elements[i];
             }
         }
+        else if (elements[i].shape === "handdrawn") {
+            const { path } = elements[i] as ZagyCanvasHandDrawnElement;
+            if (pointInPath(ctx,path, mousePos[0] , mousePos[1] )) {
+                return elements[i];
+            }
+        }
+
     }
     return null;
 }

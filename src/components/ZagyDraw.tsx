@@ -177,9 +177,13 @@ function ZagyDraw() {
             }
         };
         const selectElement = () => {
+            if (!canvas.current) return;
+            const ctx = canvas.current.getContext("2d");
+            if (!ctx) return;
             if (cursorFn === CursorFn.Default) {
                 const el = getHitElement(
                     canvasElements,
+                    ctx,
                     [startX, startY],
                     position
                 );
@@ -275,8 +279,12 @@ function ZagyDraw() {
     };
     const handlePointerMove: PointerEventHandler<HTMLCanvasElement> = (e) => {
         // get the current mouse position
+        if (!canvas.current) return;
+        const ctx = canvas.current.getContext("2d");
+        if (!ctx) return;
         const x = e.pageX;
         const y = e.pageY;
+
         //handle dragging into the canvas
         e.preventDefault();
         const dragIntoCanvas = () => {
@@ -343,7 +351,7 @@ function ZagyDraw() {
         };
         const deleteStart = () => {
             if (cursorFn === CursorFn.Erase) {
-                const el = getHitElement(canvasElements, [x, y], position);
+                const el = getHitElement(canvasElements, ctx, [x, y], position);
                 if (el !== null) {
                     willDelete.current = true;
                     setElements((prev) =>
