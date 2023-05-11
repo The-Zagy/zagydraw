@@ -35,6 +35,7 @@ import {
 } from "utils/canvas/generateElement";
 import { nanoid } from "nanoid";
 import clsx from "clsx";
+import useRenderScene from "hooks/useRenderScene";
 
 const {
     setPosition,
@@ -59,7 +60,7 @@ function ZagyDraw() {
     const fontSize = useStore((state) => state.fontSize);
     const stroke = useStore((state) => state.stroke);
     const opacity = useStore((state) => state.opacity);
-    const zoom = useStore((state) => state.zoomLevel);
+    const zoomLevel = useStore((state) => state.zoomLevel);
     const width = useStore((state) => state.width);
     const height = useStore((state) => state.height);
     const cursorFn = useStore((state) => state.cursorFn);
@@ -84,19 +85,18 @@ function ZagyDraw() {
 
     const handleZoom = (zoomType: "in" | "out") => {
         if (zoomType === "in") {
-            const currentZoom = zoom + 12;
+            const currentZoom = zoomLevel + 12;
             if (currentZoom > MAX_ZOOM) return;
             setZoomLevel(currentZoom);
             return;
         }
-        const currentZoom = zoom - 12;
+        const currentZoom = zoomLevel - 12;
         if (currentZoom <= MIN_ZOOM) return;
         setZoomLevel(currentZoom);
     };
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const roughCanvas = useRef<RoughCanvas | null>(null);
-    const lastAnimationFrame = useRef<number | null>(null);
     const textareaInput = useRef<HTMLTextAreaElement>(null);
 
     useLayoutEffect(() => {
@@ -113,34 +113,15 @@ function ZagyDraw() {
         if (roughCanvas.current || !canvas.current) return;
         roughCanvas.current = rough.canvas(canvas.current);
     }, []);
-    useEffect(() => {
-        if (!canvas.current || !roughCanvas.current) return;
-        const ctx = canvas.current.getContext("2d");
-        if (!ctx) return;
-        if (lastAnimationFrame.current) {
-            cancelAnimationFrame(lastAnimationFrame.current);
-        }
-        lastAnimationFrame.current = requestAnimationFrame(() => {
-            renderScene(roughCanvas.current, ctx, {
-                width,
-                height,
-                position,
-                elements: canvasElements,
-                zoomLevel: zoom,
-                previewElement: previewElement,
-                selectedElements: selectedElements
-            });
-            lastAnimationFrame.current = null;
-        });
-    }, [
+    useRenderScene(roughCanvas.current, canvas.current?.getContext("2d"), {
         width,
         height,
         position,
-        zoom,
-        canvasElements,
+        zoomLevel,
+        elements: canvasElements,
         previewElement,
         selectedElements
-    ]);
+    });
     useEffect(() => {
         if (
             cursorFn === CursorFn.Text &&
@@ -286,7 +267,6 @@ function ZagyDraw() {
             // set the mouse position to the current position
             mouseCoords.current = { startX: x, startY: y };
             setPosition({ x: position.x + walkX, y: position.y + walkY });
-            lastAnimationFrame.current = null;
         }
         if (isMouseDown && canvas.current && roughCanvas.current) {
             // if (!roughCanvas.current) return;
