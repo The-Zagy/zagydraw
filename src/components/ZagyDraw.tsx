@@ -154,56 +154,62 @@ function ZagyDraw() {
 
     const handlePointerDown: PointerEventHandler<HTMLCanvasElement> = (e) => {
         setIsMouseDown(true);
-        if (!canvas.current) return;
-        // if (isWriting && cursorFn === CursorFn.Text) return;
-
         const startX = e.pageX;
         const startY = e.pageY;
-
         mouseCoords.current = { startX, startY };
-        // draw shape logic?
-        if (cursorFn === CursorFn.Rect) {
-            currentSeed.current = Math.random() * 1000000;
-            const norm = normalizeToGrid(position, startX, startY);
-            startPos.current = norm;
-        } else if (cursorFn === CursorFn.Line) {
-            const norm = normalizeToGrid(position, startX, startY);
-            startPos.current = norm;
-        } else if (cursorFn === CursorFn.FreeDraw) {
-            setCurrentlyDrawnFreeHand([
-                [startX - position.x, startY - position.y]
-            ]);
-        } else if (cursorFn === CursorFn.Text) {
-            const norm = normalizePos(position, startX, startY);
-            startPos.current = norm;
-            setIsWriting(true);
-        } else if (cursorFn === CursorFn.Default) {
-            const el = getHitElement(
-                canvasElements,
-                [startX, startY],
-                position
-            );
 
-            if (el !== null) {
-                setSelectedElements(() => [el]);
-            } else {
-                setSelectedElements(() => []);
+        const drawElementStart = () => {
+            if (cursorFn === CursorFn.Rect) {
+                currentSeed.current = Math.random() * 1000000;
+                const norm = normalizeToGrid(position, startX, startY);
+                startPos.current = norm;
+            } else if (cursorFn === CursorFn.Line) {
+                const norm = normalizeToGrid(position, startX, startY);
+                startPos.current = norm;
+            } else if (cursorFn === CursorFn.FreeDraw) {
+                setCurrentlyDrawnFreeHand([
+                    [startX - position.x, startY - position.y]
+                ]);
+            } else if (cursorFn === CursorFn.Text) {
+                const norm = normalizePos(position, startX, startY);
+                startPos.current = norm;
+                setIsWriting(true);
             }
-        }
+        };
+        const selectElement = () => {
+            if (cursorFn === CursorFn.Default) {
+                const el = getHitElement(
+                    canvasElements,
+                    [startX, startY],
+                    position
+                );
+
+                if (el !== null) {
+                    setSelectedElements(() => [el]);
+                } else {
+                    setSelectedElements(() => []);
+                }
+            }
+        };
+        drawElementStart();
+        selectElement();
+        // draw shape logic?
     };
 
     const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {
-        if (willDelete.current) {
-            setElements((prev) => prev.filter((val) => !val.willDelete));
-            willDelete.current = false;
-        }
+        setIsMouseDown(false);
+        const deleteEnd = () => {
+            if (willDelete.current) {
+                setElements((prev) => prev.filter((val) => !val.willDelete));
+                willDelete.current = false;
+            }
+        };
+        deleteEnd();
         if (!canvas.current) return;
         if (!roughCanvas.current) return;
         const generator = roughCanvas.current.generator;
         const ctx = canvas.current.getContext("2d");
         if (ctx === null) return;
-        setIsMouseDown(false);
-
         // why handle before remove preview? because we want the preview to be set to the current text until finish editing in the text area
         // in other words we need to take control of preview element from this handler
         if (cursorFn === CursorFn.Text && isWriting) {
@@ -217,75 +223,20 @@ function ZagyDraw() {
             setPreviewElement(textEl);
             return;
         }
-
-        setPreviewElement(null);
-        if (cursorFn === CursorFn.Line) {
-            const line: ZagyCanvasLineElement = generateLineElement(
-                generator,
-                startPos.current,
-                endPos.current,
-                position,
-                {}
-            );
-            setElements((prev) => {
-                return [...prev, line];
-            });
-        } else if (cursorFn === CursorFn.Rect) {
-            const rect: ZagyCanvasRectElement = generateRectElement(
-                generator,
-                startPos.current,
-                endPos.current,
-                position,
-                {},
-                currentSeed.current
-            );
-
-            setElements((prev) => {
-                return [...prev, rect];
-            });
-        } else if (cursorFn === CursorFn.FreeDraw) {
-            // todo change this to one function like any other element
-            const path = generateHandDrawnElement(currentlyDrawnFreeHand);
-            const el: ZagyCanvasHandDrawnElement = {
-                id: nanoid(),
-                shape: "handdrawn",
-                x: 0,
-                y: 0,
-                curPos: position,
-                path: path,
-                options: {
-                    opacity: 1,
-                    stroke: "transparent",
-                    strokeLineDash: [],
-                    strokeWidth: 1
-                }
-            };
-            setElements((prev) => {
-                return [...prev, el];
-            });
-        }
-    };
-    const handlePointerMove: PointerEventHandler<HTMLCanvasElement> = (e) => {
-        // get the current mouse position
-        const x = e.pageX;
-        const y = e.pageY;
-        //handle dragging into the canvas
-        e.preventDefault();
-        if (isMouseDown && canvas.current && cursorFn === CursorFn.Drag) {
-            // calculate how far the mouse has been moved
-            const walkX = x - mouseCoords.current.startX;
-            const walkY = y - mouseCoords.current.startY;
-            // set the mouse position to the current position
-            mouseCoords.current = { startX: x, startY: y };
-            setPosition({ x: position.x + walkX, y: position.y + walkY });
-        }
-        if (isMouseDown && canvas.current && roughCanvas.current) {
-            // if (!roughCanvas.current) return;
-            // const generator = roughCanvas.current.generator;
-            const norm = normalizeToGrid(position, x, y);
-            endPos.current = norm;
-            const generator = roughCanvas.current.generator;
-            if (cursorFn === CursorFn.Rect) {
+        const drawElementEnd = () => {
+            setPreviewElement(null);
+            if (cursorFn === CursorFn.Line) {
+                const line: ZagyCanvasLineElement = generateLineElement(
+                    generator,
+                    startPos.current,
+                    endPos.current,
+                    position,
+                    {}
+                );
+                setElements((prev) => {
+                    return [...prev, line];
+                });
+            } else if (cursorFn === CursorFn.Rect) {
                 const rect: ZagyCanvasRectElement = generateRectElement(
                     generator,
                     startPos.current,
@@ -294,24 +245,14 @@ function ZagyDraw() {
                     {},
                     currentSeed.current
                 );
-                setPreviewElement(rect);
-            } else if (cursorFn === CursorFn.Line) {
-                const line: ZagyCanvasLineElement = generateLineElement(
-                    generator,
-                    startPos.current,
-                    endPos.current,
-                    position,
-                    {}
-                );
-                setPreviewElement(line);
-            } else if (cursorFn === CursorFn.FreeDraw) {
-                setCurrentlyDrawnFreeHand((prev) => [
-                    ...prev,
-                    [x - position.x, y - position.y]
-                ]);
 
+                setElements((prev) => {
+                    return [...prev, rect];
+                });
+            } else if (cursorFn === CursorFn.FreeDraw) {
+                // todo change this to one function like any other element
                 const path = generateHandDrawnElement(currentlyDrawnFreeHand);
-                setPreviewElement({
+                const el: ZagyCanvasHandDrawnElement = {
                     id: nanoid(),
                     shape: "handdrawn",
                     x: 0,
@@ -324,8 +265,84 @@ function ZagyDraw() {
                         strokeLineDash: [],
                         strokeWidth: 1
                     }
-                } as ZagyCanvasHandDrawnElement);
-            } else if (cursorFn === CursorFn.Erase) {
+                };
+                setElements((prev) => {
+                    return [...prev, el];
+                });
+            }
+        };
+        drawElementEnd();
+    };
+    const handlePointerMove: PointerEventHandler<HTMLCanvasElement> = (e) => {
+        // get the current mouse position
+        const x = e.pageX;
+        const y = e.pageY;
+        //handle dragging into the canvas
+        e.preventDefault();
+        const dragIntoCanvas = () => {
+            if (isMouseDown && canvas.current && cursorFn === CursorFn.Drag) {
+                // calculate how far the mouse has been moved
+                const walkX = x - mouseCoords.current.startX;
+                const walkY = y - mouseCoords.current.startY;
+                // set the mouse position to the current position
+                mouseCoords.current = { startX: x, startY: y };
+                setPosition({ x: position.x + walkX, y: position.y + walkY });
+            }
+        };
+        const handlePreview = () => {
+            if (isMouseDown && canvas.current && roughCanvas.current) {
+                // if (!roughCanvas.current) return;
+                // const generator = roughCanvas.current.generator;
+                const norm = normalizeToGrid(position, x, y);
+                endPos.current = norm;
+                const generator = roughCanvas.current.generator;
+                if (cursorFn === CursorFn.Rect) {
+                    const rect: ZagyCanvasRectElement = generateRectElement(
+                        generator,
+                        startPos.current,
+                        endPos.current,
+                        position,
+                        {},
+                        currentSeed.current
+                    );
+                    setPreviewElement(rect);
+                } else if (cursorFn === CursorFn.Line) {
+                    const line: ZagyCanvasLineElement = generateLineElement(
+                        generator,
+                        startPos.current,
+                        endPos.current,
+                        position,
+                        {}
+                    );
+                    setPreviewElement(line);
+                } else if (cursorFn === CursorFn.FreeDraw) {
+                    setCurrentlyDrawnFreeHand((prev) => [
+                        ...prev,
+                        [x - position.x, y - position.y]
+                    ]);
+
+                    const path = generateHandDrawnElement(
+                        currentlyDrawnFreeHand
+                    );
+                    setPreviewElement({
+                        id: nanoid(),
+                        shape: "handdrawn",
+                        x: 0,
+                        y: 0,
+                        curPos: position,
+                        path: path,
+                        options: {
+                            opacity: 1,
+                            stroke: "transparent",
+                            strokeLineDash: [],
+                            strokeWidth: 1
+                        }
+                    } as ZagyCanvasHandDrawnElement);
+                }
+            }
+        };
+        const deleteStart = () => {
+            if (cursorFn === CursorFn.Erase) {
                 const el = getHitElement(canvasElements, [x, y], position);
                 if (el !== null) {
                     willDelete.current = true;
@@ -338,7 +355,11 @@ function ZagyDraw() {
                     );
                 }
             }
-        }
+        };
+
+        dragIntoCanvas();
+        handlePreview();
+        deleteStart();
     };
 
     const handleTextAreaBlur: React.FocusEventHandler<HTMLTextAreaElement> = (
