@@ -80,7 +80,7 @@ export const useStore = create<
     stroke: "#9b59b6",
     strokeWidth: 5,
     strokeLineDash: [],
-    fillStyle: "solid",
+    fillStyle: "zigzag",
     font: FontTypeOptions.minecraft,
     fontSize: 48,
     opacity: 1,
