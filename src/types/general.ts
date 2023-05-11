@@ -71,7 +71,7 @@ interface ZagyCanvasLineElement extends CanvasRoughElement {
 
 interface ZagyCanvasTextElement extends ZagyCanvasElement {
     shape: "text";
-    text: string;
+    text: string[];
     endX: number;
     endY: number;
     options: TextOptions;

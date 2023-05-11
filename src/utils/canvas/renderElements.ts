@@ -60,7 +60,9 @@ function renderTextElement(
             : "Minecraft");
     ctx.fillStyle = el.options.stroke;
     ctx.textBaseline = "top";
-    ctx.fillText(el.text, el.x, el.y);
+    el.text.forEach((val, i) =>
+        ctx.fillText(val, el.x, el.y + i * el.options.fontSize)
+    );
     ctx.restore();
 }
 

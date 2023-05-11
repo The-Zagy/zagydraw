@@ -170,7 +170,7 @@ function ZagyDraw() {
                 [startX - position.x, startY - position.y]
             ]);
         } else if (cursorFn === CursorFn.Text) {
-            const norm = normalizeToGrid(position, startX, startY);
+            const norm = normalizePos(position, startX, startY);
             startPos.current = norm;
             setIsWriting(true);
         } else if (cursorFn === CursorFn.Default) {
@@ -187,15 +187,21 @@ function ZagyDraw() {
             }
         }
     };
+
     const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {
+        if (!canvas.current) return;
+        if (!roughCanvas.current) return;
+        const generator = roughCanvas.current.generator;
+        const ctx = canvas.current.getContext("2d");
+        if (ctx === null) return;
         setIsMouseDown(false);
+
         // why handle before remove preview? because we want the preview to be set to the current text until finish editing in the text area
         // in other words we need to take control of preview element from this handler
         if (cursorFn === CursorFn.Text && isWriting) {
             const textEl = generateTextElement(
+                ctx,
                 "",
-                startPos.current,
-                // todo change start pos to correct pos
                 startPos.current,
                 position,
                 {}
@@ -203,9 +209,6 @@ function ZagyDraw() {
             setPreviewElement(textEl);
             return;
         }
-        if (!canvas.current) return;
-        if (!roughCanvas.current) return;
-        const generator = roughCanvas.current.generator;
 
         setPreviewElement(null);
         if (cursorFn === CursorFn.Line) {
@@ -346,17 +349,10 @@ function ZagyDraw() {
         if (ctx === null) return;
         if (isWriting && previewElement !== null) {
             const text = e.target.value;
-            const width = ctx.measureText(text).width;
-            const norm = normalizePos(
-                previewElement.curPos,
-                previewElement.x + width,
-                previewElement.y + fontSize
-            );
-            console.log("text", text);
             const t = generateTextElement(
+                ctx,
                 text,
                 [previewElement.x, previewElement.y],
-                [norm[0], norm[1]],
                 previewElement.curPos,
                 {}
             );
@@ -388,9 +384,21 @@ function ZagyDraw() {
         <>
             {isWriting === true ? (
                 <div
-                    className="grow-wrap pointer-events-none fixed bg-transparent border"
+                    className={clsx(
+                        { "font-firacode ": font === FontTypeOptions.code },
+                        {
+                            "font-handwritten ": font === FontTypeOptions.hand
+                        },
+                        {
+                            "font-minecraft ":
+                                font === FontTypeOptions.minecraft
+                        },
+                        " bg-transparent leading-none outline-none  p-0 m-0",
+                        "grow-wrap pointer-events-none fixed bg-transparent"
+                    )}
                     data-replicated-value={currentText}
                     style={{
+                        color: stroke,
                         top: mouseCoords.current.startY,
                         left: mouseCoords.current.startX,
                         fontSize: fontSize + "px",
@@ -402,19 +410,7 @@ function ZagyDraw() {
                         onBlur={handleTextAreaBlur}
                         value={currentText}
                         onChange={(e) => setCurrentText(e.target.value)}
-                        className={clsx(
-                            { "font-firacode": font === FontTypeOptions.code },
-                            {
-                                "font-handwritten":
-                                    font === FontTypeOptions.hand
-                            },
-                            {
-                                "font-minecraft":
-                                    font === FontTypeOptions.minecraft
-                            },
-
-                            " bg-transparent  text-white outline-none  p-0 m-0"
-                        )}
+                        className=" bg-transparent leading-none outline-none  p-0 m-0"
                     />
                 </div>
             ) : null}

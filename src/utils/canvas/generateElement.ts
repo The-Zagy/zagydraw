@@ -11,8 +11,9 @@ import {
 } from "types/general";
 import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
-import { getSvgPathFromStroke } from "utils";
+import { getSvgPathFromStroke, normalizeToGrid } from "utils";
 import { useStore } from "store";
+import { normalizePos } from "utils";
 
 const { getConfigState } = useStore.getState();
 
@@ -99,21 +100,54 @@ const generateLineElement = (
     };
 };
 
-const generateTextElement = (
+/**
+ * return text as lines, and calc text element position(width/height) from text string
+ */
+function textElementHelper(
+    ctx: CanvasRenderingContext2D,
     text: string,
     startPos: [number, number],
-    endPos: [number, number],
+    fontSize: number
+): { text: string[]; startPos: [number, number]; endPos: [number, number] } {
+    const lines = text.split("\n");
+    // text element width is the largest line width
+    let largestLineIndex = 0;
+    let tempLen = lines[0].length;
+    lines.forEach((val, i) => {
+        if (val.length > tempLen) {
+            tempLen = val.length;
+            largestLineIndex = i;
+        }
+    });
+    const width = ctx.measureText(lines[largestLineIndex]).width;
+    // note using font-size as line height
+    // calc height = number of lines * lineHeight
+    const height = lines.length * fontSize;
+
+    return {
+        text: lines,
+        startPos,
+        endPos: [startPos[0] + width, startPos[1] + height]
+    };
+}
+
+const generateTextElement = (
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    startPos: [number, number],
     curPos: ZagyCanvasTextElement["curPos"],
     options: Partial<TextOptions & { id: string }>
 ): ZagyCanvasTextElement => {
     const opts = normalizeTextOptions(options);
+    const norm = textElementHelper(ctx, text, startPos, opts.fontSize);
+
     return {
         id: options.id || nanoid(),
-        text: text,
+        text: norm.text,
         x: startPos[0],
         y: startPos[1],
-        endX: endPos[0],
-        endY: endPos[1],
+        endX: norm.endPos[0],
+        endY: norm.endPos[1],
         shape: "text",
         curPos: curPos,
         options: {

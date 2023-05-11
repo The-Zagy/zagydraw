@@ -77,11 +77,11 @@ export const useStore = create<
     },
     //ConfigState
     fill: "transparent",
-    stroke: "#FFFFFF",
+    stroke: "#28B99A",
     strokeWidth: 1,
     strokeLineDash: [],
     fillStyle: "hachure",
-    font: FontTypeOptions.minecraft,
+    font: FontTypeOptions.hand,
     fontSize: 32,
     opacity: 1,
     getConfigState() {
