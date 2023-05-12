@@ -82,7 +82,7 @@ export const useStore = create<
     strokeLineDash: [],
     fillStyle: "zigzag",
     font: FontTypeOptions.minecraft,
-    fontSize: 48,
+    fontSize: 24,
     opacity: 1,
     getConfigState() {
         return {

@@ -4,16 +4,15 @@ import {
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
     ZagyCanvasTextElement,
-    FillStyleOptions,
+
     RectOptions,
     TextOptions,
     LineOptions
 } from "types/general";
 import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
-import { getSvgPathFromStroke, normalizeToGrid } from "utils";
+import { getCorrectStartEndPos, getSvgPathFromStroke, normalizeToGrid } from "utils";
 import { useStore } from "store";
-import { normalizePos } from "utils";
 
 const { getConfigState } = useStore.getState();
 
@@ -49,6 +48,7 @@ const generateRectElement = (
     options: Partial<RectOptions & Options & { id: string }>,
     seed?: number
 ): ZagyCanvasRectElement => {
+    const {x,y,endX,endY} =  getCorrectStartEndPos(startPos,endPos);
     const opts = normalizeRectOptions(options);
     const r = generator.rectangle(
         startPos[0],
@@ -64,10 +64,10 @@ const generateRectElement = (
     return {
         ...r,
         id: options.id !== undefined ? options.id : nanoid(),
-        x: startPos[0],
-        y: startPos[1],
-        endX: endPos[0],
-        endY: endPos[1],
+       x,
+       y,
+       endX,
+       endY,
         shape: "rectangle",
         curPos: curPos,
         opacity: opts.opacity
@@ -78,6 +78,7 @@ export const generateSelectRectElement = (generator: RoughGenerator,
     startPos: [number, number],
     endPos: [number, number],
     curPos: ZagyCanvasRectElement["curPos"]):ZagyCanvasRectElement=>{
+        const {x,y,endX,endY} =  getCorrectStartEndPos(startPos,endPos);
         const rect =  generator.rectangle(
             startPos[0],
             startPos[1],
@@ -94,10 +95,10 @@ export const generateSelectRectElement = (generator: RoughGenerator,
         );
         return {
             ...rect,
-            x: startPos[0],
-            y: startPos[1],
-            endX: endPos[0],
-            endY: endPos[1],
+           x,
+           y,
+           endX,
+           endY,
             shape: "rectangle",
             curPos: curPos,
             opacity: 0.3,
@@ -112,6 +113,10 @@ const generateLineElement = (
     curPos: ZagyCanvasRectElement["curPos"],
     options: Partial<LineOptions & { id: string }>
 ): ZagyCanvasLineElement => {
+    const elementStartX = Math.min(startPos[0],endPos[0]);
+    const elementStartY = Math.min(startPos[1],endPos[1]);
+    const elementEndX = Math.max(startPos[0],endPos[0]);
+    const elementEndY = Math.max(startPos[1],endPos[1]);
     // todo create normalize line options
     const opts = normalizeRectOptions(options);
     const l = generator.line(startPos[0], startPos[1], endPos[0], endPos[1], {
@@ -121,10 +126,10 @@ const generateLineElement = (
     return {
         ...l,
         id: options.id || nanoid(),
-        x: startPos[0],
-        y: startPos[1],
-        endX: endPos[0],
-        endY: endPos[1],
+        x: elementStartX,
+        y: elementStartY,
+        endX: elementEndX,
+        endY: elementEndY,
         shape: "line",
         curPos: curPos,
         opacity: opts.opacity
@@ -169,16 +174,17 @@ const generateTextElement = (
     curPos: ZagyCanvasTextElement["curPos"],
     options: Partial<TextOptions & { id: string }>
 ): ZagyCanvasTextElement => {
+    
     const opts = normalizeTextOptions(options);
     const norm = textElementHelper(ctx, text, startPos, opts.fontSize);
-
+    const {x,y,endX,endY} = getCorrectStartEndPos(startPos,[norm.endPos[0],norm.endPos[1]]);    
     return {
         id: options.id || nanoid(),
         text: norm.text,
-        x: startPos[0],
-        y: startPos[1],
-        endX: norm.endPos[0],
-        endY: norm.endPos[1],
+        x,
+        y,
+        endX,
+        endY,
         shape: "text",
         curPos: curPos,
         options: {

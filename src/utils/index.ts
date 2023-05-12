@@ -215,3 +215,11 @@ export const isElementInRect = (element:ZagyCanvasElement, rect:ZagyCanvasRectEl
     }
     return false;
 }
+
+export const getCorrectStartEndPos = (startPos:[number,number],endPos:[number,number])=>{
+    const x = Math.min(startPos[0],endPos[0]);
+    const y = Math.min(startPos[1],endPos[1]);
+    const endX = Math.max(startPos[0],endPos[0]);
+    const endY = Math.max(startPos[1],endPos[1]);
+    return {x,y,endX,endY};
+}
