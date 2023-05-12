@@ -37,7 +37,7 @@ function normalizeRectOptions(options: Partial<RectOptions>): RectOptions {
         opacity: options.opacity || globalConfig.opacity,
         stroke: options.stroke || globalConfig.stroke,
         strokeLineDash: options.strokeLineDash || globalConfig.strokeLineDash,
-        strokeWidth: options.strokeWidth || globalConfig.strokeWidth
+        strokeWidth: options.strokeWidth || globalConfig.strokeWidth,
     };
 }
 
@@ -46,7 +46,7 @@ const generateRectElement = (
     startPos: [number, number],
     endPos: [number, number],
     curPos: ZagyCanvasRectElement["curPos"],
-    options: Partial<RectOptions & { id: string }>,
+    options: Partial<RectOptions & Options & { id: string }>,
     seed?: number
 ): ZagyCanvasRectElement => {
     const opts = normalizeRectOptions(options);
@@ -56,8 +56,8 @@ const generateRectElement = (
         endPos[0] - startPos[0],
         endPos[1] - startPos[1],
         {
-            ...opts,
             roughness: 2,
+            ...opts,
             seed
         }
     );
@@ -73,6 +73,37 @@ const generateRectElement = (
         opacity: opts.opacity
     };
 };
+
+export const generateSelectRectElement = (generator: RoughGenerator,
+    startPos: [number, number],
+    endPos: [number, number],
+    curPos: ZagyCanvasRectElement["curPos"]):ZagyCanvasRectElement=>{
+        const rect =  generator.rectangle(
+            startPos[0],
+            startPos[1],
+            endPos[0] - startPos[0],
+            endPos[1] - startPos[1],
+            {
+             
+                fill: "#9b59b6",
+                fillStyle: "solid",
+                strokeWidth: 0,
+                stroke:"transparent",
+                roughness: 0
+            },
+        );
+        return {
+            ...rect,
+            x: startPos[0],
+            y: startPos[1],
+            endX: endPos[0],
+            endY: endPos[1],
+            shape: "rectangle",
+            curPos: curPos,
+            opacity: 0.3,
+            id: nanoid(),
+        }
+}
 
 const generateLineElement = (
     generator: RoughGenerator,

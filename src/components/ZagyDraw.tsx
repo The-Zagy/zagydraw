@@ -5,7 +5,7 @@ import {
     useRef,
     useState
 } from "react";
-import { throttle } from "throttle-debounce";
+
 import rough from "roughjs";
 import { useStore } from "store";
 import useGlobalEvent from "hooks/useGlobalEvent";
@@ -13,7 +13,7 @@ import { RoughCanvas } from "roughjs/bin/canvas";
 
 import {
     getHitElement,
-    getSvgPathFromStroke,
+    isElementInRect,
     normalizePos,
     normalizeToGrid
 } from "utils";
@@ -21,23 +21,21 @@ import {
     ZagyCanvasHandDrawnElement,
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
-    ZagyCanvasTextElement,
     CursorFn,
-    FontTypeOptions,
-    ZagyCanvasElement
+    FontTypeOptions
 } from "types/general";
-import renderScene from "utils/canvas/renderScene";
+
 import useCursor from "hooks/useCursor";
 import {
     generateHandDrawnElement,
     generateLineElement,
     generateRectElement,
+    generateSelectRectElement,
     generateTextElement
 } from "utils/canvas/generateElement";
 import { nanoid } from "nanoid";
 import clsx from "clsx";
 import useRenderScene from "hooks/useRenderScene";
-import { d } from "vitest/dist/types-e3c9754d";
 
 const {
     setPosition,
@@ -70,14 +68,13 @@ function ZagyDraw() {
     const selectedElements = useStore((state) => state.selectedElements);
     const currentSeed = useRef<number>(Math.random() * 1000000);
     const willDelete = useRef<boolean>(false);
-    const [deletedElements, setDeletedElements] = useState<string[]>([]);
     const [currentText, setCurrentText] = useState<string>("");
     const [currentlyDrawnFreeHand, setCurrentlyDrawnFreeHand] = useState<
         [number, number][]
     >([]);
-
     const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
-
+    const [multiSelectRect, setMultiSelectRect] =
+        useState<ZagyCanvasRectElement | null>(null);
     const mouseCoords = useRef<MouseCoords>({
         startX: 0,
         startY: 0
@@ -98,7 +95,6 @@ function ZagyDraw() {
         if (currentZoom <= MIN_ZOOM) return;
         setZoomLevel(currentZoom);
     };
-
     const canvas = useRef<HTMLCanvasElement>(null);
     const roughCanvas = useRef<RoughCanvas | null>(null);
     const textareaInput = useRef<HTMLTextAreaElement>(null);
@@ -117,15 +113,20 @@ function ZagyDraw() {
         if (roughCanvas.current || !canvas.current) return;
         roughCanvas.current = rough.canvas(canvas.current);
     }, []);
-    useRenderScene(roughCanvas.current, canvas.current?.getContext("2d"), {
-        width,
-        height,
-        position,
-        zoomLevel,
-        elements: canvasElements,
-        previewElement,
-        selectedElements
-    });
+    useRenderScene(
+        roughCanvas.current,
+        canvas.current?.getContext("2d") || null,
+        {
+            width,
+            height,
+            position,
+            zoomLevel,
+            elements: canvasElements,
+            previewElement,
+            selectedElements
+        },
+        multiSelectRect
+    );
     useEffect(() => {
         if (
             cursorFn === CursorFn.Text &&
@@ -174,6 +175,9 @@ function ZagyDraw() {
                 const norm = normalizePos(position, startX, startY);
                 startPos.current = norm;
                 setIsWriting(true);
+            } else if (cursorFn === CursorFn.Default) {
+                const norm = normalizePos(position, startX, startY);
+                startPos.current = norm;
             }
         };
         const selectElement = () => {
@@ -202,6 +206,16 @@ function ZagyDraw() {
 
     const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {
         setIsMouseDown(false);
+        const multiSelectEnd = () => {
+            if (multiSelectRect !== null) {
+                const selected = canvasElements.filter((el) =>
+                    isElementInRect(el, multiSelectRect)
+                );
+                setSelectedElements(() => selected);
+            }
+            setMultiSelectRect(null);
+        };
+        multiSelectEnd();
         const deleteEnd = () => {
             if (willDelete.current) {
                 setElements((prev) => prev.filter((val) => !val.willDelete));
@@ -346,6 +360,14 @@ function ZagyDraw() {
                             strokeWidth: 1
                         }
                     } as ZagyCanvasHandDrawnElement);
+                } else if (cursorFn === CursorFn.Default && isMouseDown) {
+                    const selectionRect = generateSelectRectElement(
+                        generator,
+                        startPos.current,
+                        endPos.current,
+                        position
+                    );
+                    setMultiSelectRect(selectionRect);
                 }
             }
         };
@@ -364,7 +386,9 @@ function ZagyDraw() {
                 }
             }
         };
-
+        const multiSelectStart = () => {
+            //todo
+        };
         dragIntoCanvas();
         handlePreview();
         deleteStart();

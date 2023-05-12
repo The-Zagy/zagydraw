@@ -14,12 +14,12 @@ export default function ToolbarUpper() {
     const cursorFn = useStore((state) => state.cursorFn);
 
     return (
-        <div className="withFira scrollbar-thin scrollbar-thumb-zinc-600 fixed left-1/2 top-4 w-11/12 -translate-x-1/2 overflow-auto  whitespace-nowrap  rounded-md bg-primary-600 sm:m-0 sm:w-auto sm:max-w-none py-1">
+        <div className="withFira cursor-default scrollbar-thin scrollbar-thumb-zinc-600 fixed left-1/2 top-4 w-11/12 -translate-x-1/2 overflow-auto  whitespace-nowrap  rounded-md bg-primary-600 sm:m-0 sm:w-auto sm:max-w-none py-1">
             <div className="mx-auto w-fit">
                 <button
                     onClick={() => setCursorFn(CursorFn.Default)}
                     className={clsx(
-                        "h-12 w-16 cursor-pointer rounded-l-lg sm:w-14 rounded-2xl text-xl",
+                        "h-12 mx-1 w-16 cursor-pointer rounded-l-lg sm:w-14 rounded-2xl text-xl",
                         { "bg-background-700": cursorFn === CursorFn.Default },
                         {
                             "hover:bg-primary-400":
@@ -36,7 +36,7 @@ export default function ToolbarUpper() {
                 <button
                     onClick={() => setCursorFn(CursorFn.FreeDraw)}
                     className={clsx(
-                        "h-12 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
+                        "h-12  mx-1  w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
                         {
                             "bg-background-700": cursorFn === CursorFn.FreeDraw
                         },
@@ -54,7 +54,7 @@ export default function ToolbarUpper() {
                 </button>
                 <button
                     className={clsx(
-                        "h-12 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
+                        "h-12 mx-1 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
                         {
                             "bg-background-700": cursorFn === CursorFn.Drag
                         },
@@ -73,7 +73,7 @@ export default function ToolbarUpper() {
                 <button
                     onClick={() => setCursorFn(CursorFn.Rect)}
                     className={clsx(
-                        "h-12 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
+                        "h-12 mx-1 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
                         {
                             "bg-background-700": cursorFn === CursorFn.Rect
                         },
@@ -91,7 +91,7 @@ export default function ToolbarUpper() {
                 <button
                     onClick={() => setCursorFn(CursorFn.Line)}
                     className={clsx(
-                        "h-12 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
+                        "h-12 mx-1 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
                         {
                             "bg-background-700": cursorFn === CursorFn.Line
                         },
@@ -106,7 +106,7 @@ export default function ToolbarUpper() {
                 <button
                     onClick={() => setCursorFn(CursorFn.Text)}
                     className={clsx(
-                        "h-12 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
+                        "h-12 mx-1 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
                         {
                             "bg-background-700": cursorFn === CursorFn.Text
                         },
@@ -120,7 +120,7 @@ export default function ToolbarUpper() {
                 <button
                     onClick={() => setCursorFn(CursorFn.Erase)}
                     className={clsx(
-                        "h-12 w-16 cursor-pointer sm:w-14 rounded-2xl text-xl",
+                        "h-12 mx-1 w-16 cursor-pointer sm:w-14 rounded-2xl rounded-r-lg text-xl",
                         {
                             "bg-background-700": cursorFn === CursorFn.Erase
                         },

@@ -1,5 +1,6 @@
 import type { CanvasState } from "store";
-import { ZagyCanvasHandDrawnElement, ZagyCanvasLineElement, ZagyCanvasRectElement } from "types/general";
+import { text } from "stream/consumers";
+import { ZagyCanvasElement, ZagyCanvasHandDrawnElement, ZagyCanvasLineElement, ZagyCanvasRectElement, ZagyCanvasTextElement } from "types/general";
 
 export function classNames(...classes: unknown[]): string {
     return classes.filter(Boolean).join(" ");
@@ -173,4 +174,44 @@ export function getSvgPathFromStroke(
     }
 
     return result;
+}
+
+export function getBoundingRect(...elements:ZagyCanvasElement[]){
+    let x = Infinity;
+    let y = Infinity;
+    let endX = -Infinity;
+    let endY = -Infinity;
+    for(let element of elements){
+        if(element.shape==="rectangle" || element.shape==="line" || element.shape==="text"){
+            const {x: x1, y: y1, endX: endX1, endY: endY1} = element as ZagyCanvasRectElement;
+            const elementStartX = Math.min(x1,endX1);
+            const elementStartY = Math.min(y1,endY1);
+            const elementEndX = Math.max(x1,endX1);
+            const elementEndY = Math.max(y1,endY1);
+            x = Math.min(x,elementStartX);
+            y = Math.min(y,elementStartY);
+            endX = Math.max(endX,elementEndX);
+            endY = Math.max(endY,elementEndY);
+        }
+        else if(element.shape==="handdrawn"){
+            //todo
+        }
+       
+    }
+    const threshold = 10;
+    return [[x-threshold,y-threshold],[endX+threshold,endY+threshold]];
+}
+
+export const isElementInRect = (element:ZagyCanvasElement, rect:ZagyCanvasRectElement)=>{
+    if(element.shape==="rectangle" || element.shape==="line" || element.shape==="text"){
+        const {x, y, endX, endY} = element as ZagyCanvasRectElement;
+        console.log("element",{x,y,endX,endY},"rect",{x:rect.x,y:rect.y,endX:rect.endX,endY:rect.endY})
+        if(x>=rect.x && y>=rect.y && endX<=rect.endX && endY<=rect.endY){
+            return true;
+        }
+    }
+    else if(element.shape==="handdrawn"){
+        //todo
+    }
+    return false;
 }
