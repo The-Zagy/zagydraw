@@ -80,6 +80,8 @@ interface ZagyCanvasTextElement extends ZagyCanvasElement {
 
 interface ZagyCanvasHandDrawnElement extends ZagyCanvasElement {
     shape: "handdrawn";
+    endX: number;
+    endY: number;
     path: Path2D;
     options: SharedOptions;
 }

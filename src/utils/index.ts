@@ -182,44 +182,63 @@ export function getBoundingRect(...elements:ZagyCanvasElement[]){
     let endX = -Infinity;
     let endY = -Infinity;
     for(let element of elements){
-        if(element.shape==="rectangle" || element.shape==="line" || element.shape==="text"){
-            const {x: x1, y: y1, endX: endX1, endY: endY1} = element as ZagyCanvasRectElement;
-            const elementStartX = Math.min(x1,endX1);
-            const elementStartY = Math.min(y1,endY1);
-            const elementEndX = Math.max(x1,endX1);
-            const elementEndY = Math.max(y1,endY1);
+        //the check not needed currently but maybe other shapes will be added in the future
+        if(element.shape==="rectangle" || element.shape==="line" || element.shape==="text" || element.shape==="handdrawn"){
+            const {x: elementStartX, y: elementStartY, endX: elementEndX, endY: elementEndY} = element as ZagyCanvasRectElement;
             x = Math.min(x,elementStartX);
             y = Math.min(y,elementStartY);
             endX = Math.max(endX,elementEndX);
             endY = Math.max(endY,elementEndY);
         }
-        else if(element.shape==="handdrawn"){
-            //todo
-        }
-       
     }
     const threshold = 10;
     return [[x-threshold,y-threshold],[endX+threshold,endY+threshold]];
 }
 
 export const isElementInRect = (element:ZagyCanvasElement, rect:ZagyCanvasRectElement)=>{
-    if(element.shape==="rectangle" || element.shape==="line" || element.shape==="text"){
+    if(element.shape==="rectangle" || element.shape==="line" || element.shape==="text" || element.shape==="handdrawn"){
         const {x, y, endX, endY} = element as ZagyCanvasRectElement;
         console.log("element",{x,y,endX,endY},"rect",{x:rect.x,y:rect.y,endX:rect.endX,endY:rect.endY})
         if(x>=rect.x && y>=rect.y && endX<=rect.endX && endY<=rect.endY){
             return true;
         }
     }
-    else if(element.shape==="handdrawn"){
-        //todo
-    }
     return false;
 }
 
-export const getCorrectStartEndPos = (startPos:[number,number],endPos:[number,number])=>{
+export const isElementVisible = (element:ZagyCanvasElement, rectCoords: [[x:number,y:number],[xEnd:number,yEnd:number]] )=>{
+    //the check not needed currently but maybe other shapes will be added in the future
+    if(element.shape==="rectangle" || element.shape==="line" || element.shape==="text" || element.shape==="handdrawn"){
+        const {x, y, endX, endY} = element as ZagyCanvasRectElement;
+        const [[rectX,rectY],[rectEndX,rectEndY]] = rectCoords;
+        // if any of the element's corners is inside the rectangle that is the screen
+        // also notice that we don't need to do the same calculations in the function pointInRectangle
+        // because we know for sure that the screen isn't rotated
+        if(x<=rectEndX && endX>=rectX && y<=rectEndY && endY>=rectY){
+            return true;
+        }
+    }
+   return false
+}
+
+export const getCorrectPos = (startPos:[number,number],endPos:[number,number])=>{
     const x = Math.min(startPos[0],endPos[0]);
     const y = Math.min(startPos[1],endPos[1]);
     const endX = Math.max(startPos[0],endPos[0]);
     const endY = Math.max(startPos[1],endPos[1]);
     return {x,y,endX,endY};
+}
+
+export const getGlobalMinMax = (points: [number, number][]) => {
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    points.forEach((point) => {
+        minX = Math.min(minX, point[0]);
+        minY = Math.min(minY, point[1]);
+        maxX = Math.max(maxX, point[0]);
+        maxY = Math.max(maxY, point[1]);
+    });
+    return { minX, minY, maxX, maxY };
 }
