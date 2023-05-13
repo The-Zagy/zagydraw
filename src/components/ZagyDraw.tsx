@@ -12,6 +12,7 @@ import useGlobalEvent from "hooks/useGlobalEvent";
 import { RoughCanvas } from "roughjs/bin/canvas";
 
 import {
+    getGlobalMinMax as getMinMaxFromPoints,
     getHitElement,
     isElementInRect,
     normalizePos,
@@ -270,11 +271,16 @@ function ZagyDraw() {
             } else if (cursorFn === CursorFn.FreeDraw) {
                 // todo change this to one function like any other element
                 const path = generateHandDrawnElement(currentlyDrawnFreeHand);
+                const { minX, minY, maxX, maxY } = getMinMaxFromPoints(
+                    currentlyDrawnFreeHand
+                );
                 const el: ZagyCanvasHandDrawnElement = {
                     id: nanoid(),
                     shape: "handdrawn",
-                    x: 0,
-                    y: 0,
+                    x: minX,
+                    y: minY,
+                    endX: maxX,
+                    endY: maxY,
                     curPos: position,
                     path: path,
                     options: {
@@ -351,6 +357,8 @@ function ZagyDraw() {
                         shape: "handdrawn",
                         x: 0,
                         y: 0,
+                        endX: 0,
+                        endY: 0,
                         curPos: position,
                         path: path,
                         options: {

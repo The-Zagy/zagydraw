@@ -97,7 +97,7 @@ function renderElements<T extends ZagyCanvasElement>(
     ctx: CanvasRenderingContext2D
 ) {
     elements.forEach((el) => {
-
+        
         if (isRect(el) || isLine(el)) renderRoughElement(el, ctx, roughCanvas);
         else if (isText(el)) {
             renderTextElement(el, ctx);

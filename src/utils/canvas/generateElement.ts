@@ -11,7 +11,7 @@ import {
 } from "types/general";
 import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
-import { getCorrectStartEndPos, getSvgPathFromStroke, normalizeToGrid } from "utils";
+import { getCorrectPos, getSvgPathFromStroke, normalizeToGrid } from "utils";
 import { useStore } from "store";
 
 const { getConfigState } = useStore.getState();
@@ -48,7 +48,7 @@ const generateRectElement = (
     options: Partial<RectOptions & Options & { id: string }>,
     seed?: number
 ): ZagyCanvasRectElement => {
-    const {x,y,endX,endY} =  getCorrectStartEndPos(startPos,endPos);
+    const {x,y,endX,endY} =  getCorrectPos(startPos,endPos);
     const opts = normalizeRectOptions(options);
     const r = generator.rectangle(
         startPos[0],
@@ -78,7 +78,7 @@ export const generateSelectRectElement = (generator: RoughGenerator,
     startPos: [number, number],
     endPos: [number, number],
     curPos: ZagyCanvasRectElement["curPos"]):ZagyCanvasRectElement=>{
-        const {x,y,endX,endY} =  getCorrectStartEndPos(startPos,endPos);
+        const {x,y,endX,endY} =  getCorrectPos(startPos,endPos);
         const rect =  generator.rectangle(
             startPos[0],
             startPos[1],
@@ -177,7 +177,7 @@ const generateTextElement = (
     
     const opts = normalizeTextOptions(options);
     const norm = textElementHelper(ctx, text, startPos, opts.fontSize);
-    const {x,y,endX,endY} = getCorrectStartEndPos(startPos,[norm.endPos[0],norm.endPos[1]]);    
+    const {x,y,endX,endY} = getCorrectPos(startPos,[norm.endPos[0],norm.endPos[1]]);    
     return {
         id: options.id || nanoid(),
         text: norm.text,
