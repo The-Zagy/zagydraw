@@ -231,8 +231,8 @@ export const getCorrectPos = (startPos:[number,number],endPos:[number,number])=>
     if (width < 20) {
         x2 = x1 + 20;
     }
-    if (height < 10) {
-        y2 = y1 + 10;
+    if (height < 20) {
+        y2 = y1 + 20;
     }
     return {x:x1, y:y1, endX:x2, endY:y2};
 }
