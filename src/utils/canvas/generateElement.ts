@@ -50,11 +50,13 @@ const generateRectElement = (
 ): ZagyCanvasRectElement => {
     const {x,y,endX,endY} =  getCorrectPos(startPos,endPos);
     const opts = normalizeRectOptions(options);
+    const width = Math.max(Math.abs( endPos[0] - startPos[0]),1);
+    const height = Math.max(Math.abs( endPos[1] - startPos[1]),1);
     const r = generator.rectangle(
         startPos[0],
         startPos[1],
-        endPos[0] - startPos[0],
-        endPos[1] - startPos[1],
+        width,
+        height,
         {
             roughness: 2,
             ...opts,
@@ -92,7 +94,7 @@ export const generateSelectRectElement = (generator: RoughGenerator,
                 stroke:"transparent",
                 roughness: 0
             },
-        );
+    );
         return {
             ...rect,
            x,
