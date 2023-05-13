@@ -228,11 +228,11 @@ export const getCorrectPos = (startPos:[number,number],endPos:[number,number])=>
     let y2 = Math.max(startPos[1],endPos[1]);
     const width = x2 - x1;
     const height = y2 - y1;
-    if (width < 1) {
-        x2 = x1 + 1;
+    if (width < 20) {
+        x2 = x1 + 20;
     }
-    if (height < 1) {
-        y2 = y1 + 1;
+    if (height < 10) {
+        y2 = y1 + 10;
     }
     return {x:x1, y:y1, endX:x2, endY:y2};
 }
