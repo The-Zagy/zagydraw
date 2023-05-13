@@ -3,7 +3,7 @@ import {
     useEffect,
     useLayoutEffect,
     useRef,
-    useState
+    useState,
 } from "react";
 
 import rough from "roughjs";
@@ -16,14 +16,14 @@ import {
     getHitElement,
     isElementInRect,
     normalizePos,
-    normalizeToGrid
+    normalizeToGrid,
 } from "utils";
 import {
     ZagyCanvasHandDrawnElement,
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
     CursorFn,
-    FontTypeOptions
+    FontTypeOptions,
 } from "types/general";
 
 import useCursor from "hooks/useCursor";
@@ -32,7 +32,7 @@ import {
     generateLineElement,
     generateRectElement,
     generateSelectRectElement,
-    generateTextElement
+    generateTextElement,
 } from "utils/canvas/generateElement";
 import { nanoid } from "nanoid";
 import clsx from "clsx";
@@ -45,7 +45,7 @@ const {
     setElements,
     setCursorFn,
     setPreviewElement,
-    setSelectedElements
+    setSelectedElements,
 } = useStore.getState();
 
 const MAX_ZOOM = 96;
@@ -78,7 +78,7 @@ function ZagyDraw() {
         useState<ZagyCanvasRectElement | null>(null);
     const mouseCoords = useRef<MouseCoords>({
         startX: 0,
-        startY: 0
+        startY: 0,
     });
     const [isWriting, setIsWriting] = useState(false);
     const startPos = useRef<[number, number]>([0, 0]);
@@ -124,7 +124,7 @@ function ZagyDraw() {
             zoomLevel,
             elements: canvasElements,
             previewElement,
-            selectedElements
+            selectedElements,
         },
         multiSelectRect
     );
@@ -170,7 +170,7 @@ function ZagyDraw() {
                 startPos.current = norm;
             } else if (cursorFn === CursorFn.FreeDraw) {
                 setCurrentlyDrawnFreeHand([
-                    [startX - position.x, startY - position.y]
+                    [startX - position.x, startY - position.y],
                 ]);
             } else if (cursorFn === CursorFn.Text) {
                 const norm = normalizePos(position, startX, startY);
@@ -287,8 +287,9 @@ function ZagyDraw() {
                         opacity: 1,
                         stroke: "transparent",
                         strokeLineDash: [],
-                        strokeWidth: 1
-                    }
+                        strokeWidth: 1,
+                    },
+                    opacity: 1,
                 };
                 setElements((prev) => {
                     return [...prev, el];
@@ -346,7 +347,7 @@ function ZagyDraw() {
                 } else if (cursorFn === CursorFn.FreeDraw) {
                     setCurrentlyDrawnFreeHand((prev) => [
                         ...prev,
-                        [x - position.x, y - position.y]
+                        [x - position.x, y - position.y],
                     ]);
 
                     const path = generateHandDrawnElement(
@@ -365,8 +366,9 @@ function ZagyDraw() {
                             opacity: 1,
                             stroke: "transparent",
                             strokeLineDash: [],
-                            strokeWidth: 1
-                        }
+                            strokeWidth: 1,
+                        },
+                        opacity: 1,
                     } as ZagyCanvasHandDrawnElement);
                 } else if (cursorFn === CursorFn.Default && isMouseDown) {
                     const selectionRect = generateSelectRectElement(
@@ -449,11 +451,11 @@ function ZagyDraw() {
                     className={clsx(
                         { "font-firacode ": font === FontTypeOptions.code },
                         {
-                            "font-handwritten ": font === FontTypeOptions.hand
+                            "font-handwritten ": font === FontTypeOptions.hand,
                         },
                         {
                             "font-minecraft ":
-                                font === FontTypeOptions.minecraft
+                                font === FontTypeOptions.minecraft,
                         },
                         " bg-transparent leading-none outline-none  p-0 m-0",
                         "grow-wrap pointer-events-none fixed bg-transparent"
@@ -464,9 +466,8 @@ function ZagyDraw() {
                         top: mouseCoords.current.startY,
                         left: mouseCoords.current.startX,
                         fontSize: fontSize + "px",
-                        opacity
-                    }}
-                >
+                        opacity,
+                    }}>
                     <textarea
                         ref={textareaInput}
                         onBlur={handleTextAreaBlur}
