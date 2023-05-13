@@ -1,18 +1,18 @@
 import { Drawable } from "roughjs/bin/core";
-import { Color } from "./util";
 
 type ElementTypes = "rectangle" | "line" | "text" | "handdrawn";
 
-enum FontTypeOptions {
-    code,
-    hand,
-    minecraft,
-}
+const FontTypeOptions = {
+    code: 0,
+    hand: 1,
+    minecraft: 2,
+} as const;
+type FontTypeOptions = (typeof FontTypeOptions)[keyof typeof FontTypeOptions];
 type FillStyleOptions = "solid" | "zigzag" | "dots" | "hachure";
 
 interface SharedOptions {
     opacity: number;
-    stroke: Color;
+    stroke: string;
     strokeLineDash: StrokeLineDash;
     strokeWidth: number;
 }
@@ -21,12 +21,12 @@ type StrokeWidth = 1 | 3 | 6;
 type FontSize = 16 | 24 | 32 | 48;
 
 interface RectOptions extends SharedOptions {
-    fill: Color;
+    fill: string;
     fillStyle: FillStyleOptions;
 }
 
 interface LineOptions extends SharedOptions {
-    fill: Color;
+    fill: string;
     fillStyle: FillStyleOptions;
 }
 

@@ -2,22 +2,38 @@ import React, { ReactNode, useMemo } from "react";
 import rough from "roughjs";
 import { MdDeleteOutline } from "react-icons/md";
 import { useStore } from "store/index";
-import { FontTypeOptions, ZagyCanvasRectElement } from "types/general";
+import {
+    FillStyleOptions,
+    FontSize,
+    FontTypeOptions,
+    GlobalConfigOptions,
+    ZagyCanvasElement,
+    ZagyCanvasRectElement,
+    isLine,
+    isRect,
+    isText,
+} from "types/general";
 import InputWithIcon from "./form/input";
 import { CommonConfigOptions, getElementsCommonConfig } from "utils";
+import {
+    generateLineElement,
+    generateRectElement,
+    generateTextElement,
+} from "utils/canvas/generateElement";
 
 const gen = rough.generator();
 
-const Rad: React.FC<{
+const RadioButton: React.FC<{
     children: ReactNode;
     value: string | number;
     name: string;
     onChange: React.ChangeEventHandler<HTMLInputElement>;
 }> = (props) => {
+    const id = props.name + props.value.toString();
     return (
         <div className="hover:bg-primary-400 w-1/5 h-fit overflow-hidden border border-primary-400 rounded-lg">
             <input
-                id={props.value.toString()}
+                id={id}
                 name={props.name}
                 type="radio"
                 value={props.value}
@@ -25,8 +41,8 @@ const Rad: React.FC<{
                 onChange={props.onChange}
             />
             <label
-                htmlFor={props.value.toString()}
-                className=" w-full h-full peer-checked:text-background-600  ">
+                htmlFor={id}
+                className=" w-full h-full peer-checked:text-background-600 peer-checked:stroke-background-600 ">
                 {props.children}
             </label>
         </div>
@@ -34,8 +50,19 @@ const Rad: React.FC<{
 };
 
 export default function ToolbarLeft() {
-    const { setElements, setSelectedElements } = useStore.getState();
+    const { setElements, setSelectedElements, width, height, fontSize, font } =
+        useStore.getState();
     const selectedElements = useStore((state) => state.selectedElements);
+    const ctx = document.createElement("canvas").getContext("2d");
+    if (!ctx) return null;
+    ctx.font =
+        `${fontSize}px ` +
+        (font === FontTypeOptions.code
+            ? "FiraCode"
+            : font === FontTypeOptions.hand
+            ? "HandWritten"
+            : "Minecraft");
+    ctx.textBaseline = "top";
     console.log(
         "🪵 [ToolbarLeft.tsx:58] ~ token ~ \x1b[0;32mselectedElements\x1b[0m = ",
         selectedElements
@@ -63,34 +90,115 @@ export default function ToolbarLeft() {
         setSelectedElements(() => []);
         setElements((prev) => [...prev.filter((val) => !ids.has(val.id))]);
     };
+
+    const handle = <T extends keyof CommonConfigOptions>(
+        k: T,
+        value: GlobalConfigOptions[T]
+    ) => {
+        // create hash for check up
+        const ids = new Set<string>();
+        for (const itm of selectedElements) {
+            ids.add(itm.id);
+        }
+        const els: ZagyCanvasElement[] = [];
+        selectedElements.forEach((el) => {
+            if (isRect(el)) {
+                els.push(
+                    generateRectElement(
+                        gen,
+                        [el.x, el.y],
+                        [el.endX, el.endY],
+                        el.curPos,
+                        // @ts-ignore
+                        {
+                            ...el.options,
+                            [k]: value,
+                            id: el.id,
+                        }
+                    )
+                );
+            } else if (isLine(el)) {
+                els.push(
+                    generateLineElement(
+                        gen,
+                        [el.x, el.y],
+                        [el.endX, el.endY],
+                        el.curPos,
+                        // @ts-ignore
+                        {
+                            ...el.options,
+                            id: el.id,
+                            [k]: value,
+                        }
+                    )
+                );
+            } else if (isText(el)) {
+                els.push(
+                    generateTextElement(
+                        ctx,
+                        el.text.join("\n"),
+                        [el.x, el.y],
+                        el.curPos,
+                        {
+                            ...el.options,
+                            [k]: value,
+                        }
+                    )
+                );
+            }
+        });
+        // change global config to new options
+
+        setSelectedElements(() => els);
+        setElements((prev) => [
+            ...prev.filter((val) => !ids.has(val.id)),
+            ...els,
+        ]);
+    };
     const handleFillStyle: React.ChangeEventHandler<HTMLInputElement> = (e) => {
         console.log(e.target.value);
+        // todo no type safety here haahahhahahahahah
+        handle("fillStyle", e.target.value as FillStyleOptions);
     };
+
     const handleStrokeLineDash: React.ChangeEventHandler<HTMLInputElement> = (
         e
     ) => {
         console.log(e.target.value);
+        console.log("name", e.target.name);
+
+        handle("strokeLineDash", +e.target.value === 1 ? [] : [10, 10]);
     };
+
     const handleStrokeWidth: React.ChangeEventHandler<HTMLInputElement> = (
         e
     ) => {
         console.log(e.target.value);
+        console.log("in width");
+        handle("strokeWidth", +e.target.value);
     };
+
     const handleFontSize: React.ChangeEventHandler<HTMLInputElement> = (e) => {
         console.log(e.target.value);
+        handle("fontSize", +e.target.value as FontSize);
     };
+
     const handleFontFamily: React.ChangeEventHandler<HTMLInputElement> = (
         e
     ) => {
         console.log(e.target.value);
+        handle("font", +e.target.value as FontTypeOptions);
     };
+
     const handleTextAlign: React.ChangeEventHandler<HTMLInputElement> = (e) => {
         console.log(e.target.value);
     };
+
     const handleOpacityChange: React.ChangeEventHandler<HTMLInputElement> = (
         e
     ) => {
         console.log(e.target.value);
+        handle("opacity", +e.target.value);
     };
 
     return (
@@ -127,7 +235,7 @@ export default function ToolbarLeft() {
                         <fieldset className="flex flex-col">
                             <legend>Font Size</legend>
                             <div className="flex gap-2 w-full">
-                                <Rad
+                                <RadioButton
                                     name="font-size"
                                     value={16}
                                     onChange={handleFontSize}>
@@ -157,8 +265,8 @@ export default function ToolbarLeft() {
                                             </clipPath>
                                         </defs>
                                     </svg>
-                                </Rad>
-                                <Rad
+                                </RadioButton>
+                                <RadioButton
                                     name="font-size"
                                     value={24}
                                     onChange={handleFontSize}>
@@ -188,8 +296,8 @@ export default function ToolbarLeft() {
                                             </clipPath>
                                         </defs>
                                     </svg>
-                                </Rad>
-                                <Rad
+                                </RadioButton>
+                                <RadioButton
                                     name="font-size"
                                     value={32}
                                     onChange={handleFontSize}>
@@ -219,8 +327,8 @@ export default function ToolbarLeft() {
                                             </clipPath>
                                         </defs>
                                     </svg>
-                                </Rad>
-                                <Rad
+                                </RadioButton>
+                                <RadioButton
                                     name="font-size"
                                     value={48}
                                     onChange={handleFontSize}>
@@ -241,7 +349,7 @@ export default function ToolbarLeft() {
                                             strokeLinecap="round"
                                             strokeLinejoin="round"></path>
                                     </svg>
-                                </Rad>
+                                </RadioButton>
                             </div>
                         </fieldset>
                     ) : null}
@@ -250,7 +358,7 @@ export default function ToolbarLeft() {
                         <fieldset className="flex flex-col">
                             <legend>Font family</legend>
                             <div className="flex gap-2 w-full">
-                                <Rad
+                                <RadioButton
                                     onChange={handleFontFamily}
                                     name="font-family"
                                     value={FontTypeOptions.hand}>
@@ -271,8 +379,8 @@ export default function ToolbarLeft() {
                                             <path d="m11.25 5.417 3.333 3.333"></path>
                                         </g>
                                     </svg>
-                                </Rad>
-                                <Rad
+                                </RadioButton>
+                                <RadioButton
                                     onChange={handleFontFamily}
                                     name="font-family"
                                     value={FontTypeOptions.code}>
@@ -302,8 +410,8 @@ export default function ToolbarLeft() {
                                             </clipPath>
                                         </defs>
                                     </svg>
-                                </Rad>
-                                <Rad
+                                </RadioButton>
+                                <RadioButton
                                     onChange={handleFontFamily}
                                     name="font-family"
                                     value={FontTypeOptions.minecraft}>
@@ -325,7 +433,7 @@ export default function ToolbarLeft() {
                                             <path d="M5.833 16.667v-10a3.333 3.333 0 0 1 3.334-3.334h1.666a3.333 3.333 0 0 1 3.334 3.334v10M5.833 10.833h8.334"></path>
                                         </g>
                                     </svg>
-                                </Rad>
+                                </RadioButton>
                             </div>
                         </fieldset>
                     ) : null}
@@ -334,7 +442,7 @@ export default function ToolbarLeft() {
                         <fieldset className="flex flex-col">
                             <legend>Fill Style</legend>
                             <div className="flex gap-2 w-full">
-                                <Rad
+                                <RadioButton
                                     name="fill-style"
                                     value="solid"
                                     onChange={handleFillStyle}>
@@ -361,8 +469,8 @@ export default function ToolbarLeft() {
                                             </clipPath>
                                         </defs>
                                     </svg>
-                                </Rad>
-                                <Rad
+                                </RadioButton>
+                                <RadioButton
                                     onChange={handleFillStyle}
                                     value="zigzag"
                                     name="fill-style">
@@ -403,8 +511,8 @@ export default function ToolbarLeft() {
                                                 strokeLinejoin="round"></path>
                                         </g>
                                     </svg>
-                                </Rad>
-                                <Rad
+                                </RadioButton>
+                                <RadioButton
                                     onChange={handleFillStyle}
                                     value="dots"
                                     name="fill-style">
@@ -452,7 +560,7 @@ export default function ToolbarLeft() {
                                             </clipPath>
                                         </defs>
                                     </svg>
-                                </Rad>
+                                </RadioButton>
                             </div>
                         </fieldset>
                     ) : null}
@@ -461,7 +569,7 @@ export default function ToolbarLeft() {
                     <fieldset className="flex flex-col gap-2">
                         <legend>Text Align</legend>
                         <div className="flex gap-2 w-full">
-                            <Rad
+                            <RadioButton
                                 value="left"
                                 name="text-align"
                                 onChange={handleTextAlign}>
@@ -502,8 +610,8 @@ export default function ToolbarLeft() {
                                             y2="16"></line>
                                     </g>
                                 </svg>
-                            </Rad>
-                            <Rad
+                            </RadioButton>
+                            <RadioButton
                                 onChange={handleTextAlign}
                                 value="center"
                                 name="text-align">
@@ -543,8 +651,8 @@ export default function ToolbarLeft() {
                                             y2="16"></line>
                                     </g>
                                 </svg>
-                            </Rad>
-                            <Rad
+                            </RadioButton>
+                            <RadioButton
                                 value="right"
                                 name="text-align"
                                 onChange={handleTextAlign}>
@@ -584,7 +692,7 @@ export default function ToolbarLeft() {
                                             y2="16"></line>
                                     </g>
                                 </svg>
-                            </Rad>
+                            </RadioButton>
                         </div>
                     </fieldset>
 
@@ -592,7 +700,7 @@ export default function ToolbarLeft() {
                         <fieldset className="flex flex-col gap-2">
                             <legend>Stroke Width</legend>
                             <div className="flex gap-2 w-full">
-                                <Rad
+                                <RadioButton
                                     value={1}
                                     name="stroke-width"
                                     onChange={handleStrokeWidth}>
@@ -613,8 +721,8 @@ export default function ToolbarLeft() {
                                             strokeLinecap="round"
                                             strokeLinejoin="round"></path>
                                     </svg>
-                                </Rad>
-                                <Rad
+                                </RadioButton>
+                                <RadioButton
                                     value={3}
                                     name="stroke-width"
                                     onChange={handleStrokeWidth}>
@@ -635,8 +743,8 @@ export default function ToolbarLeft() {
                                             strokeLinecap="round"
                                             strokeLinejoin="round"></path>
                                     </svg>
-                                </Rad>
-                                <Rad
+                                </RadioButton>
+                                <RadioButton
                                     value={6}
                                     name="stroke-width"
                                     onChange={handleStrokeWidth}>
@@ -647,17 +755,17 @@ export default function ToolbarLeft() {
                                         viewBox="0 0 20 20"
                                         className=""
                                         fill="none"
-                                        stroke="white"
+                                        stroke="currentColor"
                                         strokeLinecap="round"
                                         strokeLinejoin="round">
                                         <path
                                             d="M5 10h10"
-                                            stroke="white"
+                                            stroke="currentColor"
                                             strokeWidth="3.75"
                                             strokeLinecap="round"
                                             strokeLinejoin="round"></path>
                                     </svg>
-                                </Rad>
+                                </RadioButton>
                             </div>
                         </fieldset>
                     ) : null}
@@ -666,7 +774,7 @@ export default function ToolbarLeft() {
                         <fieldset className="flex flex-col">
                             <legend>Stroke style</legend>
                             <div className="flex gap-2">
-                                <Rad
+                                <RadioButton
                                     value={1}
                                     name="stroke-style"
                                     onChange={handleStrokeLineDash}>
@@ -687,8 +795,8 @@ export default function ToolbarLeft() {
                                             strokeLinecap="round"
                                             strokeLinejoin="round"></path>
                                     </svg>
-                                </Rad>
-                                <Rad
+                                </RadioButton>
+                                <RadioButton
                                     onChange={handleStrokeLineDash}
                                     name="stroke-style"
                                     value={3}>
@@ -713,7 +821,7 @@ export default function ToolbarLeft() {
                                             <path d="M11 12h2"></path>
                                         </g>
                                     </svg>
-                                </Rad>
+                                </RadioButton>
                             </div>
                         </fieldset>
                     ) : null}

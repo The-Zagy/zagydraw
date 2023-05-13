@@ -308,15 +308,15 @@ export function isEqualArray(a1: any[], a2: any[]): boolean {
     return true;
 }
 
+export type CommonConfigOptions = {
+    [k in keyof GlobalConfigOptions]?: GlobalConfigOptions[k] | null;
+};
+
 /**
  * get common config between many elements
  * , there's three possible values for each prop
  * @returns undefined: prop not shared, null: shared prop but conflict in value, otherwise return normal value for the prop
  */
-export type CommonConfigOptions = {
-    [k in keyof GlobalConfigOptions]?: GlobalConfigOptions[k] | null;
-};
-
 export function getElementsCommonConfig<
     T extends ZagyCanvasElement = ZagyCanvasElement
 >(elements: T[]): CommonConfigOptions {
