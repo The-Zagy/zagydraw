@@ -1,4 +1,4 @@
-on: 
+on:
     push:
     pull_request:
         branches: [main]
@@ -7,18 +7,19 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
-            - name: use pnpm
-                uses: pnpm/action-setup@v2
-                with:
-                    version: 7
+            - uses: pnpm/action-setup@v2
+              with:
+                  version: 7
             - name: install node
-                uses: actions/setup-node@v3
-                with:
-                    node-version: 'lts'
-                    cache: 'pnpm'
+              uses: actions/setup-node@v3
+              with:
+                  node-version: "18.*"
+                  cache: "pnpm"
             - name: Install dependencies
-            run: pnpm install
+              run: pnpm install
             - name: check types
-                run: pnpm run typecheck 
+              run: pnpm run typecheck
+            - name: linter
+              run: pnpm run lint
             - name: run tests
-                run: pnpm test
+              run: pnpm test

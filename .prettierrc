@@ -4,5 +4,6 @@
   "singleQuote": false,
   "tabWidth": 4,
   "endOfLine": "lf",
-  "bracketSameLine": true
+  "bracketSameLine": true,
+  "printWidth": 100
 }
