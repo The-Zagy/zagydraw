@@ -264,7 +264,7 @@ function ZagyDraw() {
                     {},
                     currentSeed.current
                 );
-
+                if (rect.endX - rect.x < 10 || rect.endY - rect.y < 10) return;
                 setElements((prev) => {
                     return [...prev, rect];
                 });
@@ -333,6 +333,8 @@ function ZagyDraw() {
                         {},
                         currentSeed.current
                     );
+                    if (rect.endX - rect.x < 0 || rect.endY - rect.y < 0)
+                        return;
                     setPreviewElement(rect);
                 } else if (cursorFn === CursorFn.Line) {
                     const line: ZagyCanvasLineElement = generateLineElement(

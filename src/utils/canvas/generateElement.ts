@@ -48,7 +48,25 @@ const generateRectElement = (
     options: Partial<RectOptions & Options & { id: string }>,
     seed?: number
 ): ZagyCanvasRectElement => {
-    const { x, y, endX, endY } = getCorrectPos(startPos, endPos);
+    let { x, y, endX, endY } = getCorrectPos(startPos, endPos);
+    let width = endX - x;
+    let height = endY - y;
+    if(width<10){
+        endY = y;
+    
+    }
+    else if (width < 20) {
+        endX = x + 20;
+        width = 20;
+    }
+    if(height<10){
+        endX = x;
+
+    }
+    else if (height < 20) {
+        endY = y + 20;
+        height = 20;
+    }
     const opts = normalizeRectOptions(options);
     const r = generator.rectangle(
         x,
