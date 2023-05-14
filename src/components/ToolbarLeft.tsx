@@ -62,16 +62,16 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             className=""
                             fill="none"
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
-                            <g clip-path="url(#a)">
+                            <g clipPath="url(#a)">
                                 <path
                                     d="M14.167 6.667a3.333 3.333 0 0 0-3.334-3.334H9.167a3.333 3.333 0 0 0 0 6.667h1.666a3.333 3.333 0 0 1 0 6.667H9.167a3.333 3.333 0 0 1-3.334-3.334"
                                     stroke="currentColor"
                                     strokeWidth="1.25"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                 ></path>
                             </g>
                             <defs>
@@ -90,16 +90,16 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             className=""
                             fill="none"
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
-                            <g clip-path="url(#a)">
+                            <g clipPath="url(#a)">
                                 <path
                                     d="M5 16.667V3.333L10 15l5-11.667v13.334"
                                     stroke="currentColor"
                                     strokeWidth="1.25"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                 ></path>
                             </g>
                             <defs>
@@ -118,16 +118,16 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             className=""
                             fill="none"
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
-                            <g clip-path="url(#a)">
+                            <g clipPath="url(#a)">
                                 <path
                                     d="M5.833 3.333v13.334h8.334"
                                     stroke="currentColor"
                                     strokeWidth="1.25"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                 ></path>
                             </g>
                             <defs>
@@ -146,15 +146,15 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             className=""
                             fill="none"
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
                             <path
                                 d="m1.667 3.333 6.666 13.334M8.333 3.333 1.667 16.667M11.667 3.333v13.334h6.666"
                                 stroke="currentColor"
                                 strokeWidth="1.25"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                             ></path>
                         </svg>
                     </Rad>
@@ -172,12 +172,12 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             className=""
                             fill="none"
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
                             <g strokeWidth="1.25">
                                 <path
-                                    clip-rule="evenodd"
+                                    clipRule="evenodd"
                                     d="m7.643 15.69 7.774-7.773a2.357 2.357 0 1 0-3.334-3.334L4.31 12.357a3.333 3.333 0 0 0-.977 2.357v1.953h1.953c.884 0 1.732-.352 2.357-.977Z"
                                 ></path>
                                 <path d="m11.25 5.417 3.333 3.333"></path>
@@ -193,15 +193,15 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             className=""
                             fill="none"
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
                             <g
-                                clip-path="url(#a)"
+                                clipPath="url(#a)"
                                 stroke="currentColor"
                                 strokeWidth="1.25"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                             >
                                 <path d="M5.833 6.667 2.5 10l3.333 3.333M14.167 6.667 17.5 10l-3.333 3.333M11.667 3.333 8.333 16.667"></path>
                             </g>
@@ -221,14 +221,14 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             className=""
                             fill="none"
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
                             <g
                                 stroke="currentColor"
                                 strokeWidth="1.25"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                             >
                                 <path d="M5.833 16.667v-10a3.333 3.333 0 0 1 3.334-3.334h1.666a3.333 3.333 0 0 1 3.334 3.334v10M5.833 10.833h8.334"></path>
                             </g>
@@ -247,10 +247,10 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             viewBox="0 0 20 20"
                             fill="currentColor"
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
-                            <g clip-path="url(#a)">
+                            <g clipPath="url(#a)">
                                 <path
                                     d="M4.91 2.625h10.18a2.284 2.284 0 0 1 2.285 2.284v10.182a2.284 2.284 0 0 1-2.284 2.284H4.909a2.284 2.284 0 0 1-2.284-2.284V4.909a2.284 2.284 0 0 1 2.284-2.284Z"
                                     stroke="currentColor"
@@ -273,8 +273,8 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             className=""
                             fill="none"
                             stroke="white"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
                             <path
                                 d="M5.879 2.625h8.242a3.254 3.254 0 0 1 3.254 3.254v8.242a3.254 3.254 0 0 1-3.254 3.254H5.88a3.254 3.254 0 0 1-3.254-3.254V5.88a3.254 3.254 0 0 1 3.254-3.254Z"
@@ -302,8 +302,8 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                                     d="M2.258 15.156 15.156 2.258M7.324 20.222 20.222 7.325m-20.444 5.35L12.675-.222m-8.157 18.34L17.416 5.22"
                                     stroke="currentColor"
                                     strokeWidth="1.25"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                 ></path>
                             </g>
                         </svg>
@@ -317,10 +317,10 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             className=""
                             fill="none"
                             stroke="white"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
-                            <g clip-path="url(#a)">
+                            <g clipPath="url(#a)">
                                 <path
                                     d="M5.879 2.625h8.242a3.254 3.254 0 0 1 3.254 3.254v8.242a3.254 3.254 0 0 1-3.254 3.254H5.88a3.254 3.254 0 0 1-3.254-3.254V5.88a3.254 3.254 0 0 1 3.254-3.254Z"
                                     stroke="white"
@@ -339,8 +339,8 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                                         d="M2.426 15.044 15.044 2.426M7.383 20 20 7.383M0 12.617 12.617 0m-7.98 17.941L17.256 5.324m-2.211 12.25L2.426 4.956M20 12.617 7.383 0m5.234 20L0 7.383m17.941 7.98L5.324 2.745"
                                         stroke="currentColor"
                                         strokeWidth="1.25"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
                                     ></path>
                                 </mask>
                                 <g mask="url(#FillCrossHatchIcon)">
@@ -371,14 +371,14 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             fill="none"
                             strokeWidth="2"
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
                             <g
                                 stroke="currentColor"
                                 fill="none"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                                 strokeWidth="2"
                             >
                                 <path
@@ -401,14 +401,14 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             fill="none"
                             strokeWidth="2"
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
                             <g
                                 stroke="currentColor"
                                 fill="none"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                             >
                                 <path
                                     stroke="none"
@@ -430,14 +430,14 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             fill="none"
                             strokeWidth="2"
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
                             <g
                                 stroke="currentColor"
                                 fill="none"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                             >
                                 <path
                                     stroke="none"
@@ -464,15 +464,15 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             className=""
                             fill="none"
                             stroke="white"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
                             <path
                                 d="M4.167 10h11.666"
                                 stroke="white"
                                 strokeWidth="1.25"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                             ></path>
                         </svg>
                     </Rad>
@@ -485,15 +485,15 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             className=""
                             fill="none"
                             stroke="white"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
                             <path
                                 d="M4.167 10h11.666"
                                 stroke="white"
                                 strokeWidth="1.25"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                             ></path>
                         </svg>
                     </Rad>
@@ -506,15 +506,15 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             className=""
                             fill="none"
                             stroke="white"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
                             <path
                                 d="M5 10h10"
                                 stroke="white"
                                 strokeWidth="3.75"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                             ></path>
                         </svg>
                     </Rad>
@@ -532,15 +532,15 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             className=""
                             fill="none"
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
                             <path
                                 d="M4.167 10h11.666"
                                 stroke="currentColor"
                                 strokeWidth="1.25"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                             ></path>
                         </svg>
                     </Rad>
@@ -554,8 +554,8 @@ const ToolbarRect: React.FC<{ rect: ZagyCanvasRectElement }> = (props) => {
                             fill="none"
                             strokeWidth="2"
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         >
                             <g strokeWidth="2">
                                 <path

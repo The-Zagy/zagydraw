@@ -222,13 +222,20 @@ export const isElementVisible = (element:ZagyCanvasElement, rectCoords: [[x:numb
 }
 
 export const getCorrectPos = (startPos:[number,number],endPos:[number,number])=>{
-    const x = Math.min(startPos[0],endPos[0]);
-    const y = Math.min(startPos[1],endPos[1]);
-    const endX = Math.max(startPos[0],endPos[0]);
-    const endY = Math.max(startPos[1],endPos[1]);
-    return {x,y,endX,endY};
+    const x1 = Math.min(startPos[0],endPos[0]);
+    const y1 = Math.min(startPos[1],endPos[1]);
+    let x2 = Math.max(startPos[0],endPos[0]);
+    let y2 = Math.max(startPos[1],endPos[1]);
+    const width = x2 - x1;
+    const height = y2 - y1;
+    if (width < 20) {
+        x2 = x1 + 20;
+    }
+    if (height < 20) {
+        y2 = y1 + 20;
+    }
+    return {x:x1, y:y1, endX:x2, endY:y2};
 }
-
 export const getGlobalMinMax = (points: [number, number][]) => {
     let minX = Infinity;
     let minY = Infinity;

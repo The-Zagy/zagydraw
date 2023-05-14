@@ -48,13 +48,13 @@ const generateRectElement = (
     options: Partial<RectOptions & Options & { id: string }>,
     seed?: number
 ): ZagyCanvasRectElement => {
-    const {x,y,endX,endY} =  getCorrectPos(startPos,endPos);
+    const { x, y, endX, endY } = getCorrectPos(startPos, endPos);
     const opts = normalizeRectOptions(options);
     const r = generator.rectangle(
-        startPos[0],
-        startPos[1],
-        endPos[0] - startPos[0],
-        endPos[1] - startPos[1],
+        x,
+        y,
+        endX - x,
+        endY - y,
         {
             roughness: 2,
             ...opts,
@@ -64,10 +64,10 @@ const generateRectElement = (
     return {
         ...r,
         id: options.id !== undefined ? options.id : nanoid(),
-       x,
-       y,
-       endX,
-       endY,
+        x,
+        y,
+        endX,
+        endY,
         shape: "rectangle",
         curPos: curPos,
         opacity: opts.opacity
@@ -105,6 +105,7 @@ export const generateSelectRectElement = (generator: RoughGenerator,
             id: nanoid(),
         }
 }
+
 
 const generateLineElement = (
     generator: RoughGenerator,
