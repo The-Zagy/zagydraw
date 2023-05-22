@@ -1,10 +1,4 @@
-import {
-    PointerEventHandler,
-    useEffect,
-    useLayoutEffect,
-    useRef,
-    useState,
-} from "react";
+import { PointerEventHandler, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import rough from "roughjs";
 import { useStore } from "store";
@@ -70,12 +64,9 @@ function ZagyDraw() {
     const currentSeed = useRef<number>(Math.random() * 1000000);
     const willDelete = useRef<boolean>(false);
     const [currentText, setCurrentText] = useState<string>("");
-    const [currentlyDrawnFreeHand, setCurrentlyDrawnFreeHand] = useState<
-        [number, number][]
-    >([]);
+    const [currentlyDrawnFreeHand, setCurrentlyDrawnFreeHand] = useState<[number, number][]>([]);
     const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
-    const [multiSelectRect, setMultiSelectRect] =
-        useState<ZagyCanvasRectElement | null>(null);
+    const [multiSelectRect, setMultiSelectRect] = useState<ZagyCanvasRectElement | null>(null);
     const mouseCoords = useRef<MouseCoords>({
         startX: 0,
         startY: 0,
@@ -169,9 +160,7 @@ function ZagyDraw() {
                 const norm = normalizeToGrid(position, startX, startY);
                 startPos.current = norm;
             } else if (cursorFn === CursorFn.FreeDraw) {
-                setCurrentlyDrawnFreeHand([
-                    [startX - position.x, startY - position.y],
-                ]);
+                setCurrentlyDrawnFreeHand([[startX - position.x, startY - position.y]]);
             } else if (cursorFn === CursorFn.Text) {
                 const norm = normalizePos(position, startX, startY);
                 startPos.current = norm;
@@ -186,12 +175,7 @@ function ZagyDraw() {
             const ctx = canvas.current.getContext("2d");
             if (!ctx) return;
             if (cursorFn === CursorFn.Default) {
-                const el = getHitElement(
-                    canvasElements,
-                    ctx,
-                    [startX, startY],
-                    position
-                );
+                const el = getHitElement(canvasElements, ctx, [startX, startY], position);
 
                 if (el !== null) {
                     setSelectedElements(() => [el]);
@@ -232,13 +216,7 @@ function ZagyDraw() {
         // why handle before remove preview? because we want the preview to be set to the current text until finish editing in the text area
         // in other words we need to take control of preview element from this handler
         if (cursorFn === CursorFn.Text && isWriting) {
-            const textEl = generateTextElement(
-                ctx,
-                "",
-                startPos.current,
-                position,
-                {}
-            );
+            const textEl = generateTextElement(ctx, "", startPos.current, position, {});
             setPreviewElement(textEl);
             return;
         }
@@ -271,9 +249,7 @@ function ZagyDraw() {
             } else if (cursorFn === CursorFn.FreeDraw) {
                 // todo change this to one function like any other element
                 const path = generateHandDrawnElement(currentlyDrawnFreeHand);
-                const { minX, minY, maxX, maxY } = getMinMaxFromPoints(
-                    currentlyDrawnFreeHand
-                );
+                const { minX, minY, maxX, maxY } = getMinMaxFromPoints(currentlyDrawnFreeHand);
                 const el: ZagyCanvasHandDrawnElement = {
                     id: nanoid(),
                     shape: "handdrawn",
@@ -350,9 +326,7 @@ function ZagyDraw() {
                         [x - position.x, y - position.y],
                     ]);
 
-                    const path = generateHandDrawnElement(
-                        currentlyDrawnFreeHand
-                    );
+                    const path = generateHandDrawnElement(currentlyDrawnFreeHand);
                     setPreviewElement({
                         id: nanoid(),
                         shape: "handdrawn",
@@ -387,11 +361,7 @@ function ZagyDraw() {
                 if (el !== null) {
                     willDelete.current = true;
                     setElements((prev) =>
-                        prev.map((val) =>
-                            val.id === el.id
-                                ? { ...val, willDelete: true }
-                                : val
-                        )
+                        prev.map((val) => (val.id === el.id ? { ...val, willDelete: true } : val))
                     );
                 }
             }
@@ -404,9 +374,7 @@ function ZagyDraw() {
         deleteStart();
     };
 
-    const handleTextAreaBlur: React.FocusEventHandler<HTMLTextAreaElement> = (
-        e
-    ) => {
+    const handleTextAreaBlur: React.FocusEventHandler<HTMLTextAreaElement> = (e) => {
         setCurrentText("");
         if (canvas.current === null) return;
         const ctx = canvas.current.getContext("2d");
@@ -454,10 +422,9 @@ function ZagyDraw() {
                             "font-handwritten ": font === FontTypeOptions.hand,
                         },
                         {
-                            "font-minecraft ":
-                                font === FontTypeOptions.minecraft,
+                            "font-minecraft ": font === FontTypeOptions.minecraft,
                         },
-                        " bg-transparent leading-none outline-none  p-0 m-0",
+                        " m-0  p-0  leading-none outline-none",
                         "grow-wrap pointer-events-none fixed bg-transparent"
                     )}
                     data-replicated-value={currentText}
@@ -473,7 +440,7 @@ function ZagyDraw() {
                         onBlur={handleTextAreaBlur}
                         value={currentText}
                         onChange={(e) => setCurrentText(e.target.value)}
-                        className=" bg-transparent leading-none outline-none  p-0 m-0"
+                        className=" m-0 bg-transparent p-0  leading-none outline-none"
                     />
                 </div>
             ) : null}

@@ -9,7 +9,7 @@ describe("<App />", () => {
         expect(
             screen.getByRole("heading", {
                 name: /Welcome!/i,
-                level: 1
+                level: 1,
             })
         ).toBeInTheDocument();
 
@@ -21,7 +21,7 @@ describe("<App />", () => {
 
         expect(
             screen.getByRole("link", {
-                name: /start building for free/i
+                name: /start building for free/i,
             })
         ).toBeInTheDocument();
 

@@ -1,12 +1,6 @@
 //gitkeep
 //init zustand store
-import {
-    ZagyCanvasElement,
-    CursorFn,
-    GlobalConfigOptions,
-    FillStyleOptions,
-    FontTypeOptions,
-} from "types/general";
+import { ZagyCanvasElement, CursorFn, GlobalConfigOptions, FontTypeOptions } from "types/general";
 import { create } from "zustand";
 
 type ConfigState = GlobalConfigOptions;

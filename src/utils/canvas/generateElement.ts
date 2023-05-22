@@ -10,7 +10,7 @@ import {
 } from "types/general";
 import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
-import { getCorrectPos, getSvgPathFromStroke, normalizeToGrid } from "utils";
+import { getCorrectPos, getSvgPathFromStroke } from "utils";
 import { useStore } from "store";
 
 const { getConfigState } = useStore.getState();
@@ -176,10 +176,7 @@ const generateTextElement = (
 ): ZagyCanvasTextElement => {
     const opts = normalizeTextOptions(options);
     const norm = textElementHelper(ctx, text, startPos, opts.fontSize);
-    const { x, y, endX, endY } = getCorrectPos(startPos, [
-        norm.endPos[0],
-        norm.endPos[1],
-    ]);
+    const { x, y, endX, endY } = getCorrectPos(startPos, [norm.endPos[0], norm.endPos[1]]);
     return {
         id: options.id || nanoid(),
         text: norm.text,
@@ -216,9 +213,4 @@ const generateHandDrawnElement = (paths: [number, number][]) => {
     return new Path2D(svgFromStroke);
 };
 
-export {
-    generateRectElement,
-    generateLineElement,
-    generateHandDrawnElement,
-    generateTextElement,
-};
+export { generateRectElement, generateLineElement, generateHandDrawnElement, generateTextElement };

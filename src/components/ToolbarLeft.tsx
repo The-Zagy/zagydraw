@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode } from "react";
 import rough from "roughjs";
 import { MdDeleteOutline } from "react-icons/md";
 import { useStore } from "store/index";
@@ -9,7 +9,6 @@ import {
     GlobalConfigOptions,
     StrokeWidth,
     ZagyCanvasElement,
-    ZagyCanvasRectElement,
     isLine,
     isRect,
     isText,
@@ -33,7 +32,7 @@ const RadioButton: React.FC<{
 }> = (props) => {
     const id = props.name + props.value.toString();
     return (
-        <div className="hover:bg-primary-400 w-1/5 h-fit overflow-hidden border border-primary-400 rounded-lg">
+        <div className="hover:bg-primary-400 border-primary-400 h-fit w-1/5 overflow-hidden rounded-lg border">
             <input
                 id={id}
                 name={props.name}
@@ -45,7 +44,7 @@ const RadioButton: React.FC<{
             />
             <label
                 htmlFor={id}
-                className=" w-full h-full peer-checked:text-background-600 peer-checked:stroke-background-600 ">
+                className=" peer-checked:text-background-600 peer-checked:stroke-background-600 h-full w-full ">
                 {props.children}
             </label>
         </div>
@@ -156,6 +155,7 @@ export default function ToolbarLeft() {
         setSelectedElements(() => els);
         setElements((prev) => [...prev.filter((val) => !ids.has(val.id)), ...els]);
     };
+
     const handleFillStyle: React.ChangeEventHandler<HTMLInputElement> = (e) => {
         console.log(e.target.value);
         // todo no type safety here haahahhahahahahah
@@ -203,8 +203,8 @@ export default function ToolbarLeft() {
 
     return (
         <>
-            <div className="scrollbar-thin scrollbar-thumb-zinc-600 fixed left-2 top-24 h-3/5 w-1/5 overflow-auto  whitespace-nowrap  rounded-md bg-primary-600 sm:m-0 sm:w-auto sm:max-w-none">
-                <div className="flex flex-col gap-3 p-3 text-text-800 mx-auto w-fit">
+            <div className="scrollbar-thin scrollbar-thumb-zinc-600 bg-primary-600 fixed left-2 top-24 h-3/5 w-1/5  overflow-auto  whitespace-nowrap rounded-md sm:m-0 sm:w-auto sm:max-w-none">
+                <div className="text-text-800 mx-auto flex w-fit flex-col gap-3 p-3">
                     {commonConf.stroke !== undefined ? (
                         <InputWithIcon
                             labelName={"Stroke"}
@@ -232,7 +232,7 @@ export default function ToolbarLeft() {
                     {commonConf.fontSize !== undefined ? (
                         <fieldset className="flex flex-col">
                             <legend>Font Size</legend>
-                            <div className="flex gap-2 w-full">
+                            <div className="flex w-full gap-2">
                                 <RadioButton
                                     isChecked={commonConf.fontSize === 16}
                                     name="font-size"
@@ -351,7 +351,7 @@ export default function ToolbarLeft() {
                     {commonConf.font !== undefined ? (
                         <fieldset className="flex flex-col">
                             <legend>Font family</legend>
-                            <div className="flex gap-2 w-full">
+                            <div className="flex w-full gap-2">
                                 <RadioButton
                                     isChecked={commonConf.font == FontTypeOptions.hand}
                                     onChange={handleFontFamily}
@@ -436,7 +436,7 @@ export default function ToolbarLeft() {
                     {commonConf.fillStyle !== undefined ? (
                         <fieldset className="flex flex-col">
                             <legend>Fill Style</legend>
-                            <div className="flex gap-2 w-full">
+                            <div className="flex w-full gap-2">
                                 <RadioButton
                                     isChecked={commonConf.fillStyle === "solid"}
                                     name="fill-style"
@@ -562,7 +562,7 @@ export default function ToolbarLeft() {
                     {/* todo add option text align */}
                     <fieldset className="flex flex-col gap-2">
                         <legend>Text Align</legend>
-                        <div className="flex gap-2 w-full">
+                        <div className="flex w-full gap-2">
                             <RadioButton
                                 isChecked={true}
                                 value="left"
@@ -651,7 +651,7 @@ export default function ToolbarLeft() {
                     {commonConf.strokeWidth !== undefined ? (
                         <fieldset className="flex flex-col gap-2">
                             <legend>Stroke Width</legend>
-                            <div className="flex gap-2 w-full">
+                            <div className="flex w-full gap-2">
                                 <RadioButton
                                     isChecked={commonConf.strokeWidth === 1}
                                     value={1}
@@ -790,12 +790,12 @@ export default function ToolbarLeft() {
                     ) : null}
 
                     {commonConf.opacity !== undefined ? (
-                        <label className="flex flex-col gap-4 mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        <label className="mb-2 flex flex-col gap-4 text-sm font-medium text-gray-900 dark:text-white">
                             Opacity
                             <input
                                 id="opacity"
                                 type="range"
-                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700"
                                 min={0}
                                 max={1}
                                 step={0.1}
@@ -808,8 +808,8 @@ export default function ToolbarLeft() {
                     ) : null}
                     <button
                         onClick={handleDeleteOnClick}
-                        className="h-12 w-12 cursor-pointer sm:w-14 hover:bg-primary-400 rounded-xl">
-                        <MdDeleteOutline className="m-auto text-xl text-text-700" />
+                        className="hover:bg-primary-400 h-12 w-12 cursor-pointer rounded-xl sm:w-14">
+                        <MdDeleteOutline className="text-text-700 m-auto text-xl" />
                     </button>
                 </div>
             </div>

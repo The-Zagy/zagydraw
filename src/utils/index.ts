@@ -1,18 +1,10 @@
 import type { CanvasState } from "store";
-import { text } from "stream/consumers";
 import {
     ZagyCanvasElement,
     ZagyCanvasHandDrawnElement,
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
-    ZagyCanvasTextElement,
     GlobalConfigOptions,
-    isHanddrawn,
-    isLine,
-    isRect,
-    isText,
-    CursorFn,
-    FontTypeOptions,
 } from "types/general";
 
 export function classNames(...classes: unknown[]): string {
@@ -139,7 +131,7 @@ export function getHitElement(
 }
 export const average = (a: number, b: number): number => (a + b) / 2;
 
-export function getSvgPathFromStroke(points: number[][], closed: boolean = true): string {
+export function getSvgPathFromStroke(points: number[][], closed = true): string {
     const len = points.length;
 
     if (len < 4) {
@@ -172,7 +164,7 @@ export function getBoundingRect(...elements: ZagyCanvasElement[]) {
     let y = Infinity;
     let endX = -Infinity;
     let endY = -Infinity;
-    for (let element of elements) {
+    for (const element of elements) {
         //the check not needed currently but maybe other shapes will be added in the future
         if (
             element.shape === "rectangle" ||
