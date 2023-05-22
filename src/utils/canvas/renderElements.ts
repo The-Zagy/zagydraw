@@ -10,14 +10,11 @@ import {
     isLine,
     isRect,
     isText,
-    isHanddrawn
+    isHanddrawn,
 } from "types/general";
 
 // todo finish this
-function isRectVisible(
-    rect: ZagyCanvasRectElement,
-    canvasState: CanvasState
-): boolean {
+function isRectVisible(rect: ZagyCanvasRectElement, canvasState: CanvasState): boolean {
     // we assume that the infinte canvas is in the 4th quarter
     // so for element to be visble it needs to have x more than canvas's current visible x and less than window width
     // and have y less than canvas's current visible y and less than window height
@@ -40,21 +37,18 @@ export function renderRoughElement(
     roughCanvas: RoughCanvas
 ) {
     ctx.save();
-    let opacity:number;
-    if(el.willDelete){
-        opacity = el.opacity * .5;
-    }else{
+    let opacity: number;
+    if (el.willDelete) {
+        opacity = el.opacity * 0.5;
+    } else {
         opacity = el.opacity;
     }
-    ctx.globalAlpha =opacity ;
+    ctx.globalAlpha = opacity;
     roughCanvas.draw(el);
     ctx.restore();
 }
 
-function renderTextElement(
-    el: ZagyCanvasTextElement,
-    ctx: CanvasRenderingContext2D
-) {
+function renderTextElement(el: ZagyCanvasTextElement, ctx: CanvasRenderingContext2D) {
     ctx.save();
     ctx.globalAlpha = el.options.opacity;
     ctx.font =
@@ -66,25 +60,20 @@ function renderTextElement(
             : "Minecraft");
     ctx.fillStyle = el.options.stroke;
     ctx.textBaseline = "top";
-    el.text.forEach((val, i) =>
-        ctx.fillText(val, el.x, el.y + i * el.options.fontSize)
-    );
+    el.text.forEach((val, i) => ctx.fillText(val, el.x, el.y + i * el.options.fontSize));
     ctx.restore();
 }
 
-const renderFreeDrawElement = (
-    el: ZagyCanvasHandDrawnElement,
-    ctx: CanvasRenderingContext2D
-) => {
+const renderFreeDrawElement = (el: ZagyCanvasHandDrawnElement, ctx: CanvasRenderingContext2D) => {
     ctx.save();
     ctx.fillStyle = "white";
-    let opacity:number;
-    if(el.willDelete){
-        opacity = el.options.opacity * .5;
-    }else{
+    let opacity: number;
+    if (el.willDelete) {
+        opacity = el.options.opacity * 0.5;
+    } else {
         opacity = el.options.opacity;
     }
-  
+
     ctx.globalAlpha = opacity;
     ctx.fill(el.path);
     ctx.restore();
@@ -97,14 +86,12 @@ function renderElements<T extends ZagyCanvasElement>(
     ctx: CanvasRenderingContext2D
 ) {
     elements.forEach((el) => {
-        
         if (isRect(el) || isLine(el)) renderRoughElement(el, ctx, roughCanvas);
         else if (isText(el)) {
             renderTextElement(el, ctx);
         } else if (isHanddrawn(el)) {
             renderFreeDrawElement(el, ctx);
         }
- 
     });
 }
 export default renderElements;

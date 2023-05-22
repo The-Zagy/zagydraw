@@ -4,6 +4,7 @@
   "description": "",
   "private": true,
   "author": "Zagy",
+  "packageManager": "pnpm@7.32.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

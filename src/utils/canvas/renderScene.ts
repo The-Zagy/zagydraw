@@ -26,8 +26,8 @@ function renderScene(
     ctx.save();
     ctx.translate(canvasState.position.x, canvasState.position.y);
     let renderedElements: CanvasState["elements"] = [...canvasState.elements];
-    
-    if(canvasState.previewElement){
+
+    if (canvasState.previewElement) {
         renderedElements.push(canvasState.previewElement);
     }
     if (multiSelectRect) {
@@ -35,15 +35,16 @@ function renderScene(
     }
     //todo skip filtering if canvas is not moved
     renderedElements = renderedElements.filter((el) => {
-        return isElementVisible(el, [[-canvasState.position.x,-canvasState.position.y],[-canvasState.position.x+canvasState.width,-canvasState.position.y+canvasState.height]]);
+        return isElementVisible(el, [
+            [-canvasState.position.x, -canvasState.position.y],
+            [
+                -canvasState.position.x + canvasState.width,
+                -canvasState.position.y + canvasState.height,
+            ],
+        ]);
     });
-    console.log("renderedElements length",renderedElements.length);
-    renderElements(
-        renderedElements,
-        roughCanvas,
-        ctx,
-        
-    );
+    console.log("renderedElements length", renderedElements.length);
+    renderElements(renderedElements, roughCanvas, ctx);
     renderBoundingRect(canvasState.selectedElements, ctx);
     ctx.restore();
 }
