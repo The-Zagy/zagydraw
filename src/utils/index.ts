@@ -60,18 +60,11 @@ const distance = (p1: [number, number], p2: [number, number]) => {
 const dotProduct = (v1: [number, number], v2: [number, number]) => {
     return v1[0] * v2[0] + v1[1] * v2[1];
 };
-const makeVector = (
-    p1: [number, number],
-    p2: [number, number]
-): [number, number] => {
+const makeVector = (p1: [number, number], p2: [number, number]): [number, number] => {
     return [p2[0] - p1[0], p2[1] - p1[1]];
 };
 
-const pointNearLine = (
-    A: [number, number],
-    B: [number, number],
-    M: [number, number]
-) => {
+const pointNearLine = (A: [number, number], B: [number, number], M: [number, number]) => {
     A = [Math.round(A[0]), Math.round(A[1])];
     B = [Math.round(B[0]), Math.round(B[1])];
     M = [Math.round(M[0]), Math.round(M[1])];
@@ -127,15 +120,7 @@ export function getHitElement(
     for (let i = 0; i < elements.length; i++) {
         if (elements[i].shape === "rectangle" || elements[i].shape === "text") {
             const { x, y, endX, endY } = elements[i] as ZagyCanvasRectElement;
-            if (
-                pointInRectangle(
-                    [x, y],
-                    [endX, y],
-                    [endX, endY],
-                    [x, endY],
-                    mousePos
-                )
-            ) {
+            if (pointInRectangle([x, y], [endX, y], [endX, endY], [x, endY], mousePos)) {
                 return elements[i];
             }
         } else if (elements[i].shape === "line") {
@@ -154,10 +139,7 @@ export function getHitElement(
 }
 export const average = (a: number, b: number): number => (a + b) / 2;
 
-export function getSvgPathFromStroke(
-    points: number[][],
-    closed: boolean = true
-): string {
+export function getSvgPathFromStroke(points: number[][], closed: boolean = true): string {
     const len = points.length;
 
     if (len < 4) {
@@ -168,20 +150,14 @@ export function getSvgPathFromStroke(
     let b = points[1];
     const c = points[2];
 
-    let result = `M${a[0].toFixed(2)},${a[1].toFixed(2)} Q${b[0].toFixed(
+    let result = `M${a[0].toFixed(2)},${a[1].toFixed(2)} Q${b[0].toFixed(2)},${b[1].toFixed(
         2
-    )},${b[1].toFixed(2)} ${average(b[0], c[0]).toFixed(2)},${average(
-        b[1],
-        c[1]
-    ).toFixed(2)} T`;
+    )} ${average(b[0], c[0]).toFixed(2)},${average(b[1], c[1]).toFixed(2)} T`;
 
     for (let i = 2, max = len - 1; i < max; i++) {
         a = points[i];
         b = points[i + 1];
-        result += `${average(a[0], b[0]).toFixed(2)},${average(
-            a[1],
-            b[1]
-        ).toFixed(2)} `;
+        result += `${average(a[0], b[0]).toFixed(2)},${average(a[1], b[1]).toFixed(2)} `;
     }
 
     if (closed) {
@@ -223,10 +199,7 @@ export function getBoundingRect(...elements: ZagyCanvasElement[]) {
     ];
 }
 
-export const isElementInRect = (
-    element: ZagyCanvasElement,
-    rect: ZagyCanvasRectElement
-) => {
+export const isElementInRect = (element: ZagyCanvasElement, rect: ZagyCanvasRectElement) => {
     if (
         element.shape === "rectangle" ||
         element.shape === "line" ||
@@ -240,12 +213,7 @@ export const isElementInRect = (
             endX: rect.endX,
             endY: rect.endY,
         });
-        if (
-            x >= rect.x &&
-            y >= rect.y &&
-            endX <= rect.endX &&
-            endY <= rect.endY
-        ) {
+        if (x >= rect.x && y >= rect.y && endX <= rect.endX && endY <= rect.endY) {
             return true;
         }
     }
@@ -275,10 +243,7 @@ export const isElementVisible = (
     return false;
 };
 
-export const getCorrectPos = (
-    startPos: [number, number],
-    endPos: [number, number]
-) => {
+export const getCorrectPos = (startPos: [number, number], endPos: [number, number]) => {
     const x = Math.min(startPos[0], endPos[0]);
     const y = Math.min(startPos[1], endPos[1]);
     const endX = Math.max(startPos[0], endPos[0]);
@@ -300,7 +265,7 @@ export const getGlobalMinMax = (points: [number, number][]) => {
     return { minX, minY, maxX, maxY };
 };
 
-export function isEqualArray(a1: any[], a2: any[]): boolean {
+export function isEqualArray<T>(a1: T[], a2: T[]): boolean {
     if (a1.length !== a2.length) return false;
     for (let i = 0; i < a1.length; ++i) {
         if (a1[i] !== a2[i]) return false;
@@ -317,11 +282,10 @@ export type CommonConfigOptions = {
  * , there's three possible values for each prop
  * @returns undefined: prop not shared, null: shared prop but conflict in value, otherwise return normal value for the prop
  */
-export function getElementsCommonConfig<
-    T extends ZagyCanvasElement = ZagyCanvasElement
->(elements: T[]): CommonConfigOptions {
-    if (elements.length === 0)
-        throw new Error("cannot get common config on empty array");
+export function getElementsCommonConfig<T extends ZagyCanvasElement = ZagyCanvasElement>(
+    elements: T[]
+): CommonConfigOptions {
+    if (elements.length === 0) throw new Error("cannot get common config on empty array");
 
     // hack to remove rough options that i don't count for now
     const t = Object.keys({

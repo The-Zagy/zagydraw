@@ -13,7 +13,7 @@ describe.only("common config between elements", () => {
                     opacity: 1,
                     stroke: "#9b59b6",
                     strokeLineDash: [],
-                    strokeWidth: 5,
+                    strokeWidth: 6,
                 },
                 opacity: 1,
             },
@@ -27,7 +27,7 @@ describe.only("common config between elements", () => {
             opacity: 1,
             stroke: "#9b59b6",
             strokeLineDash: [],
-            strokeWidth: 5,
+            strokeWidth: 6,
         };
         // @ts-ignore
         expect(getElementsCommonConfig(data)).toEqual(res);
@@ -43,7 +43,7 @@ describe.only("common config between elements", () => {
                     opacity: 1,
                     stroke: "#9b59b6",
                     strokeLineDash: [],
-                    strokeWidth: 5,
+                    strokeWidth: 6,
                 },
                 opacity: 1,
             },
@@ -57,7 +57,7 @@ describe.only("common config between elements", () => {
             opacity: 1,
             stroke: "#9b59b6",
             strokeLineDash: [],
-            strokeWidth: 5,
+            strokeWidth: 6,
         };
         // @ts-ignore
         expect(getElementsCommonConfig(data)).toEqual(res);
@@ -73,7 +73,7 @@ describe.only("common config between elements", () => {
                     opacity: 1,
                     stroke: "#9b59b6",
                     strokeLineDash: [],
-                    strokeWidth: 5,
+                    strokeWidth: 6,
                 },
                 opacity: 1,
             },
@@ -86,7 +86,7 @@ describe.only("common config between elements", () => {
                     opacity: 1,
                     stroke: "#9b59b6",
                     strokeLineDash: [],
-                    strokeWidth: 5,
+                    strokeWidth: 6,
                 },
                 opacity: 1,
             },
@@ -100,7 +100,7 @@ describe.only("common config between elements", () => {
             opacity: 1,
             stroke: "#9b59b6",
             strokeLineDash: [],
-            strokeWidth: 5,
+            strokeWidth: 6,
         };
         // @ts-ignore
         expect(getElementsCommonConfig(data)).toEqual(res);
@@ -129,7 +129,7 @@ describe.only("common config between elements", () => {
                     opacity: 1,
                     stroke: "#9b59b6",
                     strokeLineDash: [],
-                    strokeWidth: 5,
+                    strokeWidth: 6,
                 },
                 opacity: 1,
             },
@@ -172,7 +172,7 @@ describe.only("common config between elements", () => {
                     opacity: 1,
                     stroke: "#9b59b6",
                     strokeLineDash: [5, 5], // conflict
-                    strokeWidth: 5,
+                    strokeWidth: 6,
                 },
                 opacity: 1,
             },
@@ -185,7 +185,7 @@ describe.only("common config between elements", () => {
                     opacity: 1,
                     stroke: "#9b59b6",
                     strokeLineDash: [5, 5], // conflict
-                    strokeWidth: 5,
+                    strokeWidth: 6,
                 },
                 opacity: 1,
             },

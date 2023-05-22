@@ -14,7 +14,7 @@ interface SharedOptions {
     opacity: number;
     stroke: string;
     strokeLineDash: StrokeLineDash;
-    strokeWidth: number;
+    strokeWidth: StrokeWidth;
 }
 type StrokeLineDash = number[];
 type StrokeWidth = 1 | 3 | 6;
