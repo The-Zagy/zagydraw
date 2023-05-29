@@ -4,14 +4,13 @@ import {
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
     ZagyCanvasTextElement,
-
     RectOptions,
     TextOptions,
-    LineOptions
+    LineOptions,
 } from "types/general";
 import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
-import { getCorrectPos, getSvgPathFromStroke, normalizeToGrid } from "utils";
+import { getCorrectPos, getSvgPathFromStroke } from "utils";
 import { useStore } from "store";
 
 const { getConfigState } = useStore.getState();
@@ -24,7 +23,7 @@ function normalizeTextOptions(options: Partial<TextOptions>): TextOptions {
         strokeLineDash: options.strokeLineDash || globalConfig.strokeLineDash,
         strokeWidth: options.strokeWidth || globalConfig.strokeWidth,
         font: options.font || globalConfig.font,
-        fontSize: options.fontSize || globalConfig.fontSize
+        fontSize: options.fontSize || globalConfig.fontSize,
     };
 }
 
@@ -49,33 +48,24 @@ const generateRectElement = (
     seed?: number
 ): ZagyCanvasRectElement => {
     let { x, y, endX, endY } = getCorrectPos(startPos, endPos);
-    let width = endX - x;
-    let height = endY - y;
- 
-    if(width < 10){
+    const width = endX - x;
+    const height = endY - y;
+    if (width < 10) {
         endY = y;
-    }
-    else if (width < 20) {
+    } else if (width < 20) {
         endX = x + 20;
     }
-    if(height<10){
-       endX = x;
-    }
-    else if (height < 20) {
+    if (height < 10) {
+        endX = x;
+    } else if (height < 20) {
         endY = y + 20;
     }
     const opts = normalizeRectOptions(options);
-    const r = generator.rectangle(
-        x,
-        y,
-        endX - x,
-        endY - y,
-        {
-            roughness: 2,
-            ...opts,
-            seed
-        }
-    );
+    const r = generator.rectangle(x, y, endX - x, endY - y, {
+        roughness: 2,
+        ...opts,
+        seed,
+    });
     return {
         ...r,
         id: options.id !== undefined ? options.id : nanoid(),
@@ -85,42 +75,42 @@ const generateRectElement = (
         endY,
         shape: "rectangle",
         curPos: curPos,
-        opacity: opts.opacity
+        opacity: opts.opacity,
     };
 };
 
-export const generateSelectRectElement = (generator: RoughGenerator,
+export const generateSelectRectElement = (
+    generator: RoughGenerator,
     startPos: [number, number],
     endPos: [number, number],
-    curPos: ZagyCanvasRectElement["curPos"]):ZagyCanvasRectElement=>{
-        const {x,y,endX,endY} =  getCorrectPos(startPos,endPos);
-        const rect =  generator.rectangle(
-            startPos[0],
-            startPos[1],
-            endPos[0] - startPos[0],
-            endPos[1] - startPos[1],
-            {
-             
-                fill: "#9b59b6",
-                fillStyle: "solid",
-                strokeWidth: 0,
-                stroke:"transparent",
-                roughness: 0
-            },
-        );
-        return {
-            ...rect,
-           x,
-           y,
-           endX,
-           endY,
-            shape: "rectangle",
-            curPos: curPos,
-            opacity: 0.3,
-            id: nanoid(),
+    curPos: ZagyCanvasRectElement["curPos"]
+): ZagyCanvasRectElement => {
+    const { x, y, endX, endY } = getCorrectPos(startPos, endPos);
+    const rect = generator.rectangle(
+        startPos[0],
+        startPos[1],
+        endPos[0] - startPos[0],
+        endPos[1] - startPos[1],
+        {
+            fill: "#9b59b6",
+            fillStyle: "solid",
+            strokeWidth: 0,
+            stroke: "transparent",
+            roughness: 0,
         }
-}
-
+    );
+    return {
+        ...rect,
+        x,
+        y,
+        endX,
+        endY,
+        shape: "rectangle",
+        curPos: curPos,
+        opacity: 0.3,
+        id: nanoid(),
+    };
+};
 
 const generateLineElement = (
     generator: RoughGenerator,
@@ -129,15 +119,15 @@ const generateLineElement = (
     curPos: ZagyCanvasRectElement["curPos"],
     options: Partial<LineOptions & { id: string }>
 ): ZagyCanvasLineElement => {
-    const elementStartX = Math.min(startPos[0],endPos[0]);
-    const elementStartY = Math.min(startPos[1],endPos[1]);
-    const elementEndX = Math.max(startPos[0],endPos[0]);
-    const elementEndY = Math.max(startPos[1],endPos[1]);
+    const elementStartX = Math.min(startPos[0], endPos[0]);
+    const elementStartY = Math.min(startPos[1], endPos[1]);
+    const elementEndX = Math.max(startPos[0], endPos[0]);
+    const elementEndY = Math.max(startPos[1], endPos[1]);
     // todo create normalize line options
     const opts = normalizeRectOptions(options);
     const l = generator.line(startPos[0], startPos[1], endPos[0], endPos[1], {
         roughness: 0,
-        ...opts
+        ...opts,
     });
     return {
         ...l,
@@ -148,7 +138,7 @@ const generateLineElement = (
         endY: elementEndY,
         shape: "line",
         curPos: curPos,
-        opacity: opts.opacity
+        opacity: opts.opacity,
     };
 };
 
@@ -179,7 +169,7 @@ function textElementHelper(
     return {
         text: lines,
         startPos,
-        endPos: [startPos[0] + width, startPos[1] + height]
+        endPos: [startPos[0] + width, startPos[1] + height],
     };
 }
 
@@ -190,10 +180,9 @@ const generateTextElement = (
     curPos: ZagyCanvasTextElement["curPos"],
     options: Partial<TextOptions & { id: string }>
 ): ZagyCanvasTextElement => {
-    
     const opts = normalizeTextOptions(options);
     const norm = textElementHelper(ctx, text, startPos, opts.fontSize);
-    const {x,y,endX,endY} = getCorrectPos(startPos,[norm.endPos[0],norm.endPos[1]]);    
+    const { x, y, endX, endY } = getCorrectPos(startPos, [norm.endPos[0], norm.endPos[1]]);
     return {
         id: options.id || nanoid(),
         text: norm.text,
@@ -204,8 +193,9 @@ const generateTextElement = (
         shape: "text",
         curPos: curPos,
         options: {
-            ...opts
-        }
+            ...opts,
+        },
+        opacity: opts.opacity,
     };
 };
 
@@ -218,20 +208,15 @@ const generateHandDrawnElement = (paths: [number, number][]) => {
         easing: (t) => t,
         start: {
             taper: 0,
-            cap: true
+            cap: true,
         },
         end: {
             taper: 0,
-            cap: true
-        }
+            cap: true,
+        },
     });
     const svgFromStroke = getSvgPathFromStroke(stroke);
     return new Path2D(svgFromStroke);
 };
 
-export {
-    generateRectElement,
-    generateLineElement,
-    generateHandDrawnElement,
-    generateTextElement
-};
+export { generateRectElement, generateLineElement, generateHandDrawnElement, generateTextElement };

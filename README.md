@@ -1,3 +1,5 @@
+# Zagy-Draw
+
 ## Zagydraw is an ambitious whiteboarding app, while it's still really early in development we want to be able to rival the big whiteboarding apps one day
 
 ### Devlopment
