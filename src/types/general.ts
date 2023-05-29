@@ -16,16 +16,19 @@ interface SharedOptions {
     strokeLineDash: StrokeLineDash;
     strokeWidth: StrokeWidth;
 }
+interface RoughOptions {
+    seed: number;
+}
 type StrokeLineDash = number[];
 type StrokeWidth = 1 | 3 | 6;
 type FontSize = 16 | 24 | 32 | 48;
 
-interface RectOptions extends SharedOptions {
+interface RectOptions extends SharedOptions, RoughOptions {
     fill: string;
     fillStyle: FillStyleOptions;
 }
 
-interface LineOptions extends SharedOptions {
+interface LineOptions extends SharedOptions, RoughOptions {
     fill: string;
     fillStyle: FillStyleOptions;
 }
@@ -56,7 +59,7 @@ interface ZagyCanvasElement {
     opacity: number;
 }
 
-type CanvasRoughElement = ZagyCanvasElement & Drawable;
+type CanvasRoughElement = ZagyCanvasElement & Drawable & { seed: number };
 
 interface ZagyCanvasRectElement extends CanvasRoughElement {
     shape: "rectangle";

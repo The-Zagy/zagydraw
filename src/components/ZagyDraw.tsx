@@ -31,6 +31,7 @@ import {
 import { nanoid } from "nanoid";
 import clsx from "clsx";
 import useRenderScene from "hooks/useRenderScene";
+import { randomSeed } from "roughjs/bin/math";
 
 const {
     setPosition,
@@ -61,7 +62,8 @@ function ZagyDraw() {
     const cursorFn = useStore((state) => state.cursorFn);
     const previewElement = useStore((state) => state.previewElement);
     const selectedElements = useStore((state) => state.selectedElements);
-    const currentSeed = useRef<number>(Math.random() * 1000000);
+    //changes every time a new element is drawn
+    const currentSeed = useRef<number>(randomSeed());
     const willDelete = useRef<boolean>(false);
     const [currentText, setCurrentText] = useState<string>("");
     const [currentlyDrawnFreeHand, setCurrentlyDrawnFreeHand] = useState<[number, number][]>([]);
@@ -239,8 +241,7 @@ function ZagyDraw() {
                     startPos.current,
                     endPos.current,
                     position,
-                    {},
-                    currentSeed.current
+                    { seed: currentSeed.current }
                 );
                 if (rect.endX - rect.x < 10 || rect.endY - rect.y < 10) return;
                 setElements((prev) => {
@@ -307,8 +308,7 @@ function ZagyDraw() {
                         startPos.current,
                         endPos.current,
                         position,
-                        {},
-                        currentSeed.current
+                        { seed: currentSeed.current }
                     );
                     setPreviewElement(rect);
                 } else if (cursorFn === CursorFn.Line) {

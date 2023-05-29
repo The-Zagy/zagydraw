@@ -12,6 +12,7 @@ import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
 import { getCorrectPos, getSvgPathFromStroke } from "utils";
 import { useStore } from "store";
+import { randomSeed } from "roughjs/bin/math";
 
 const { getConfigState } = useStore.getState();
 
@@ -36,6 +37,7 @@ function normalizeRectOptions(options: Partial<RectOptions>): RectOptions {
         stroke: options.stroke || globalConfig.stroke,
         strokeLineDash: options.strokeLineDash || globalConfig.strokeLineDash,
         strokeWidth: options.strokeWidth || globalConfig.strokeWidth,
+        seed: options.seed || randomSeed(),
     };
 }
 
@@ -44,8 +46,7 @@ const generateRectElement = (
     startPos: [number, number],
     endPos: [number, number],
     curPos: ZagyCanvasRectElement["curPos"],
-    options: Partial<RectOptions & Options & { id: string }>,
-    seed?: number
+    options: Partial<RectOptions & Options & { id: string }>
 ): ZagyCanvasRectElement => {
     //eslint-disable-next-line
     let { x, y, endX, endY } = getCorrectPos(startPos, endPos);
@@ -65,10 +66,10 @@ const generateRectElement = (
     const r = generator.rectangle(x, y, endX - x, endY - y, {
         roughness: 2,
         ...opts,
-        seed,
     });
     return {
         ...r,
+        seed: opts.seed,
         id: options.id !== undefined ? options.id : nanoid(),
         x,
         y,
@@ -102,6 +103,8 @@ export const generateSelectRectElement = (
     );
     return {
         ...rect,
+        // dummy seed
+        seed: 0,
         x,
         y,
         endX,
@@ -132,6 +135,7 @@ const generateLineElement = (
     });
     return {
         ...l,
+        seed: opts.seed,
         id: options.id || nanoid(),
         x: elementStartX,
         y: elementStartY,
