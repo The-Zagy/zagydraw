@@ -48,8 +48,12 @@ interface Position {
     x: number;
     y: number;
 }
+interface CachableElement {
+    cache: HTMLCanvasElement;
+    cacheCtx: CanvasRenderingContext2D;
+}
 
-interface ZagyCanvasElement {
+interface ZagyCanvasElement extends Partial<CachableElement> {
     id: string;
     shape: ElementTypes;
     x: number;
@@ -60,8 +64,7 @@ interface ZagyCanvasElement {
 }
 
 type CanvasRoughElement = ZagyCanvasElement & Drawable & { seed: number };
-
-interface ZagyCanvasRectElement extends CanvasRoughElement {
+interface ZagyCanvasRectElement extends CanvasRoughElement, Partial<CachableElement> {
     shape: "rectangle";
     endX: number;
     endY: number;
@@ -132,5 +135,6 @@ export type {
     StrokeWidth,
     FontSize,
     FillStyleOptions,
+    CachableElement,
 };
 export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn };

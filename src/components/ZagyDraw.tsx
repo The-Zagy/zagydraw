@@ -22,6 +22,7 @@ import {
 
 import useCursor from "hooks/useCursor";
 import {
+    generateCacheRectElement,
     generateHandDrawnElement,
     generateLineElement,
     generateRectElement,
@@ -236,7 +237,7 @@ function ZagyDraw() {
                     return [...prev, line];
                 });
             } else if (cursorFn === CursorFn.Rect) {
-                const rect: ZagyCanvasRectElement = generateRectElement(
+                const rect = generateCacheRectElement(
                     generator,
                     startPos.current,
                     endPos.current,
@@ -244,6 +245,7 @@ function ZagyDraw() {
                     { seed: currentSeed.current }
                 );
                 if (rect.endX - rect.x < 10 || rect.endY - rect.y < 10) return;
+
                 setElements((prev) => {
                     return [...prev, rect];
                 });

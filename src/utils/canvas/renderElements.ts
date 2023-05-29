@@ -36,6 +36,21 @@ export function renderRoughElement(
     ctx: CanvasRenderingContext2D,
     roughCanvas: RoughCanvas
 ) {
+    if (el.cache) {
+        ctx.drawImage(
+            el.cache,
+            0,
+            0,
+            el.cache.width,
+            el.cache.height,
+            el.x,
+            el.y,
+            el.cache.width,
+            el.cache.height
+        );
+        return;
+    }
+    console.log("rendering element not cached");
     ctx.save();
     let opacity: number;
     if (el.willDelete) {

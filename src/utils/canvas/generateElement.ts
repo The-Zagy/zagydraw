@@ -1,4 +1,4 @@
-import { RoughGenerator } from "roughjs/bin/generator";
+import rough from "roughjs";
 import { Options } from "roughjs/bin/core";
 import {
     ZagyCanvasLineElement,
@@ -13,6 +13,8 @@ import getStroke from "perfect-freehand";
 import { getCorrectPos, getSvgPathFromStroke } from "utils";
 import { useStore } from "store";
 import { randomSeed } from "roughjs/bin/math";
+import { RoughCanvas } from "roughjs/bin/canvas";
+import { RoughGenerator } from "roughjs/bin/generator";
 
 const { getConfigState } = useStore.getState();
 
@@ -69,6 +71,52 @@ const generateRectElement = (
     });
     return {
         ...r,
+        seed: opts.seed,
+        id: options.id !== undefined ? options.id : nanoid(),
+        x,
+        y,
+        endX,
+        endY,
+        shape: "rectangle",
+        curPos: curPos,
+        opacity: opts.opacity,
+    };
+};
+export const generateCacheRectElement = (
+    generator: RoughGenerator,
+    startPos: [number, number],
+    endPos: [number, number],
+    curPos: ZagyCanvasRectElement["curPos"],
+    options: Partial<RectOptions & Options & { id: string }>
+): ZagyCanvasRectElement => {
+    let { x, y, endX, endY } = getCorrectPos(startPos, endPos);
+    const width = endX - x;
+    const height = endY - y;
+    if (width < 10) {
+        endY = y;
+    } else if (width < 20) {
+        endX = x + 20;
+    }
+    if (height < 10) {
+        endX = x;
+    } else if (height < 20) {
+        endY = y + 20;
+    }
+    const opts = normalizeRectOptions(options);
+    const el = generator.rectangle(0, 0, endX - x, endY - y, {
+        roughness: 2,
+        ...opts,
+    });
+    const cacheCanvas = document.createElement("canvas");
+    cacheCanvas.width = endX - x;
+    cacheCanvas.height = endY - y;
+    const cacheCtx = cacheCanvas.getContext("2d");
+    if (!cacheCtx) throw new Error("cacheCtx is null");
+    rough.canvas(cacheCanvas).draw(el);
+    return {
+        ...el,
+        cache: cacheCanvas,
+        cacheCtx,
         seed: opts.seed,
         id: options.id !== undefined ? options.id : nanoid(),
         x,
