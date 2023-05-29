@@ -47,6 +47,7 @@ const generateRectElement = (
     options: Partial<RectOptions & Options & { id: string }>,
     seed?: number
 ): ZagyCanvasRectElement => {
+    //eslint-disable-next-line
     let { x, y, endX, endY } = getCorrectPos(startPos, endPos);
     const width = endX - x;
     const height = endY - y;
