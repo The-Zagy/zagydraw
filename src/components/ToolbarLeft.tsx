@@ -1,6 +1,6 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useMemo, useRef } from "react";
 import rough from "roughjs";
-import { MdDeleteOutline } from "react-icons/md";
+import { MdDeleteOutline, MdCopyAll } from "react-icons/md";
 import { useStore } from "store/index";
 import {
     FillStyleOptions,
@@ -20,6 +20,8 @@ import {
     generateRectElement,
     generateTextElement,
 } from "utils/canvas/generateElement";
+import { ActionDeleteSelected } from "actions";
+import { ActionCopySelected } from "actions/copySelected";
 
 const gen = rough.generator();
 
@@ -57,6 +59,7 @@ export default function ToolbarLeft() {
         setSelectedElements,
         fontSize,
         font,
+        elements,
         setFont,
         setFontSize,
         setFill,
@@ -67,6 +70,11 @@ export default function ToolbarLeft() {
         setStrokeWidth,
     } = useStore.getState();
     const selectedElements = useStore((state) => state.selectedElements);
+    const dc = useMemo(
+        () => new ActionDeleteSelected(elements, selectedElements),
+        [elements, selectedElements]
+    );
+    const cc = useMemo(() => new ActionCopySelected(selectedElements), [selectedElements]);
     const ctx = document.createElement("canvas").getContext("2d");
     if (!ctx) return null;
     ctx.font =
@@ -91,18 +99,19 @@ export default function ToolbarLeft() {
     //     [selectedElements]
     // );
     const commonConf = getElementsCommonConfig(selectedElements);
-    console.log(commonConf.strokeWidth);
     const handleDeleteOnClick: React.MouseEventHandler<HTMLButtonElement> = () => {
-        // remove any elements that exist on selected elements array
-        // create hash of ids for easy check while filtring the elements
-        const ids = new Set<string>();
-        for (const itm of selectedElements) {
-            ids.add(itm.id);
-        }
-        setSelectedElements(() => []);
-        setElements((prev) => [...prev.filter((val) => !ids.has(val.id))]);
+        const res = dc.execute();
+        setSelectedElements(() => res.selectedElements);
+        setElements(() => res.elements);
     };
 
+    const handleCopyOnClick: React.MouseEventHandler<HTMLButtonElement> = async () => {
+        try {
+            await cc.execute();
+        } catch (e) {
+            console.log("🪵 [ToolbarLeft.tsx:109] ~ token ~ \x1b[0;32me\x1b[0m = ", e);
+        }
+    };
     const handle = <T extends keyof CommonConfigOptions>(k: T, value: GlobalConfigOptions[T]) => {
         // create hash for check up
         const ids = new Set<string>();
@@ -822,6 +831,11 @@ export default function ToolbarLeft() {
                         onClick={handleDeleteOnClick}
                         className="hover:bg-primary-400 h-12 w-12 cursor-pointer rounded-xl sm:w-14">
                         <MdDeleteOutline className="text-text-700 m-auto text-xl" />
+                    </button>
+                    <button
+                        onClick={handleCopyOnClick}
+                        className="hover:bg-primary-400 h-12 w-12 cursor-pointer rounded-xl sm:w-14">
+                        <MdCopyAll className="text-text-700 m-auto text-xl" />
                     </button>
                 </div>
             </div>
