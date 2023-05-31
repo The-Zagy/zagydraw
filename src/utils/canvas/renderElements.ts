@@ -1,10 +1,10 @@
+import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
 import { RoughCanvas } from "roughjs/bin/canvas";
-import type { CanvasState } from "store";
+
 import {
     FontTypeOptions,
     type ZagyCanvasElement,
     type ZagyCanvasHandDrawnElement,
-    type ZagyCanvasRectElement,
     type CanvasRoughElement,
     type ZagyCanvasTextElement,
     isLine,
@@ -12,18 +12,6 @@ import {
     isText,
     isHanddrawn,
 } from "types/general";
-
-// todo finish this
-function isRectVisible(rect: ZagyCanvasRectElement, canvasState: CanvasState): boolean {
-    // we assume that the infinte canvas is in the 4th quarter
-    // so for element to be visble it needs to have x more than canvas's current visible x and less than window width
-    // and have y less than canvas's current visible y and less than window height
-
-    //!todo fix this
-    const xDiff = Math.abs(rect.x - canvasState.position.y);
-    const yDiff = Math.abs(rect.y - canvasState.position.x);
-    return xDiff < canvasState.width && yDiff < canvasState.height;
-}
 
 /**
  * draw any element that extend RoughDrawable, and apply the shared options
@@ -43,29 +31,19 @@ export function renderRoughElement(
             0,
             el.cache.width,
             el.cache.height,
-            el.x,
-            el.y,
+            el.x - CACHE_CANVAS_SIZE_THRESHOLD * 2,
+            el.y - CACHE_CANVAS_SIZE_THRESHOLD * 2,
             el.cache.width,
             el.cache.height
         );
-        return;
-    }
-    console.log("rendering element not cached");
-    ctx.save();
-    let opacity: number;
-    if (el.willDelete) {
-        opacity = el.opacity * 0.5;
     } else {
-        opacity = el.opacity;
+        roughCanvas.draw(el);
     }
-    ctx.globalAlpha = opacity;
-    roughCanvas.draw(el);
-    ctx.restore();
 }
 
 function renderTextElement(el: ZagyCanvasTextElement, ctx: CanvasRenderingContext2D) {
     ctx.save();
-    ctx.globalAlpha = el.options.opacity;
+
     ctx.font =
         `${el.options.fontSize}px ` +
         (el.options.font === FontTypeOptions.code
@@ -82,14 +60,22 @@ function renderTextElement(el: ZagyCanvasTextElement, ctx: CanvasRenderingContex
 const renderFreeDrawElement = (el: ZagyCanvasHandDrawnElement, ctx: CanvasRenderingContext2D) => {
     ctx.save();
     ctx.fillStyle = "white";
-    let opacity: number;
-    if (el.willDelete) {
-        opacity = el.options.opacity * 0.5;
-    } else {
-        opacity = el.options.opacity;
+    if (el.cache) {
+        console.log("drawing cached element");
+        ctx.drawImage(
+            el.cache,
+            0,
+            0,
+            el.cache.width,
+            el.cache.height,
+            el.x - CACHE_CANVAS_SIZE_THRESHOLD / 2,
+            el.y - CACHE_CANVAS_SIZE_THRESHOLD / 2,
+            el.cache.width,
+            el.cache.height
+        );
+        ctx.restore();
+        return;
     }
-
-    ctx.globalAlpha = opacity;
     ctx.fill(el.path);
     ctx.restore();
 };
@@ -101,12 +87,21 @@ function renderElements<T extends ZagyCanvasElement>(
     ctx: CanvasRenderingContext2D
 ) {
     elements.forEach((el) => {
+        ctx.save();
+        let opacity: number;
+        if (el.willDelete) {
+            opacity = el.opacity * 0.5;
+        } else {
+            opacity = el.opacity;
+        }
+        ctx.globalAlpha = opacity;
         if (isRect(el) || isLine(el)) renderRoughElement(el, ctx, roughCanvas);
         else if (isText(el)) {
             renderTextElement(el, ctx);
         } else if (isHanddrawn(el)) {
             renderFreeDrawElement(el, ctx);
         }
+        ctx.restore();
     });
 }
 export default renderElements;

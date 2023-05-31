@@ -117,7 +117,7 @@ export default function ToolbarLeft() {
                         gen,
                         [el.x, el.y],
                         [el.endX, el.endY],
-                        el.curPos,
+
                         // @ts-ignore
                         {
                             ...el.options,
@@ -132,7 +132,7 @@ export default function ToolbarLeft() {
                         gen,
                         [el.x, el.y],
                         [el.endX, el.endY],
-                        el.curPos,
+
                         // @ts-ignore
                         {
                             ...el.options,
@@ -143,7 +143,7 @@ export default function ToolbarLeft() {
                 );
             } else if (isText(el)) {
                 els.push(
-                    generateTextElement(ctx, el.text.join("\n"), [el.x, el.y], el.curPos, {
+                    generateTextElement(ctx, el.text.join("\n"), [el.x, el.y], {
                         ...el.options,
                         [k]: value,
                     })

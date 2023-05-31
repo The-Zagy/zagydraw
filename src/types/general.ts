@@ -58,7 +58,6 @@ interface ZagyCanvasElement extends Partial<CachableElement> {
     shape: ElementTypes;
     x: number;
     y: number;
-    curPos: Position;
     willDelete?: boolean;
     opacity: number;
 }
@@ -84,7 +83,7 @@ interface ZagyCanvasTextElement extends ZagyCanvasElement {
     options: TextOptions;
 }
 
-interface ZagyCanvasHandDrawnElement extends ZagyCanvasElement {
+interface ZagyCanvasHandDrawnElement extends ZagyCanvasElement, Partial<CachableElement> {
     shape: "handdrawn";
     endX: number;
     endY: number;

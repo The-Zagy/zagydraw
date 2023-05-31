@@ -5,15 +5,8 @@ import { useStore } from "store";
 import useGlobalEvent from "hooks/useGlobalEvent";
 import { RoughCanvas } from "roughjs/bin/canvas";
 
+import { getHitElement, isElementInRect, normalizePos, normalizeToGrid } from "utils";
 import {
-    getGlobalMinMax as getMinMaxFromPoints,
-    getHitElement,
-    isElementInRect,
-    normalizePos,
-    normalizeToGrid,
-} from "utils";
-import {
-    ZagyCanvasHandDrawnElement,
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
     CursorFn,
@@ -23,13 +16,14 @@ import {
 import useCursor from "hooks/useCursor";
 import {
     generateCacheRectElement,
+    generateCachedHandDrawnElement,
     generateHandDrawnElement,
     generateLineElement,
     generateRectElement,
     generateSelectRectElement,
     generateTextElement,
 } from "utils/canvas/generateElement";
-import { nanoid } from "nanoid";
+
 import clsx from "clsx";
 import useRenderScene from "hooks/useRenderScene";
 import { randomSeed } from "roughjs/bin/math";
@@ -157,19 +151,19 @@ function ZagyDraw() {
         const drawElementStart = () => {
             if (cursorFn === CursorFn.Rect) {
                 currentSeed.current = Math.random() * 1000000;
-                const norm = normalizeToGrid(position, startX, startY);
+                const norm = normalizeToGrid(position, [startX, startY]);
                 startPos.current = norm;
             } else if (cursorFn === CursorFn.Line) {
-                const norm = normalizeToGrid(position, startX, startY);
+                const norm = normalizeToGrid(position, [startX, startY]);
                 startPos.current = norm;
             } else if (cursorFn === CursorFn.FreeDraw) {
                 setCurrentlyDrawnFreeHand([[startX - position.x, startY - position.y]]);
             } else if (cursorFn === CursorFn.Text) {
-                const norm = normalizePos(position, startX, startY);
+                const norm = normalizePos(position, [startX, startY]);
                 startPos.current = norm;
                 setIsWriting(true);
             } else if (cursorFn === CursorFn.Default) {
-                const norm = normalizePos(position, startX, startY);
+                const norm = normalizePos(position, [startX, startY]);
                 startPos.current = norm;
             }
         };
@@ -219,7 +213,7 @@ function ZagyDraw() {
         // why handle before remove preview? because we want the preview to be set to the current text until finish editing in the text area
         // in other words we need to take control of preview element from this handler
         if (cursorFn === CursorFn.Text && isWriting) {
-            const textEl = generateTextElement(ctx, "", startPos.current, position, {});
+            const textEl = generateTextElement(ctx, "", startPos.current, {});
             setPreviewElement(textEl);
             return;
         }
@@ -230,7 +224,7 @@ function ZagyDraw() {
                     generator,
                     startPos.current,
                     endPos.current,
-                    position,
+
                     {}
                 );
                 setElements((prev) => {
@@ -241,7 +235,7 @@ function ZagyDraw() {
                     generator,
                     startPos.current,
                     endPos.current,
-                    position,
+
                     { seed: currentSeed.current }
                 );
                 if (rect.endX - rect.x < 10 || rect.endY - rect.y < 10) return;
@@ -251,25 +245,8 @@ function ZagyDraw() {
                 });
             } else if (cursorFn === CursorFn.FreeDraw) {
                 // todo change this to one function like any other element
-                const path = generateHandDrawnElement(currentlyDrawnFreeHand);
-                const { minX, minY, maxX, maxY } = getMinMaxFromPoints(currentlyDrawnFreeHand);
-                const el: ZagyCanvasHandDrawnElement = {
-                    id: nanoid(),
-                    shape: "handdrawn",
-                    x: minX,
-                    y: minY,
-                    endX: maxX,
-                    endY: maxY,
-                    curPos: position,
-                    path: path,
-                    options: {
-                        opacity: 1,
-                        stroke: "transparent",
-                        strokeLineDash: [],
-                        strokeWidth: 1,
-                    },
-                    opacity: 1,
-                };
+
+                const el = generateCachedHandDrawnElement(currentlyDrawnFreeHand);
                 setElements((prev) => {
                     return [...prev, el];
                 });
@@ -301,7 +278,7 @@ function ZagyDraw() {
             if (isMouseDown && canvas.current && roughCanvas.current) {
                 // if (!roughCanvas.current) return;
                 // const generator = roughCanvas.current.generator;
-                const norm = normalizeToGrid(position, x, y);
+                const norm = normalizeToGrid(position, [x, y]);
                 endPos.current = norm;
                 const generator = roughCanvas.current.generator;
                 if (cursorFn === CursorFn.Rect) {
@@ -309,7 +286,7 @@ function ZagyDraw() {
                         generator,
                         startPos.current,
                         endPos.current,
-                        position,
+
                         { seed: currentSeed.current }
                     );
                     setPreviewElement(rect);
@@ -318,7 +295,7 @@ function ZagyDraw() {
                         generator,
                         startPos.current,
                         endPos.current,
-                        position,
+
                         {}
                     );
                     setPreviewElement(line);
@@ -328,30 +305,12 @@ function ZagyDraw() {
                         [x - position.x, y - position.y],
                     ]);
 
-                    const path = generateHandDrawnElement(currentlyDrawnFreeHand);
-                    setPreviewElement({
-                        id: nanoid(),
-                        shape: "handdrawn",
-                        x: 0,
-                        y: 0,
-                        endX: 0,
-                        endY: 0,
-                        curPos: position,
-                        path: path,
-                        options: {
-                            opacity: 1,
-                            stroke: "transparent",
-                            strokeLineDash: [],
-                            strokeWidth: 1,
-                        },
-                        opacity: 1,
-                    } as ZagyCanvasHandDrawnElement);
+                    setPreviewElement(generateHandDrawnElement(currentlyDrawnFreeHand));
                 } else if (cursorFn === CursorFn.Default && isMouseDown) {
                     const selectionRect = generateSelectRectElement(
                         generator,
                         startPos.current,
-                        endPos.current,
-                        position
+                        endPos.current
                     );
                     setMultiSelectRect(selectionRect);
                 }
@@ -387,7 +346,7 @@ function ZagyDraw() {
                 ctx,
                 text,
                 [previewElement.x, previewElement.y],
-                previewElement.curPos,
+
                 {}
             );
             setCursorFn(CursorFn.Default);
