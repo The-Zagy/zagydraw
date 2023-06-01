@@ -81,11 +81,8 @@ const generateCacheRectElement = (
     endPos: [number, number],
     options: Partial<RectOptions & Options & { id: string }>
 ): ZagyCanvasRectElement => {
-    let { x, y, endX, endY } = normalizeRectCoords(startPos, endPos);
-    x += CACHE_CANVAS_SIZE_THRESHOLD;
-    y += CACHE_CANVAS_SIZE_THRESHOLD;
-    endX += CACHE_CANVAS_SIZE_THRESHOLD;
-    endY += CACHE_CANVAS_SIZE_THRESHOLD;
+    const { x, y, endX, endY } = normalizeRectCoords(startPos, endPos);
+
     const opts = normalizeRectOptions(options);
     const el = generator.rectangle(
         CACHE_CANVAS_SIZE_THRESHOLD,

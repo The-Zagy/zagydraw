@@ -31,8 +31,8 @@ export function renderRoughElement(
             0,
             el.cache.width,
             el.cache.height,
-            el.x - CACHE_CANVAS_SIZE_THRESHOLD * 2,
-            el.y - CACHE_CANVAS_SIZE_THRESHOLD * 2,
+            el.x - CACHE_CANVAS_SIZE_THRESHOLD,
+            el.y - CACHE_CANVAS_SIZE_THRESHOLD,
             el.cache.width,
             el.cache.height
         );
