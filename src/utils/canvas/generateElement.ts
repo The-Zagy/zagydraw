@@ -13,7 +13,6 @@ import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
 import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
 import {
-    getBoundingRect,
     getCorrectCoordOrder,
     getGlobalMinMax,
     getSvgPathFromStroke,
@@ -37,7 +36,9 @@ function normalizeTextOptions(options: Partial<TextOptions>): TextOptions {
     };
 }
 
-function normalizeRectOptions(options: Partial<RectOptions>): RectOptions {
+function normalizeRectOptions(
+    options: Partial<RectOptions & { seed: number }>
+): RectOptions & { seed: number } {
     const globalConfig = getConfigState();
     return {
         fill: options.fill || globalConfig.fill,

@@ -1,5 +1,6 @@
 //gitkeep
 //init zustand store
+
 import { ZagyCanvasElement, CursorFn, GlobalConfigOptions, FontTypeOptions } from "types/general";
 import { create } from "zustand";
 

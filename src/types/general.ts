@@ -16,19 +16,17 @@ interface SharedOptions {
     strokeLineDash: StrokeLineDash;
     strokeWidth: StrokeWidth;
 }
-interface RoughOptions {
-    seed: number;
-}
+
 type StrokeLineDash = number[];
 type StrokeWidth = 1 | 3 | 6;
 type FontSize = 16 | 24 | 32 | 48;
 
-interface RectOptions extends SharedOptions, RoughOptions {
+interface RectOptions extends SharedOptions {
     fill: string;
     fillStyle: FillStyleOptions;
 }
 
-interface LineOptions extends SharedOptions, RoughOptions {
+interface LineOptions extends SharedOptions {
     fill: string;
     fillStyle: FillStyleOptions;
 }
