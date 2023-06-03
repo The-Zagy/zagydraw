@@ -1,3 +1,5 @@
+export type Point = [x: number, y: number];
+
 import type { CanvasState } from "store";
 import {
     ZagyCanvasElement,
@@ -15,13 +17,9 @@ export function classNames(...classes: unknown[]): string {
  *
  * @param mousePosX
  * @param mousePosY
- * @returns  {[posX, posY]} normalized to 20px grid
+ * @returns  {Point} normalized to 20px grid
  */
-export function normalizePos(
-    pos: CanvasState["position"],
-    mousePosX: number,
-    mousePosY: number
-): [number, number] {
+export function normalizePos(pos: CanvasState["position"], [mousePosX, mousePosY]: Point): Point {
     return [mousePosX - pos.x, mousePosY - pos.y];
 }
 /**
@@ -32,9 +30,8 @@ export function normalizePos(
  */
 export function normalizeToGrid(
     pos: CanvasState["position"],
-    mousePosX: number,
-    mousePosY: number
-): [number, number] {
+    [mousePosX, mousePosY]: Point
+): Point {
     const xStart = Math.floor(pos.y) % 20;
     const yStart = Math.floor(pos.x) % 20;
     // for perfect square this would be the normalized x pos
@@ -45,18 +42,18 @@ export function normalizeToGrid(
     const rowPosition = xStart + rowNumber * 20;
     return [columnPos - pos.x, rowPosition - pos.y];
 }
-const distance = (p1: [number, number], p2: [number, number]) => {
+const distance = (p1: Point, p2: Point) => {
     return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2));
 };
 
-const dotProduct = (v1: [number, number], v2: [number, number]) => {
+const dotProduct = (v1: Point, v2: Point) => {
     return v1[0] * v2[0] + v1[1] * v2[1];
 };
-const makeVector = (p1: [number, number], p2: [number, number]): [number, number] => {
+const makeVector = (p1: Point, p2: Point): Point => {
     return [p2[0] - p1[0], p2[1] - p1[1]];
 };
 
-const pointNearLine = (A: [number, number], B: [number, number], M: [number, number]) => {
+const pointNearLine = (A: Point, B: Point, M: Point) => {
     A = [Math.round(A[0]), Math.round(A[1])];
     B = [Math.round(B[0]), Math.round(B[1])];
     M = [Math.round(M[0]), Math.round(M[1])];
@@ -76,13 +73,7 @@ const pointNearLine = (A: [number, number], B: [number, number], M: [number, num
  * @param M  point M to check
  * @returns  true if point M is inside rectangle
  */
-const pointInRectangle = (
-    A: [number, number],
-    B: [number, number],
-    _: [number, number],
-    D: [number, number],
-    M: [number, number]
-): boolean => {
+const pointInRectangle = (A: Point, B: Point, _: Point, D: Point, M: Point): boolean => {
     // https://math.stackexchange.com/questions/190111/how-to-check-if-a-point-is-inside-a-rectangle
     const AB = makeVector(A, B);
     const AM = makeVector(A, M);
@@ -93,18 +84,13 @@ const pointInRectangle = (
     const AD_AD = dotProduct(AD, AD);
     return 0 < AM_AB && AM_AB < AB_AB && 0 < AM_AD && AM_AD < AD_AD;
 };
-const pointInPath = (
-    ctx: CanvasRenderingContext2D,
-    path: Path2D,
-    x: number,
-    y: number
-): boolean => {
+const pointInPath = (ctx: CanvasRenderingContext2D, path: Path2D, [x, y]: Point): boolean => {
     return ctx.isPointInPath(path, x, y);
 };
 export function getHitElement(
     elements: CanvasState["elements"],
     ctx: CanvasRenderingContext2D,
-    mousePos: [number, number],
+    mousePos: Point,
     pos: CanvasState["position"]
 ): null | CanvasState["elements"][number] {
     //todo deal with stacking elements when stacking is implemented
@@ -122,7 +108,7 @@ export function getHitElement(
             }
         } else if (elements[i].shape === "handdrawn") {
             const { path } = elements[i] as ZagyCanvasHandDrawnElement;
-            if (pointInPath(ctx, path, mousePos[0], mousePos[1])) {
+            if (pointInPath(ctx, path, [mousePos[0], mousePos[1]])) {
                 return elements[i];
             }
         }
@@ -235,14 +221,35 @@ export const isElementVisible = (
     return false;
 };
 
-export const getCorrectPos = (startPos: [number, number], endPos: [number, number]) => {
+export const getCorrectCoordOrder = (startPos: Point, endPos: Point) => {
     const x1 = Math.min(startPos[0], endPos[0]);
     const y1 = Math.min(startPos[1], endPos[1]);
     const x2 = Math.max(startPos[0], endPos[0]);
     const y2 = Math.max(startPos[1], endPos[1]);
     return { x: x1, y: y1, endX: x2, endY: y2 };
 };
-export const getGlobalMinMax = (points: [number, number][]) => {
+export const getMinimumRectCoords = (startPos: Point, endPos: Point) => {
+    const [x, y] = startPos;
+    let [endX, endY] = endPos;
+    const width = endX - x;
+    const height = endY - y;
+    if (width < 10) {
+        endY = y;
+    } else if (width < 20) {
+        endX = x + 20;
+    }
+    if (height < 10) {
+        endX = x;
+    } else if (height < 20) {
+        endY = y + 20;
+    }
+    return { x, y, endX, endY };
+};
+export const normalizeRectCoords = (startPos: Point, endPos: Point) => {
+    const { x, y, endX, endY } = getCorrectCoordOrder(startPos, endPos);
+    return getMinimumRectCoords([x, y], [endX, endY]);
+};
+export const getGlobalMinMax = (points: Point[]) => {
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;

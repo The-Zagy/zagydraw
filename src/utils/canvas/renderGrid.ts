@@ -1,3 +1,5 @@
+import { CELL_SIZE } from "constants/index";
+
 function drawGrid(
     x: number,
     y: number,
@@ -5,7 +7,7 @@ function drawGrid(
     height: number,
     ctx: CanvasRenderingContext2D,
     color = "#282828",
-    cellSide = 20,
+    cellSide = CELL_SIZE,
     lineWidth = 1
 ) {
     const xStart = Math.floor(y) % cellSide;

@@ -16,19 +16,17 @@ interface SharedOptions {
     strokeLineDash: StrokeLineDash;
     strokeWidth: StrokeWidth;
 }
-interface RoughOptions {
-    seed: number;
-}
+
 type StrokeLineDash = number[];
 type StrokeWidth = 1 | 3 | 6;
 type FontSize = 16 | 24 | 32 | 48;
 
-interface RectOptions extends SharedOptions, RoughOptions {
+interface RectOptions extends SharedOptions {
     fill: string;
     fillStyle: FillStyleOptions;
 }
 
-interface LineOptions extends SharedOptions, RoughOptions {
+interface LineOptions extends SharedOptions {
     fill: string;
     fillStyle: FillStyleOptions;
 }
@@ -48,20 +46,22 @@ interface Position {
     x: number;
     y: number;
 }
+interface CachableElement {
+    cache: HTMLCanvasElement;
+    cacheCtx: CanvasRenderingContext2D;
+}
 
-interface ZagyCanvasElement {
+interface ZagyCanvasElement extends Partial<CachableElement> {
     id: string;
     shape: ElementTypes;
     x: number;
     y: number;
-    curPos: Position;
     willDelete?: boolean;
     opacity: number;
 }
 
 type CanvasRoughElement = ZagyCanvasElement & Drawable & { seed: number };
-
-interface ZagyCanvasRectElement extends CanvasRoughElement {
+interface ZagyCanvasRectElement extends CanvasRoughElement, Partial<CachableElement> {
     shape: "rectangle";
     endX: number;
     endY: number;
@@ -81,7 +81,7 @@ interface ZagyCanvasTextElement extends ZagyCanvasElement {
     options: TextOptions;
 }
 
-interface ZagyCanvasHandDrawnElement extends ZagyCanvasElement {
+interface ZagyCanvasHandDrawnElement extends ZagyCanvasElement, Partial<CachableElement> {
     shape: "handdrawn";
     endX: number;
     endY: number;
@@ -132,5 +132,6 @@ export type {
     StrokeWidth,
     FontSize,
     FillStyleOptions,
+    CachableElement,
 };
 export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn };

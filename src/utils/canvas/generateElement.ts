@@ -1,4 +1,4 @@
-import { RoughGenerator } from "roughjs/bin/generator";
+import rough from "roughjs";
 import { Options } from "roughjs/bin/core";
 import {
     ZagyCanvasLineElement,
@@ -7,12 +7,20 @@ import {
     RectOptions,
     TextOptions,
     LineOptions,
+    ZagyCanvasHandDrawnElement,
 } from "types/general";
 import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
-import { getCorrectPos, getSvgPathFromStroke } from "utils";
+import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
+import {
+    getCorrectCoordOrder,
+    getGlobalMinMax,
+    getSvgPathFromStroke,
+    normalizeRectCoords,
+} from "utils";
 import { useStore } from "store";
 import { randomSeed } from "roughjs/bin/math";
+import { RoughGenerator } from "roughjs/bin/generator";
 
 const { getConfigState } = useStore.getState();
 
@@ -28,7 +36,9 @@ function normalizeTextOptions(options: Partial<TextOptions>): TextOptions {
     };
 }
 
-function normalizeRectOptions(options: Partial<RectOptions>): RectOptions {
+function normalizeRectOptions(
+    options: Partial<RectOptions & { seed: number }>
+): RectOptions & { seed: number } {
     const globalConfig = getConfigState();
     return {
         fill: options.fill || globalConfig.fill,
@@ -45,23 +55,9 @@ const generateRectElement = (
     generator: RoughGenerator,
     startPos: [number, number],
     endPos: [number, number],
-    curPos: ZagyCanvasRectElement["curPos"],
     options: Partial<RectOptions & Options & { id: string }>
 ): ZagyCanvasRectElement => {
-    //eslint-disable-next-line
-    let { x, y, endX, endY } = getCorrectPos(startPos, endPos);
-    const width = endX - x;
-    const height = endY - y;
-    if (width < 10) {
-        endY = y;
-    } else if (width < 20) {
-        endX = x + 20;
-    }
-    if (height < 10) {
-        endX = x;
-    } else if (height < 20) {
-        endY = y + 20;
-    }
+    const { x, y, endX, endY } = normalizeRectCoords(startPos, endPos);
     const opts = normalizeRectOptions(options);
     const r = generator.rectangle(x, y, endX - x, endY - y, {
         roughness: 2,
@@ -76,18 +72,57 @@ const generateRectElement = (
         endX,
         endY,
         shape: "rectangle",
-        curPos: curPos,
         opacity: opts.opacity,
     };
 };
 
-export const generateSelectRectElement = (
+const generateCacheRectElement = (
     generator: RoughGenerator,
     startPos: [number, number],
     endPos: [number, number],
-    curPos: ZagyCanvasRectElement["curPos"]
+    options: Partial<RectOptions & Options & { id: string }>
 ): ZagyCanvasRectElement => {
-    const { x, y, endX, endY } = getCorrectPos(startPos, endPos);
+    const { x, y, endX, endY } = normalizeRectCoords(startPos, endPos);
+
+    const opts = normalizeRectOptions(options);
+    const el = generator.rectangle(
+        CACHE_CANVAS_SIZE_THRESHOLD,
+        CACHE_CANVAS_SIZE_THRESHOLD,
+        endX - x,
+        endY - y,
+        {
+            roughness: 2,
+            ...opts,
+        }
+    );
+    const cacheCanvas = document.createElement("canvas");
+    // we have to add some threshold because roughjs rects have some offset
+    cacheCanvas.width = endX - x + CACHE_CANVAS_SIZE_THRESHOLD * 4;
+    cacheCanvas.height = endY - y + CACHE_CANVAS_SIZE_THRESHOLD * 4;
+    const cacheCtx = cacheCanvas.getContext("2d");
+    if (!cacheCtx) throw new Error("cacheCtx is null");
+    rough.canvas(cacheCanvas).draw(el);
+    return {
+        ...el,
+        cache: cacheCanvas,
+        cacheCtx,
+        seed: opts.seed,
+        id: options.id !== undefined ? options.id : nanoid(),
+        x,
+        y,
+        endX,
+        endY,
+        shape: "rectangle",
+        opacity: opts.opacity,
+    };
+};
+
+const generateSelectRectElement = (
+    generator: RoughGenerator,
+    startPos: [number, number],
+    endPos: [number, number]
+): ZagyCanvasRectElement => {
+    const { x, y, endX, endY } = getCorrectCoordOrder(startPos, endPos);
     const rect = generator.rectangle(
         startPos[0],
         startPos[1],
@@ -110,7 +145,6 @@ export const generateSelectRectElement = (
         endX,
         endY,
         shape: "rectangle",
-        curPos: curPos,
         opacity: 0.3,
         id: nanoid(),
     };
@@ -120,13 +154,10 @@ const generateLineElement = (
     generator: RoughGenerator,
     startPos: [number, number],
     endPos: [number, number],
-    curPos: ZagyCanvasRectElement["curPos"],
+
     options: Partial<LineOptions & { id: string }>
 ): ZagyCanvasLineElement => {
-    const elementStartX = Math.min(startPos[0], endPos[0]);
-    const elementStartY = Math.min(startPos[1], endPos[1]);
-    const elementEndX = Math.max(startPos[0], endPos[0]);
-    const elementEndY = Math.max(startPos[1], endPos[1]);
+    const { x, y, endX, endY } = getCorrectCoordOrder(startPos, endPos);
     // todo create normalize line options
     const opts = normalizeRectOptions(options);
     const l = generator.line(startPos[0], startPos[1], endPos[0], endPos[1], {
@@ -137,12 +168,11 @@ const generateLineElement = (
         ...l,
         seed: opts.seed,
         id: options.id || nanoid(),
-        x: elementStartX,
-        y: elementStartY,
-        endX: elementEndX,
-        endY: elementEndY,
+        x,
+        y,
+        endX,
+        endY,
         shape: "line",
-        curPos: curPos,
         opacity: opts.opacity,
     };
 };
@@ -182,12 +212,11 @@ const generateTextElement = (
     ctx: CanvasRenderingContext2D,
     text: string,
     startPos: [number, number],
-    curPos: ZagyCanvasTextElement["curPos"],
     options: Partial<TextOptions & { id: string }>
 ): ZagyCanvasTextElement => {
     const opts = normalizeTextOptions(options);
     const norm = textElementHelper(ctx, text, startPos, opts.fontSize);
-    const { x, y, endX, endY } = getCorrectPos(startPos, [norm.endPos[0], norm.endPos[1]]);
+    const { x, y, endX, endY } = getCorrectCoordOrder(startPos, [norm.endPos[0], norm.endPos[1]]);
     return {
         id: options.id || nanoid(),
         text: norm.text,
@@ -196,7 +225,7 @@ const generateTextElement = (
         endX,
         endY,
         shape: "text",
-        curPos: curPos,
+
         options: {
             ...opts,
         },
@@ -204,7 +233,7 @@ const generateTextElement = (
     };
 };
 
-const generateHandDrawnElement = (paths: [number, number][]) => {
+const constructHandDrawnElementPath2D = (paths: [number, number][]) => {
     const stroke = getStroke(paths, {
         size: 4,
         smoothing: 0,
@@ -223,5 +252,53 @@ const generateHandDrawnElement = (paths: [number, number][]) => {
     const svgFromStroke = getSvgPathFromStroke(stroke);
     return new Path2D(svgFromStroke);
 };
+export const generateHandDrawnElement = (paths: [number, number][]): ZagyCanvasHandDrawnElement => {
+    const path = constructHandDrawnElementPath2D(paths);
+    const { minX, minY, maxX, maxY } = getGlobalMinMax(paths);
+    return {
+        id: nanoid(),
+        shape: "handdrawn",
+        x: minX,
+        y: minY,
+        endX: maxX,
+        endY: maxY,
 
-export { generateRectElement, generateLineElement, generateHandDrawnElement, generateTextElement };
+        path: path,
+        options: {
+            opacity: 1,
+            stroke: "transparent",
+            strokeLineDash: [],
+            strokeWidth: 1,
+        },
+        opacity: 1,
+    };
+};
+const generateCachedHandDrawnElement = (paths: [number, number][]) => {
+    const el = generateHandDrawnElement(paths);
+    const cacheCanvas = document.createElement("canvas");
+    cacheCanvas.width = el.endX - el.x + 20;
+    cacheCanvas.height = el.endY - el.y + 20;
+    const cacheCtx = cacheCanvas.getContext("2d");
+    if (!cacheCtx) throw new Error("cacheCtx is null");
+    cacheCtx.translate(
+        -el.x + CACHE_CANVAS_SIZE_THRESHOLD / 2,
+        -el.y + CACHE_CANVAS_SIZE_THRESHOLD / 2
+    );
+    cacheCtx.fillStyle = "white";
+    cacheCtx.fill(el.path);
+    return {
+        ...el,
+        cache: cacheCanvas,
+        cacheCtx,
+    };
+};
+
+export {
+    generateRectElement,
+    generateLineElement,
+    constructHandDrawnElementPath2D,
+    generateSelectRectElement,
+    generateCacheRectElement,
+    generateTextElement,
+    generateCachedHandDrawnElement,
+};
