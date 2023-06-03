@@ -16,8 +16,8 @@ import {
 import InputWithIcon from "./form/input";
 import { CommonConfigOptions, getElementsCommonConfig, isEqualArray } from "utils";
 import {
+    generateCacheRectElement,
     generateLineElement,
-    generateRectElement,
     generateTextElement,
 } from "utils/canvas/generateElement";
 
@@ -113,7 +113,7 @@ export default function ToolbarLeft() {
         selectedElements.forEach((el) => {
             if (isRect(el)) {
                 els.push(
-                    generateRectElement(
+                    generateCacheRectElement(
                         gen,
                         [el.x, el.y],
                         [el.endX, el.endY],
