@@ -28,6 +28,7 @@ import clsx from "clsx";
 import useRenderScene from "hooks/useRenderScene";
 import { randomSeed } from "roughjs/bin/math";
 import { commandManager } from "actions/commandManager";
+import { RoughGenerator } from "roughjs/bin/generator";
 
 const {
     setPosition,
@@ -45,7 +46,7 @@ type MouseCoords = {
     startX: number;
     startY: number;
 };
-
+const roughGenerator = new RoughGenerator();
 function ZagyDraw() {
     const position = useStore((state) => state.position);
     const font = useStore((state) => state.font);
@@ -209,8 +210,7 @@ function ZagyDraw() {
         };
         deleteEnd();
         if (!canvas.current) return;
-        if (!roughCanvas.current) return;
-        const generator = roughCanvas.current.generator;
+
         const ctx = canvas.current.getContext("2d");
         if (ctx === null) return;
         // why handle before remove preview? because we want the preview to be set to the current text until finish editing in the text area
@@ -224,7 +224,7 @@ function ZagyDraw() {
             setPreviewElement(null);
             if (cursorFn === CursorFn.Line) {
                 const line: ZagyCanvasLineElement = generateLineElement(
-                    generator,
+                    roughGenerator,
                     startPos.current,
                     endPos.current,
 
@@ -235,7 +235,7 @@ function ZagyDraw() {
                 });
             } else if (cursorFn === CursorFn.Rect) {
                 const rect = generateCacheRectElement(
-                    generator,
+                    roughGenerator,
                     startPos.current,
                     endPos.current,
 
@@ -278,15 +278,15 @@ function ZagyDraw() {
             }
         };
         const handlePreview = () => {
-            if (isMouseDown && canvas.current && roughCanvas.current) {
+            if (isMouseDown && canvas.current) {
                 // if (!roughCanvas.current) return;
-                // const generator = roughCanvas.current.generator;
+
                 const norm = normalizeToGrid(position, [x, y]);
                 endPos.current = norm;
-                const generator = roughCanvas.current.generator;
+
                 if (cursorFn === CursorFn.Rect) {
                     const rect: ZagyCanvasRectElement = generateRectElement(
-                        generator,
+                        roughGenerator,
                         startPos.current,
                         endPos.current,
 
@@ -295,7 +295,7 @@ function ZagyDraw() {
                     setPreviewElement(rect);
                 } else if (cursorFn === CursorFn.Line) {
                     const line: ZagyCanvasLineElement = generateLineElement(
-                        generator,
+                        roughGenerator,
                         startPos.current,
                         endPos.current,
 
@@ -309,13 +309,6 @@ function ZagyDraw() {
                     ]);
 
                     setPreviewElement(generateHandDrawnElement(currentlyDrawnFreeHand));
-                } else if (cursorFn === CursorFn.Default && isMouseDown) {
-                    const selectionRect = generateSelectRectElement(
-                        generator,
-                        startPos.current,
-                        endPos.current
-                    );
-                    setMultiSelectRect(selectionRect);
                 }
             }
         };
@@ -330,12 +323,22 @@ function ZagyDraw() {
                 }
             }
         };
-        const multiSelectStart = () => {
-            //todo
+        const cursorfnHandler = () => {
+            if (cursorFn === CursorFn.Default) {
+                if (isMouseDown) {
+                    const selectionRect = generateSelectRectElement(
+                        roughGenerator,
+                        startPos.current,
+                        endPos.current
+                    );
+                    setMultiSelectRect(selectionRect);
+                }
+            }
         };
         dragIntoCanvas();
         handlePreview();
         deleteStart();
+        cursorfnHandler();
     };
 
     const handleTextAreaBlur: React.FocusEventHandler<HTMLTextAreaElement> = (e) => {
