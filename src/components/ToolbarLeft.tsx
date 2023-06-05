@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo, useRef } from "react";
+import React, { ReactNode } from "react";
 import rough from "roughjs";
 import { MdDeleteOutline, MdCopyAll } from "react-icons/md";
 import { useStore } from "store/index";
@@ -20,6 +20,7 @@ import {
     generateRectElement,
     generateTextElement,
 } from "utils/canvas/generateElement";
+import { commandManager } from "actions/commandManager";
 import { ActionDeleteSelected } from "actions";
 import { ActionCopySelected } from "actions/copySelected";
 
@@ -59,7 +60,6 @@ export default function ToolbarLeft() {
         setSelectedElements,
         fontSize,
         font,
-        elements,
         setFont,
         setFontSize,
         setFill,
@@ -70,11 +70,6 @@ export default function ToolbarLeft() {
         setStrokeWidth,
     } = useStore.getState();
     const selectedElements = useStore((state) => state.selectedElements);
-    const dc = useMemo(
-        () => new ActionDeleteSelected(elements, selectedElements),
-        [elements, selectedElements]
-    );
-    const cc = useMemo(() => new ActionCopySelected(selectedElements), [selectedElements]);
     const ctx = document.createElement("canvas").getContext("2d");
     if (!ctx) return null;
     ctx.font =
@@ -100,14 +95,12 @@ export default function ToolbarLeft() {
     // );
     const commonConf = getElementsCommonConfig(selectedElements);
     const handleDeleteOnClick: React.MouseEventHandler<HTMLButtonElement> = () => {
-        const res = dc.execute();
-        setSelectedElements(() => res.selectedElements);
-        setElements(() => res.elements);
+        commandManager.executeCommand(new ActionDeleteSelected());
     };
 
     const handleCopyOnClick: React.MouseEventHandler<HTMLButtonElement> = async () => {
         try {
-            await cc.execute();
+            commandManager.executeCommand(new ActionCopySelected());
         } catch (e) {
             console.log("🪵 [ToolbarLeft.tsx:109] ~ token ~ \x1b[0;32me\x1b[0m = ", e);
         }

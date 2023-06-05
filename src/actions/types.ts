@@ -1,5 +1,7 @@
-export interface Command {
-    execute: () => any;
+export abstract class Command {
+    abstract execute(): void;
 }
 
-export type CommandType = "COPY" | "DELETE";
+export abstract class UndoableCommand extends Command {
+    abstract undo(): void;
+}
