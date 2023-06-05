@@ -1,16 +1,12 @@
 import { ZagyCanvasElement } from "types/general";
-import { type Command } from "./types";
+import { Command } from "./types";
 
-export class ActionCopySelected implements Command {
-    #selectedElements: ZagyCanvasElement[];
-
-    constructor(selectedElements: ZagyCanvasElement[]) {
-        this.#selectedElements = selectedElements;
-    }
-
+import { useStore } from "store/index";
+export class ActionCopySelected extends Command {
     public async execute() {
+        const { selectedElements } = useStore.getState();
         try {
-            await navigator.clipboard.writeText(JSON.stringify(this.#selectedElements));
+            await navigator.clipboard.writeText(JSON.stringify(selectedElements));
         } catch (e) {
             console.log("🪵 [copySelected.ts:15] ~ token ~ \x1b[0;32me\x1b[0m = ", e);
         }
