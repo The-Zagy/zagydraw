@@ -2,6 +2,7 @@
 //init zustand store
 
 import { ZagyCanvasElement, CursorFn, GlobalConfigOptions, FontTypeOptions } from "types/general";
+import { isElementVisible } from "utils";
 import { create } from "zustand";
 
 type ConfigState = GlobalConfigOptions;
@@ -14,6 +15,7 @@ export type CanvasState<T extends ZagyCanvasElement = ZagyCanvasElement> = {
     elements: T[];
     previewElement: T | null;
     selectedElements: T[];
+    visibleElements: T[];
 };
 
 type CanvasActions = {
@@ -41,13 +43,34 @@ export const useStore = create<CanvasState & CanvasActions & ConfigStateActions 
         elements: [],
         previewElement: null,
         selectedElements: [],
+        visibleElements: [],
         //actions
         //getCanvasState
-        setPosition: (position) => set({ position }),
+        setPosition: (position) => {
+            set({ position });
+            //update visible elements
+            set(({ elements, position, width, height }) => ({
+                visibleElements: elements.filter((el) => {
+                    return isElementVisible(el, [
+                        [-position.x, -position.y],
+                        [-position.x + width, position.y + height],
+                    ]);
+                }),
+            }));
+        },
         setZoomLevel: (zoomLevel) => set({ zoomLevel }),
         setDimensions: (width, height) => set({ width, height }),
         setElements: (callback) => {
             set((state) => ({ elements: callback(state.elements) }));
+
+            set(({ position, width, height, elements }) => ({
+                visibleElements: callback(elements).filter((el) => {
+                    return isElementVisible(el, [
+                        [-position.x, -position.y],
+                        [-position.x + width, position.y + height],
+                    ]);
+                }),
+            }));
         },
         setCursorFn(fn) {
             set({ cursorFn: fn });

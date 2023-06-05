@@ -58,6 +58,7 @@ function ZagyDraw() {
     const cursorFn = useStore((state) => state.cursorFn);
     const previewElement = useStore((state) => state.previewElement);
     const selectedElements = useStore((state) => state.selectedElements);
+    const visibleElements = useStore((state) => state.visibleElements);
     //changes every time a new element is drawn
     const currentSeed = useRef<number>(randomSeed());
     const willDelete = useRef<boolean>(false);
@@ -114,6 +115,7 @@ function ZagyDraw() {
             elements: canvasElements,
             previewElement,
             selectedElements,
+            visibleElements,
         },
         multiSelectRect
     );
