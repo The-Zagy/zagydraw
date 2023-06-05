@@ -27,6 +27,7 @@ import {
 import clsx from "clsx";
 import useRenderScene from "hooks/useRenderScene";
 import { randomSeed } from "roughjs/bin/math";
+import { commandManager } from "actions/commandManager";
 
 const {
     setPosition,
@@ -125,7 +126,7 @@ function ZagyDraw() {
         ) {
             textareaInput.current.focus();
         }
-    }, [previewElement, isWriting]);
+    }, [previewElement, isWriting, cursorFn]);
     // each time the global font/fontSize changes i need to sync the canvas context with it because
     // the ctx font affect how the canvas measure text width/height
     useEffect(() => {
@@ -412,6 +413,14 @@ function ZagyDraw() {
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
             />
+            <button
+                className="fixed bottom-1 left-1 h-fit w-fit bg-red-900 p-4"
+                onClick={() => {
+                    commandManager.undoCommand();
+                    return;
+                }}>
+                UNDO
+            </button>
         </>
     );
 }
