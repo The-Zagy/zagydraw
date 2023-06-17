@@ -4,7 +4,6 @@ import renderElements from "./renderElements";
 import drawGrid from "./renderGrid";
 import { ZagyCanvasRectElement } from "types/general";
 import renderBoundingRect from "./renderBoundingRect";
-import { isElementVisible } from "utils";
 
 function renderScene(
     roughCanvas: RoughCanvas,

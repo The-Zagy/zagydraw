@@ -1,12 +1,16 @@
 import { useEffect } from "react";
-import { CursorFn } from "types/general";
+import { CursorFn, ZagyCanvasElement } from "types/general";
 
 /**
  * hook that set cursor shape according to its current function
  * @param cursorFn
  * @param isMouseDown
  */
-export default function useCursor(cursorFn: CursorFn, isMouseDown: boolean) {
+export default function useCursor(
+    cursorFn: CursorFn,
+    isMouseDown: boolean,
+    currentlyHoveredElement: ZagyCanvasElement | null
+) {
     useEffect(() => {
         switch (cursorFn) {
             case CursorFn.Drag:
@@ -21,6 +25,7 @@ export default function useCursor(cursorFn: CursorFn, isMouseDown: boolean) {
                 break;
             case CursorFn.Default:
                 document.body.style.cursor = "default";
+                if (currentlyHoveredElement) document.body.style.cursor = "move";
                 break;
             case CursorFn.FreeDraw:
                 document.body.style.cursor = "crosshair";
@@ -34,5 +39,5 @@ export default function useCursor(cursorFn: CursorFn, isMouseDown: boolean) {
             default:
                 return;
         }
-    }, [cursorFn, isMouseDown]);
+    }, [cursorFn, isMouseDown, currentlyHoveredElement]);
 }

@@ -144,7 +144,7 @@ function ZagyDraw() {
                 ? "HandWritten"
                 : "Minecraft");
     }, [font, fontSize]);
-    useCursor(cursorFn, isMouseDown);
+    useCursor(cursorFn, isMouseDown, null);
 
     const handlePointerDown: PointerEventHandler<HTMLCanvasElement> = (e) => {
         setIsMouseDown(true);
@@ -177,7 +177,6 @@ function ZagyDraw() {
             if (!ctx) return;
             if (cursorFn === CursorFn.Default) {
                 const el = getHitElement(canvasElements, ctx, [startX, startY], position);
-
                 if (el !== null) {
                     setSelectedElements(() => [el]);
                 } else {

@@ -155,7 +155,7 @@ const generateLineElement = (
     startPos: [number, number],
     endPos: [number, number],
 
-    options: Partial<LineOptions & { id: string }>
+    options: Partial<LineOptions & { id: string }> = {}
 ): ZagyCanvasLineElement => {
     const { x, y, endX, endY } = getCorrectCoordOrder(startPos, endPos);
     // todo create normalize line options
@@ -212,7 +212,7 @@ const generateTextElement = (
     ctx: CanvasRenderingContext2D,
     text: string,
     startPos: [number, number],
-    options: Partial<TextOptions & { id: string }>
+    options: Partial<TextOptions & { id: string }> = {}
 ): ZagyCanvasTextElement => {
     const opts = normalizeTextOptions(options);
     const norm = textElementHelper(ctx, text, startPos, opts.fontSize);
