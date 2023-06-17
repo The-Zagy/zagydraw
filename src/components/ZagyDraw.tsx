@@ -29,6 +29,7 @@ import useRenderScene from "hooks/useRenderScene";
 import { randomSeed } from "roughjs/bin/math";
 import { commandManager } from "actions/commandManager";
 import { RoughGenerator } from "roughjs/bin/generator";
+import useMultiPhaseEvent from "actions/eventsObserver";
 
 const {
     setPosition,
@@ -152,25 +153,6 @@ function ZagyDraw() {
         const startY = e.pageY;
         mouseCoords.current = { startX, startY };
 
-        const drawElementStart = () => {
-            if (cursorFn === CursorFn.Rect) {
-                currentSeed.current = Math.random() * 1000000;
-                const norm = normalizeToGrid(position, [startX, startY]);
-                startPos.current = norm;
-            } else if (cursorFn === CursorFn.Line) {
-                const norm = normalizeToGrid(position, [startX, startY]);
-                startPos.current = norm;
-            } else if (cursorFn === CursorFn.FreeDraw) {
-                setCurrentlyDrawnFreeHand([[startX - position.x, startY - position.y]]);
-            } else if (cursorFn === CursorFn.Text) {
-                const norm = normalizePos(position, [startX, startY]);
-                startPos.current = norm;
-                setIsWriting(true);
-            } else if (cursorFn === CursorFn.Default) {
-                const norm = normalizePos(position, [startX, startY]);
-                startPos.current = norm;
-            }
-        };
         const selectElement = () => {
             if (!canvas.current) return;
             const ctx = canvas.current.getContext("2d");
@@ -184,7 +166,7 @@ function ZagyDraw() {
                 }
             }
         };
-        drawElementStart();
+
         selectElement();
         // draw shape logic?
     };
@@ -219,42 +201,6 @@ function ZagyDraw() {
             setPreviewElement(textEl);
             return;
         }
-        const drawElementEnd = () => {
-            setPreviewElement(null);
-            if (cursorFn === CursorFn.Line) {
-                const line: ZagyCanvasLineElement = generateLineElement(
-                    roughGenerator,
-                    startPos.current,
-                    endPos.current,
-
-                    {}
-                );
-                setElements((prev) => {
-                    return [...prev, line];
-                });
-            } else if (cursorFn === CursorFn.Rect) {
-                const rect = generateCacheRectElement(
-                    roughGenerator,
-                    startPos.current,
-                    endPos.current,
-
-                    { seed: currentSeed.current }
-                );
-                if (rect.endX - rect.x < 10 || rect.endY - rect.y < 10) return;
-
-                setElements((prev) => {
-                    return [...prev, rect];
-                });
-            } else if (cursorFn === CursorFn.FreeDraw) {
-                // todo change this to one function like any other element
-
-                const el = generateCachedHandDrawnElement(currentlyDrawnFreeHand);
-                setElements((prev) => {
-                    return [...prev, el];
-                });
-            }
-        };
-        drawElementEnd();
     };
     const handlePointerMove: PointerEventHandler<HTMLCanvasElement> = (e) => {
         // get the current mouse position
@@ -266,51 +212,7 @@ function ZagyDraw() {
 
         //handle dragging into the canvas
         e.preventDefault();
-        const dragIntoCanvas = () => {
-            if (isMouseDown && canvas.current && cursorFn === CursorFn.Drag) {
-                // calculate how far the mouse has been moved
-                const walkX = x - mouseCoords.current.startX;
-                const walkY = y - mouseCoords.current.startY;
-                // set the mouse position to the current position
-                mouseCoords.current = { startX: x, startY: y };
-                setPosition({ x: position.x + walkX, y: position.y + walkY });
-            }
-        };
-        const handlePreview = () => {
-            if (isMouseDown && canvas.current) {
-                // if (!roughCanvas.current) return;
 
-                const norm = normalizeToGrid(position, [x, y]);
-                endPos.current = norm;
-
-                if (cursorFn === CursorFn.Rect) {
-                    const rect: ZagyCanvasRectElement = generateRectElement(
-                        roughGenerator,
-                        startPos.current,
-                        endPos.current,
-
-                        { seed: currentSeed.current }
-                    );
-                    setPreviewElement(rect);
-                } else if (cursorFn === CursorFn.Line) {
-                    const line: ZagyCanvasLineElement = generateLineElement(
-                        roughGenerator,
-                        startPos.current,
-                        endPos.current,
-
-                        {}
-                    );
-                    setPreviewElement(line);
-                } else if (cursorFn === CursorFn.FreeDraw) {
-                    setCurrentlyDrawnFreeHand((prev) => [
-                        ...prev,
-                        [x - position.x, y - position.y],
-                    ]);
-
-                    setPreviewElement(generateHandDrawnElement(currentlyDrawnFreeHand));
-                }
-            }
-        };
         const deleteStart = () => {
             if (cursorFn === CursorFn.Erase) {
                 const el = getHitElement(canvasElements, ctx, [x, y], position);
@@ -334,8 +236,7 @@ function ZagyDraw() {
                 }
             }
         };
-        dragIntoCanvas();
-        handlePreview();
+
         deleteStart();
         cursorfnHandler();
     };
@@ -378,6 +279,150 @@ function ZagyDraw() {
     };
     useGlobalEvent("wheel", handleScroll);
     useGlobalEvent("resize", handleResize);
+    useMultiPhaseEvent(
+        "drawElement",
+        {
+            mouseCoords,
+            position,
+            isMouseDown,
+            cursorFn,
+            currentSeed,
+            currentText,
+            currentlyDrawnFreeHand,
+        },
+        [
+            {
+                event: "pointerdown",
+                callback: (e, state) => {
+                    const startX = e.pageX;
+                    const startY = e.pageY;
+                    const { cursorFn, position, currentSeed } = state;
+                    if (cursorFn === CursorFn.Rect) {
+                        currentSeed.current = Math.random() * 1000000;
+                        const norm = normalizeToGrid(position, [startX, startY]);
+                        startPos.current = norm;
+                    } else if (cursorFn === CursorFn.Line) {
+                        const norm = normalizeToGrid(position, [startX, startY]);
+                        startPos.current = norm;
+                    } else if (cursorFn === CursorFn.FreeDraw) {
+                        setCurrentlyDrawnFreeHand([[startX - position.x, startY - position.y]]);
+                    } else if (cursorFn === CursorFn.Text) {
+                        const norm = normalizePos(position, [startX, startY]);
+                        startPos.current = norm;
+                        setIsWriting(true);
+                    } else if (cursorFn === CursorFn.Default) {
+                        //for multiselect
+                        const norm = normalizePos(position, [startX, startY]);
+                        startPos.current = norm;
+                    }
+                },
+            },
+            {
+                event: "pointermove",
+                callback: (e, state) => {
+                    const x = e.pageX;
+                    const y = e.pageY;
+                    const { isMouseDown, cursorFn, position, currentSeed } = state;
+                    if (isMouseDown && canvas.current) {
+                        // if (!roughCanvas.current) return;
+                        const norm = normalizeToGrid(position, [x, y]);
+                        endPos.current = norm;
+                        if (cursorFn === CursorFn.Rect) {
+                            const rect: ZagyCanvasRectElement = generateRectElement(
+                                roughGenerator,
+                                startPos.current,
+                                endPos.current,
+                                { seed: currentSeed.current }
+                            );
+                            setPreviewElement(rect);
+                        } else if (cursorFn === CursorFn.Line) {
+                            const line: ZagyCanvasLineElement = generateLineElement(
+                                roughGenerator,
+                                startPos.current,
+                                endPos.current,
+                                {}
+                            );
+                            setPreviewElement(line);
+                        } else if (cursorFn === CursorFn.FreeDraw) {
+                            setCurrentlyDrawnFreeHand((prev) => [
+                                ...prev,
+                                [x - position.x, y - position.y],
+                            ]);
+                            setPreviewElement(generateHandDrawnElement(currentlyDrawnFreeHand));
+                        }
+                    }
+                },
+            },
+            {
+                event: "pointerup",
+                callback: (e, state) => {
+                    const { cursorFn } = state;
+                    setPreviewElement(null);
+                    if (cursorFn === CursorFn.Line) {
+                        const line: ZagyCanvasLineElement = generateLineElement(
+                            roughGenerator,
+                            startPos.current,
+                            endPos.current,
+
+                            {}
+                        );
+                        setElements((prev) => {
+                            return [...prev, line];
+                        });
+                    } else if (cursorFn === CursorFn.Rect) {
+                        const rect = generateCacheRectElement(
+                            roughGenerator,
+                            startPos.current,
+                            endPos.current,
+
+                            { seed: currentSeed.current }
+                        );
+                        if (rect.endX - rect.x < 10 || rect.endY - rect.y < 10) return;
+
+                        setElements((prev) => {
+                            return [...prev, rect];
+                        });
+                    } else if (cursorFn === CursorFn.FreeDraw) {
+                        // todo change this to one function like any other element
+
+                        const el = generateCachedHandDrawnElement(currentlyDrawnFreeHand);
+                        setElements((prev) => {
+                            return [...prev, el];
+                        });
+                    }
+                },
+            },
+        ],
+        canvas.current
+    );
+    useMultiPhaseEvent(
+        "dragIntoCanvas",
+        {
+            mouseCoords,
+            isMouseDown,
+            cursorFn,
+        },
+        [
+            {
+                event: "pointermove",
+                callback: (e, state) => {
+                    const { isMouseDown, mouseCoords, cursorFn } = state;
+                    const x = e.pageX;
+                    const y = e.pageY;
+                    if (isMouseDown && canvas.current && cursorFn === CursorFn.Drag) {
+                        // calculate how far the mouse has been moved
+                        const walkX = x - mouseCoords.current.startX;
+                        const walkY = y - mouseCoords.current.startY;
+                        // set the mouse position to the current position
+                        mouseCoords.current = { startX: x, startY: y };
+                        setPosition({ x: position.x + walkX, y: position.y + walkY });
+                    }
+                },
+            },
+        ],
+        canvas.current
+    );
+
     return (
         <>
             {isWriting === true ? (
