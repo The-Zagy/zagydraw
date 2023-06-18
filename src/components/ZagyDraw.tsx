@@ -1,11 +1,11 @@
-import { PointerEventHandler, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { PointerEventHandler, useEffect, useLayoutEffect, useRef } from "react";
 import rough from "roughjs";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import clsx from "clsx";
 import { commandManager } from "actions/commandManager";
 import { useCursor, useEvent, useGlobalEvent, useMultiPhaseEvent, useRenderScene } from "hooks";
-import { CursorFn, FontTypeOptions } from "types/general";
-import { generateTextElement } from "utils/canvas/generateElement";
+import { FontTypeOptions } from "types/general";
+
 import { useStore } from "store";
 import { MdUndo } from "react-icons/md";
 
@@ -14,8 +14,8 @@ import DrawAction from "actions/draw";
 import DragAction from "actions/drag";
 import SingleSelectAction from "actions/singleSelect";
 import MultiSelectAction from "actions/multiselect";
-const { setZoomLevel, setDimensions, setElements, setCursorFn, setPreviewElement, setIsMouseDown } =
-    useStore.getState();
+import TextAction from "actions/createText";
+const { setZoomLevel, setDimensions, setIsMouseDown, setCurrentText } = useStore.getState();
 
 const MAX_ZOOM = 96;
 const MIN_ZOOM = 24;
@@ -34,16 +34,12 @@ function ZagyDraw() {
     const selectedElements = useStore((state) => state.selectedElements);
     const visibleElements = useStore((state) => state.visibleElements);
     const multiSelectRect = useStore((state) => state.multiSelectRect);
+    const isWriting = useStore((state) => state.isWriting);
+    const currentText = useStore((state) => state.currentText);
     // no need to use useStore() since mouseCoords shouldn't trigger a re-render when it changes
     const mouseCoords = useRef<[number, number]>([0, 0]);
-
-    //changes every time a new element is drawn
-    const [currentText, setCurrentText] = useState<string>("");
-
+    const textAreaWrapper = useRef<HTMLDivElement>(null);
     const isMouseDown = useStore((state) => state.isMouseDown);
-
-    const [isWriting, setIsWriting] = useState(false);
-    const startPos = useRef<[number, number]>([0, 0]);
 
     const canvasElements = useStore((state) => state.elements);
 
@@ -88,31 +84,6 @@ function ZagyDraw() {
         multiSelectRect,
     });
 
-    useEffect(() => {
-        if (
-            cursorFn === CursorFn.Text &&
-            textareaInput.current !== null &&
-            previewElement !== null &&
-            isWriting === true
-        ) {
-            textareaInput.current.focus();
-        }
-    }, [previewElement, isWriting, cursorFn]);
-    // each time the global font/fontSize changes i need to sync the canvas context with it because
-    // the ctx font affect how the canvas measure text width/height
-    useEffect(() => {
-        if (!canvas.current || !roughCanvas.current) return;
-        const ctx = canvas.current.getContext("2d");
-        if (!ctx) return;
-        ctx.font =
-            `${fontSize}px ` +
-            (font === FontTypeOptions.code
-                ? "FiraCode"
-                : font === FontTypeOptions.hand
-                ? "HandWritten"
-                : "Minecraft");
-    }, [font, fontSize]);
-
     useCursor(cursorFn, isMouseDown, null);
 
     const handlePointerDown: PointerEventHandler<HTMLCanvasElement> = (e) => {
@@ -132,11 +103,11 @@ function ZagyDraw() {
 
         // why handle before remove preview? because we want the preview to be set to the current text until finish editing in the text area
         // in other words we need to take control of preview element from this handler
-        if (cursorFn === CursorFn.Text && isWriting) {
-            const textEl = generateTextElement(ctx, "", startPos.current, {});
-            setPreviewElement(textEl);
-            return;
-        }
+        // if (cursorFn === CursorFn.Text && isWriting) {
+        //     const textEl = generateTextElement(ctx, "", [0, 0], {});
+        //     setPreviewElement(textEl);
+        //     return;
+        // }
     };
 
     // const cursorfnHandler = () => {
@@ -155,24 +126,8 @@ function ZagyDraw() {
     // cursorfnHandler();
 
     const handleTextAreaBlur: React.FocusEventHandler<HTMLTextAreaElement> = (e) => {
-        setCurrentText("");
-        if (canvas.current === null) return;
-        const ctx = canvas.current.getContext("2d");
-        if (ctx === null) return;
-        if (isWriting && previewElement !== null) {
-            const text = e.target.value;
-            const t = generateTextElement(
-                ctx,
-                text,
-                [previewElement.x, previewElement.y],
-
-                {}
-            );
-            setCursorFn(CursorFn.Default);
-            setElements((prev) => [...prev, t]);
-            setPreviewElement(null);
-            setIsWriting(false);
-        }
+        console.log(e.target.value);
+        commandManager.executeCommand(TextAction.end(canvas.current));
     };
 
     const handleScroll = (e: WheelEvent) => {
@@ -296,10 +251,34 @@ function ZagyDraw() {
         ],
         canvas.current
     );
+    useMultiPhaseEvent(
+        "createText",
+        [
+            {
+                event: "pointerdown",
+                callback: (e) => {
+                    commandManager.executeCommand(
+                        TextAction.start([e.pageX, e.pageY], textareaInput.current)
+                    );
+                },
+                options: true,
+            },
+            {
+                event: "pointerup",
+                callback: () => {
+                    commandManager.executeCommand(
+                        TextAction.inProgress(textAreaWrapper.current, textareaInput.current)
+                    );
+                },
+            },
+        ],
+        canvas.current
+    );
     return (
         <>
             {isWriting === true ? (
                 <div
+                    ref={textAreaWrapper}
                     className={clsx(
                         { "font-firacode ": font === FontTypeOptions.code },
                         {
@@ -311,20 +290,18 @@ function ZagyDraw() {
                         " m-0  p-0  leading-none outline-none",
                         "grow-wrap pointer-events-none fixed bg-transparent"
                     )}
+                    //for wrapping text
                     data-replicated-value={currentText}
                     style={{
                         color: stroke,
-                        top: mouseCoords.current[0],
-                        left: mouseCoords.current[1],
                         fontSize: fontSize + "px",
                         opacity,
                     }}>
                     <textarea
                         ref={textareaInput}
                         onBlur={handleTextAreaBlur}
-                        value={currentText}
                         onChange={(e) => setCurrentText(e.target.value)}
-                        className=" m-0 bg-transparent p-0  leading-none outline-none"
+                        className="m-0 bg-transparent p-0  leading-none outline-none"
                     />
                 </div>
             ) : null}

@@ -8,7 +8,7 @@ import {
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
 } from "types/general";
-import { Point, normalizePos, normalizeToGrid } from "utils";
+import { Point, normalizeToGrid } from "utils";
 import {
     generateCacheRectElement,
     generateHandDrawnElement,
@@ -23,21 +23,17 @@ class DrawAction {
     private static lastMouseDownPosition: Point = [0, 0];
     private static lastMouseUpPosition: Point = [0, 0];
     private static _start(coords: Point) {
-        const { cursorFn, position, setIsWriting } = useStore.getState();
+        const { cursorFn, position } = useStore.getState();
         const startX = coords[0];
         const startY = coords[1];
         if (cursorFn === CursorFn.Rect) {
-            const norm = normalizeToGrid(position, [startX, startY]);
+            const norm = normalizeToGrid(position, coords);
             this.lastMouseDownPosition = norm;
         } else if (cursorFn === CursorFn.Line) {
-            const norm = normalizeToGrid(position, [startX, startY]);
+            const norm = normalizeToGrid(position, coords);
             this.lastMouseDownPosition = norm;
         } else if (cursorFn === CursorFn.FreeDraw) {
             this.currentlyDrawnFreeHand = [[startX - position.x, startY - position.y]];
-        } else if (cursorFn === CursorFn.Text) {
-            const norm = normalizePos(position, [startX, startY]);
-            this.lastMouseDownPosition = norm;
-            setIsWriting(true);
         }
     }
     private static _inProgress(coords: Point, canvas: HTMLCanvasElement | null) {
