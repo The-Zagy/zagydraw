@@ -4,7 +4,7 @@ type Nullable<T> = { [P in keyof T]: T[P] | null };
 type Params = Nullable<Parameters<typeof renderScene>>;
 //useRenderScne params are the same as renderScene params
 const useRenderScene = (...params: Params) => {
-    const [roughCanvas, ctx, canvasState, multiSelectRect] = params;
+    const [roughCanvas, ctx, canvasState] = params;
     const lastAnimationFrame = useRef<number | null>(null);
     useEffect(() => {
         if (!ctx || !canvasState) return;
@@ -13,7 +13,7 @@ const useRenderScene = (...params: Params) => {
         }
         lastAnimationFrame.current = requestAnimationFrame(() => {
             if (!roughCanvas) return;
-            renderScene(roughCanvas, ctx, canvasState, multiSelectRect);
+            renderScene(roughCanvas, ctx, canvasState);
             lastAnimationFrame.current = null;
         });
     }, [canvasState]);
