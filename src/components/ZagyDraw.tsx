@@ -2,58 +2,24 @@ import { PointerEventHandler, useEffect, useLayoutEffect, useRef, useState } fro
 import rough from "roughjs";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import clsx from "clsx";
-import { randomSeed } from "roughjs/bin/math";
-import { RoughGenerator } from "roughjs/bin/generator";
 import { commandManager } from "actions/commandManager";
-
 import { useCursor, useEvent, useGlobalEvent, useMultiPhaseEvent, useRenderScene } from "hooks";
-import { getHitElement, isElementInRect, normalizePos, normalizeToGrid } from "utils";
-import {
-    ZagyCanvasLineElement,
-    ZagyCanvasRectElement,
-    CursorFn,
-    FontTypeOptions,
-    ZagyCanvasElement,
-} from "types/general";
-import {
-    generateCacheRectElement,
-    generateCachedHandDrawnElement,
-    generateHandDrawnElement,
-    generateLineElement,
-    generateRectElement,
-    generateSelectRectElement,
-    generateTextElement,
-} from "utils/canvas/generateElement";
+
+import { CursorFn, FontTypeOptions } from "types/general";
+import { generateTextElement } from "utils/canvas/generateElement";
 import { useStore } from "store";
-import { ActionDeleteMarkedElements } from "actions/delete";
-import { ActionInsertElements } from "actions/insertElement";
 import { MdUndo } from "react-icons/md";
-const {
-    setPosition,
-    setZoomLevel,
-    setDimensions,
-    setElements,
-    setCursorFn,
-    setPreviewElement,
-    setSelectedElements,
-} = useStore.getState();
+import DeleteHandler from "utils/handlers/handleDelete";
+import DrawHandler from "utils/handlers/handleDraw";
+import MultiSelectHandler from "utils/handlers/handleMultiSelect";
+import DragHandler from "utils/handlers/handleDrag";
+import SingleSelectHandler from "utils/handlers/handleSingleSelect";
+const { setZoomLevel, setDimensions, setElements, setCursorFn, setPreviewElement, setIsMouseDown } =
+    useStore.getState();
 
 const MAX_ZOOM = 96;
 const MIN_ZOOM = 24;
-type MouseCoords = {
-    startX: number;
-    startY: number;
-};
-const initialLocalStateForEventHandlers: {
-    draw: { currentSeed: number; currentText: string; currentlyDrawnFreeHand: [number, number][] };
-    multiSelect: {
-        multiSelectRect: ZagyCanvasRectElement | null;
-    };
-} = {
-    draw: { currentSeed: randomSeed(), currentText: "", currentlyDrawnFreeHand: [] },
-    multiSelect: { multiSelectRect: null },
-};
-const roughGenerator = new RoughGenerator();
+
 function ZagyDraw() {
     const position = useStore((state) => state.position);
     const font = useStore((state) => state.font);
@@ -67,19 +33,18 @@ function ZagyDraw() {
     const previewElement = useStore((state) => state.previewElement);
     const selectedElements = useStore((state) => state.selectedElements);
     const visibleElements = useStore((state) => state.visibleElements);
+    const multiSelectRect = useStore((state) => state.multiSelectRect);
+    // no need to use useStore() since mouseCoords shouldn't trigger a re-render when it changes
+    const mouseCoords = useRef<[number, number]>([0, 0]);
+
     //changes every time a new element is drawn
-    const willDelete = useRef<boolean>(false);
     const [currentText, setCurrentText] = useState<string>("");
 
-    const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
-    const [multiSelectRect, setMultiSelectRect] = useState<ZagyCanvasRectElement | null>(null);
-    const mouseCoords = useRef<MouseCoords>({
-        startX: 0,
-        startY: 0,
-    });
+    const isMouseDown = useStore((state) => state.isMouseDown);
+
     const [isWriting, setIsWriting] = useState(false);
     const startPos = useRef<[number, number]>([0, 0]);
-    const endPos = useRef<[number, number]>([0, 0]);
+
     const canvasElements = useStore((state) => state.elements);
 
     const handleZoom = (zoomType: "in" | "out") => {
@@ -111,21 +76,17 @@ function ZagyDraw() {
         if (roughCanvas.current || !canvas.current) return;
         roughCanvas.current = rough.canvas(canvas.current);
     }, []);
-    useRenderScene(
-        roughCanvas.current,
-        canvas.current?.getContext("2d") || null,
-        {
-            width,
-            height,
-            position,
-            zoomLevel,
-            elements: canvasElements,
-            previewElement,
-            selectedElements,
-            visibleElements,
-        },
-        multiSelectRect
-    );
+    useRenderScene(roughCanvas.current, canvas.current?.getContext("2d") || null, {
+        width,
+        height,
+        position,
+        zoomLevel,
+        elements: canvasElements,
+        previewElement,
+        selectedElements,
+        visibleElements,
+        multiSelectRect,
+    });
 
     useEffect(() => {
         if (
@@ -158,7 +119,7 @@ function ZagyDraw() {
         setIsMouseDown(true);
         const startX = e.pageX;
         const startY = e.pageY;
-        mouseCoords.current = { startX, startY };
+        mouseCoords.current = [startX, startY];
     };
 
     const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = () => {
@@ -229,145 +190,54 @@ function ZagyDraw() {
         canvas.current.width = document.body.clientWidth;
         canvas.current.height = document.body.clientHeight;
     };
-    const dragIntoCanvas = (e: PointerEvent) => {
-        const x = e.pageX;
-        const y = e.pageY;
-        if (isMouseDown && canvas.current && cursorFn === CursorFn.Drag) {
-            // calculate how far the mouse has been moved
-            const walkX = x - mouseCoords.current.startX;
-            const walkY = y - mouseCoords.current.startY;
-            // set the mouse position to the current position
-            mouseCoords.current = { startX: x, startY: y };
-            setPosition({ x: position.x + walkX, y: position.y + walkY });
-        }
-    };
+
     const selectSingleElement = (e: PointerEvent) => {
-        const startX = e.pageX;
-        const startY = e.pageY;
-        if (!canvas.current) return;
-        const ctx = canvas.current.getContext("2d");
-        if (!ctx) return;
-        if (cursorFn === CursorFn.Default) {
-            const el = getHitElement(canvasElements, ctx, [startX, startY], position);
-            if (el !== null) {
-                setSelectedElements(() => [el]);
-            } else {
-                setSelectedElements(() => []);
-            }
-        }
+        SingleSelectHandler.inProgress([e.pageX, e.pageY], canvas.current);
     };
 
     useGlobalEvent("wheel", handleScroll);
     useGlobalEvent("resize", handleResize);
-    useEvent("pointermove", dragIntoCanvas, canvas.current);
+
     useEvent("pointerdown", selectSingleElement, canvas.current);
     useMultiPhaseEvent(
-        "drawElement",
-        initialLocalStateForEventHandlers["draw"],
+        "dragIntoCanvas",
         [
             {
                 event: "pointerdown",
-                callback: (e, _, setState) => {
-                    const startX = e.pageX;
-                    const startY = e.pageY;
-
-                    if (cursorFn === CursorFn.Rect) {
-                        const norm = normalizeToGrid(position, [startX, startY]);
-                        startPos.current = norm;
-                    } else if (cursorFn === CursorFn.Line) {
-                        const norm = normalizeToGrid(position, [startX, startY]);
-                        startPos.current = norm;
-                    } else if (cursorFn === CursorFn.FreeDraw) {
-                        setState((prev) => ({
-                            ...prev,
-                            currentlyDrawnFreeHand: [[startX - position.x, startY - position.y]],
-                        }));
-                    } else if (cursorFn === CursorFn.Text) {
-                        const norm = normalizePos(position, [startX, startY]);
-                        startPos.current = norm;
-                        setIsWriting(true);
-                    }
+                callback: (e) => {
+                    DragHandler.start([e.pageX, e.pageY]);
                 },
                 options: true,
             },
             {
                 event: "pointermove",
-                callback: (e, localState, setState) => {
-                    const x = e.pageX;
-                    const y = e.pageY;
-                    const { currentSeed, currentlyDrawnFreeHand } = localState;
-                    if (isMouseDown && canvas.current) {
-                        // if (!roughCanvas.current) return;
-                        const norm = normalizeToGrid(position, [x, y]);
-                        endPos.current = norm;
-                        if (cursorFn === CursorFn.Rect) {
-                            const rect: ZagyCanvasRectElement = generateRectElement(
-                                roughGenerator,
-                                startPos.current,
-                                endPos.current,
-                                { seed: currentSeed }
-                            );
-                            setPreviewElement(rect);
-                        } else if (cursorFn === CursorFn.Line) {
-                            const line: ZagyCanvasLineElement = generateLineElement(
-                                roughGenerator,
-                                startPos.current,
-                                endPos.current,
-                                {}
-                            );
-                            setPreviewElement(line);
-                        } else if (cursorFn === CursorFn.FreeDraw) {
-                            setState((prev) => ({
-                                ...prev,
-                                currentlyDrawnFreeHand: [
-                                    ...prev.currentlyDrawnFreeHand,
-                                    [x - position.x, y - position.y],
-                                ],
-                            }));
-                            setPreviewElement(generateHandDrawnElement(currentlyDrawnFreeHand));
-                        }
-                    }
+                callback: (e) => {
+                    DragHandler.inProgress([e.pageX, e.pageY], canvas.current);
+                },
+            },
+        ],
+        canvas.current
+    );
+    useMultiPhaseEvent(
+        "drawElement",
+        [
+            {
+                event: "pointerdown",
+                callback: (e) => {
+                    DrawHandler.start([e.pageX, e.pageY]);
+                },
+                options: true,
+            },
+            {
+                event: "pointermove",
+                callback: (e) => {
+                    DrawHandler.inProgress([e.pageX, e.pageY], canvas.current);
                 },
             },
             {
                 event: "pointerup",
-                callback: (_, localState, setState) => {
-                    const { currentSeed, currentlyDrawnFreeHand } = localState;
-                    setPreviewElement(null);
-                    let el: ZagyCanvasElement | null = null;
-                    if (cursorFn === CursorFn.Line) {
-                        const line: ZagyCanvasLineElement = generateLineElement(
-                            roughGenerator,
-                            startPos.current,
-                            endPos.current,
-
-                            {}
-                        );
-                        el = line;
-                        setState((prev) => ({ ...prev, currentSeed: randomSeed() }));
-                    } else if (cursorFn === CursorFn.Rect) {
-                        const rect = generateCacheRectElement(
-                            roughGenerator,
-                            startPos.current,
-                            endPos.current,
-
-                            { seed: currentSeed }
-                        );
-                        if (rect.endX - rect.x < 10 || rect.endY - rect.y < 10) return;
-
-                        el = rect;
-                        setState((prev) => ({ ...prev, currentSeed: randomSeed() }));
-                    } else if (cursorFn === CursorFn.FreeDraw) {
-                        // todo change this to one function like any other element
-
-                        const handDrawnElement =
-                            generateCachedHandDrawnElement(currentlyDrawnFreeHand);
-                        el = handDrawnElement;
-                        setState((prev) => ({ ...prev, currentlyDrawnFreeHand: [] }));
-                    }
-                    if (el !== null) {
-                        commandManager.executeCommand(new ActionInsertElements(el));
-                    }
+                callback: () => {
+                    DrawHandler.end();
                 },
             },
         ],
@@ -375,51 +245,24 @@ function ZagyDraw() {
     );
     useMultiPhaseEvent(
         "MultiSelect",
-        {},
         [
             {
                 event: "pointerdown",
                 callback: (e) => {
-                    const startX = e.pageX;
-                    const startY = e.pageY;
-                    console.log("in select start");
-                    if (cursorFn === CursorFn.Default) {
-                        console.log("in select start");
-                        const norm = normalizePos(position, [startX, startY]);
-                        startPos.current = norm;
-                    }
+                    MultiSelectHandler.start([e.pageX, e.pageY]);
                 },
                 options: true,
             },
             {
                 event: "pointermove",
                 callback: (e) => {
-                    const x = e.pageX;
-                    const y = e.pageY;
-
-                    if (isMouseDown && canvas.current && cursorFn === CursorFn.Default) {
-                        const norm = normalizePos(position, [x, y]);
-                        endPos.current = norm;
-
-                        const rect: ZagyCanvasRectElement = generateSelectRectElement(
-                            roughGenerator,
-                            startPos.current,
-                            endPos.current
-                        );
-                        setMultiSelectRect(rect);
-                    }
+                    MultiSelectHandler.inProgress([e.pageX, e.pageY], canvas.current);
                 },
             },
             {
                 event: "pointerup",
                 callback: () => {
-                    if (multiSelectRect !== null) {
-                        const selected = canvasElements.filter((el) =>
-                            isElementInRect(el, multiSelectRect)
-                        );
-                        setSelectedElements(() => selected);
-                    }
-                    setMultiSelectRect(null);
+                    MultiSelectHandler.end();
                 },
             },
         ],
@@ -427,36 +270,17 @@ function ZagyDraw() {
     );
     useMultiPhaseEvent(
         "delete",
-        {},
         [
             {
                 event: "pointermove",
                 callback: (e) => {
-                    if (cursorFn === CursorFn.Erase && isMouseDown) {
-                        const x = e.pageX;
-                        const y = e.pageY;
-                        if (!canvas.current) return;
-                        const ctx = canvas.current.getContext("2d");
-                        if (!ctx) return;
-                        const el = getHitElement(canvasElements, ctx, [x, y], position);
-                        if (el !== null) {
-                            willDelete.current = true;
-                            setElements((prev) =>
-                                prev.map((val) =>
-                                    val.id === el.id ? { ...val, willDelete: true } : val
-                                )
-                            );
-                        }
-                    }
+                    DeleteHandler.inProgress([e.pageX, e.pageY], canvas.current);
                 },
             },
             {
                 event: "pointerup",
                 callback: () => {
-                    if (willDelete.current) {
-                        commandManager.executeCommand(new ActionDeleteMarkedElements());
-                        willDelete.current = false;
-                    }
+                    DeleteHandler.end();
                 },
             },
         ],
@@ -480,8 +304,8 @@ function ZagyDraw() {
                     data-replicated-value={currentText}
                     style={{
                         color: stroke,
-                        top: mouseCoords.current.startY,
-                        left: mouseCoords.current.startX,
+                        top: mouseCoords.current[0],
+                        left: mouseCoords.current[1],
                         fontSize: fontSize + "px",
                         opacity,
                     }}>
