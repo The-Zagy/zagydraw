@@ -15,7 +15,7 @@ import DragAction from "actions/drag";
 import SingleSelectAction from "actions/singleSelect";
 import MultiSelectAction from "actions/multiselect";
 import TextAction from "actions/createText";
-const { setZoomLevel, setDimensions, setIsMouseDown, setCurrentText } = useStore.getState();
+const { setZoomLevel, setDimensions, setIsMouseDown } = useStore.getState();
 
 const MAX_ZOOM = 96;
 const MIN_ZOOM = 24;
@@ -100,14 +100,6 @@ function ZagyDraw() {
 
         const ctx = canvas.current.getContext("2d");
         if (ctx === null) return;
-
-        // why handle before remove preview? because we want the preview to be set to the current text until finish editing in the text area
-        // in other words we need to take control of preview element from this handler
-        // if (cursorFn === CursorFn.Text && isWriting) {
-        //     const textEl = generateTextElement(ctx, "", [0, 0], {});
-        //     setPreviewElement(textEl);
-        //     return;
-        // }
     };
 
     // const cursorfnHandler = () => {
