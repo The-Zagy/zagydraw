@@ -61,7 +61,6 @@ const renderFreeDrawElement = (el: ZagyCanvasHandDrawnElement, ctx: CanvasRender
     ctx.save();
     ctx.fillStyle = "white";
     if (el.cache) {
-        console.log("drawing cached element");
         ctx.drawImage(
             el.cache,
             0,
