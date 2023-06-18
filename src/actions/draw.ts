@@ -1,5 +1,4 @@
-import { commandManager } from "actions/commandManager";
-import { ActionInsertElements } from "actions/insertElement";
+import { UndoableCommand } from "./types";
 import { RoughGenerator } from "roughjs/bin/generator";
 import { randomSeed } from "roughjs/bin/math";
 import { useStore } from "store";
@@ -17,13 +16,13 @@ import {
     generateRectElement,
 } from "utils/canvas/generateElement";
 
-class DrawHandler {
+class DrawAction {
     private static roughGenerator = new RoughGenerator();
     private static currentSeed = randomSeed();
     private static currentlyDrawnFreeHand: Point[] = [];
     private static lastMouseDownPosition: Point = [0, 0];
     private static lastMouseUpPosition: Point = [0, 0];
-    public static start(coords: Point) {
+    private static _start(coords: Point) {
         const { cursorFn, position, setIsWriting } = useStore.getState();
         const startX = coords[0];
         const startY = coords[1];
@@ -41,7 +40,7 @@ class DrawHandler {
             setIsWriting(true);
         }
     }
-    public static inProgress(coords: Point, canvas: HTMLCanvasElement | null) {
+    private static _inProgress(coords: Point, canvas: HTMLCanvasElement | null) {
         const { cursorFn, isMouseDown, position, setPreviewElement } = useStore.getState();
         if (isMouseDown && canvas) {
             // if (!roughCanvas.current) return;
@@ -74,40 +73,69 @@ class DrawHandler {
             }
         }
     }
-    public static end() {
-        const { cursorFn, setPreviewElement } = useStore.getState();
-        setPreviewElement(null);
-        let el: ZagyCanvasElement | null = null;
-        if (cursorFn === CursorFn.Line) {
-            const line: ZagyCanvasLineElement = generateLineElement(
-                this.roughGenerator,
-                this.lastMouseDownPosition,
-                this.lastMouseUpPosition,
-                {}
-            );
-            el = line;
-            this.currentSeed = randomSeed();
-        } else if (cursorFn === CursorFn.Rect) {
-            const rect = generateCacheRectElement(
-                this.roughGenerator,
-                this.lastMouseDownPosition,
-                this.lastMouseUpPosition,
+    public static start(...args: Parameters<typeof DrawAction._start>) {
+        return {
+            execute: () => {
+                this._start(...args);
+            },
+        };
+    }
+    public static inProgress(...args: Parameters<typeof DrawAction._inProgress>) {
+        return {
+            execute: () => {
+                this._inProgress(...args);
+            },
+        };
+    }
+    public static end(): UndoableCommand {
+        const insertedElements: ZagyCanvasElement[] = [];
+        return {
+            execute: () => {
+                const { cursorFn, setPreviewElement } = useStore.getState();
+                setPreviewElement(null);
+                let el: ZagyCanvasElement | null = null;
+                if (cursorFn === CursorFn.Line) {
+                    const line: ZagyCanvasLineElement = generateLineElement(
+                        this.roughGenerator,
+                        this.lastMouseDownPosition,
+                        this.lastMouseUpPosition,
+                        {}
+                    );
+                    el = line;
+                    this.currentSeed = randomSeed();
+                } else if (cursorFn === CursorFn.Rect) {
+                    const rect = generateCacheRectElement(
+                        this.roughGenerator,
+                        this.lastMouseDownPosition,
+                        this.lastMouseUpPosition,
 
-                { seed: this.currentSeed }
-            );
-            if (rect.endX - rect.x < 10 || rect.endY - rect.y < 10) return;
+                        { seed: this.currentSeed }
+                    );
+                    if (rect.endX - rect.x < 10 || rect.endY - rect.y < 10) return;
 
-            el = rect;
-            this.currentSeed = randomSeed();
-        } else if (cursorFn === CursorFn.FreeDraw) {
-            const handDrawnElement = generateHandDrawnElement(this.currentlyDrawnFreeHand);
-            el = handDrawnElement;
-            this.currentlyDrawnFreeHand = [];
-        }
-        if (el !== null) {
-            commandManager.executeCommand(new ActionInsertElements(el));
-        }
+                    el = rect;
+                    this.currentSeed = randomSeed();
+                } else if (cursorFn === CursorFn.FreeDraw) {
+                    const handDrawnElement = generateHandDrawnElement(this.currentlyDrawnFreeHand);
+                    el = handDrawnElement;
+                    this.currentlyDrawnFreeHand = [];
+                }
+                if (el !== null) {
+                    insertedElements.push(el);
+                    const { setElements } = useStore.getState();
+                    setElements((prev) => [...prev, el as ZagyCanvasElement]);
+                }
+            },
+            undo: () => {
+                const { setElements } = useStore.getState();
+                const ids = new Set<string>();
+                for (const itm of insertedElements) {
+                    ids.add(itm.id);
+                }
+                setElements((prev) => prev.filter((itm) => !ids.has(itm.id)));
+            },
+        };
     }
 }
 
-export default DrawHandler;
+export default DrawAction;

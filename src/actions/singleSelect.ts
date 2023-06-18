@@ -2,8 +2,8 @@ import { useStore } from "store";
 import { CursorFn } from "types/general";
 import { Point, getHitElement } from "utils";
 
-class SingleSelectHandler {
-    public static inProgress(coords: Point, canvas: HTMLCanvasElement | null) {
+class SingleSelectAction {
+    private static _inProgress(coords: Point, canvas: HTMLCanvasElement | null) {
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
@@ -16,6 +16,13 @@ class SingleSelectHandler {
             setSelectedElements(() => []);
         }
     }
+    public static inProgress(...args: Parameters<typeof SingleSelectAction._inProgress>) {
+        return {
+            execute: () => {
+                this._inProgress(...args);
+            },
+        };
+    }
 }
 
-export default SingleSelectHandler;
+export default SingleSelectAction;

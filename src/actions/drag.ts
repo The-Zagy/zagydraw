@@ -1,15 +1,16 @@
 import { useStore } from "store";
 import { CursorFn } from "types/general";
 import { Point } from "utils";
+import { Command } from "./types";
 
-class DragHandler {
+class DragAction {
     private static lastMouseDownPosition: Point = [0, 0];
-    public static start(coords: Point) {
+    private static _start(coords: Point) {
         const { cursorFn } = useStore.getState();
         if (cursorFn !== CursorFn.Drag) return;
         this.lastMouseDownPosition = coords;
     }
-    public static inProgress(coords: Point, canvas: HTMLCanvasElement | null) {
+    private static _inProgress(coords: Point, canvas: HTMLCanvasElement | null) {
         const { isMouseDown, cursorFn, position, setPosition } = useStore.getState();
         if (!(isMouseDown && canvas && cursorFn === CursorFn.Drag)) return;
         const [x, y] = coords;
@@ -20,6 +21,20 @@ class DragHandler {
         this.lastMouseDownPosition = [x, y];
         setPosition({ x: position.x + walkX, y: position.y + walkY });
     }
+    public static start(...args: Parameters<typeof DragAction._start>): Command {
+        return {
+            execute: () => {
+                this._start(...args);
+            },
+        };
+    }
+    public static inProgress(...args: Parameters<typeof DragAction._inProgress>): Command {
+        return {
+            execute: () => {
+                this._inProgress(...args);
+            },
+        };
+    }
 }
 
-export default DragHandler;
+export default DragAction;
