@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import isClient from "utils/isClient";
 
-export default function useGlobalEvent<K extends keyof WindowEventMap>(
+export function useGlobalEvent<K extends keyof WindowEventMap>(
     event: K,
     callback: (event: WindowEventMap[K]) => void,
     options?: AddEventListenerOptions

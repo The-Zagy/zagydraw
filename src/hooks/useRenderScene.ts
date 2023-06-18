@@ -19,4 +19,4 @@ const useRenderScene = (...params: Params) => {
     }, [canvasState]);
 };
 
-export default useRenderScene;
+export { useRenderScene };

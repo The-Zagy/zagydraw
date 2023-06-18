@@ -94,4 +94,4 @@ const useMultiPhaseEvent = <
     }, [element, events, localState, name, setLocalState]);
 };
 
-export default useMultiPhaseEvent;
+export { useMultiPhaseEvent };

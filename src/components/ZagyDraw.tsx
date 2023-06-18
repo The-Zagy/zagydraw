@@ -1,19 +1,20 @@
 import { PointerEventHandler, useEffect, useLayoutEffect, useRef, useState } from "react";
-
 import rough from "roughjs";
-import { useStore } from "store";
-import useGlobalEvent from "hooks/useGlobalEvent";
 import { RoughCanvas } from "roughjs/bin/canvas";
+import clsx from "clsx";
+import { randomSeed } from "roughjs/bin/math";
+import { RoughGenerator } from "roughjs/bin/generator";
+import { commandManager } from "actions/commandManager";
 
+import { useCursor, useEvent, useGlobalEvent, useMultiPhaseEvent, useRenderScene } from "hooks";
 import { getHitElement, isElementInRect, normalizePos, normalizeToGrid } from "utils";
 import {
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
     CursorFn,
     FontTypeOptions,
+    ZagyCanvasElement,
 } from "types/general";
-
-import useCursor from "hooks/useCursor";
 import {
     generateCacheRectElement,
     generateCachedHandDrawnElement,
@@ -23,15 +24,10 @@ import {
     generateSelectRectElement,
     generateTextElement,
 } from "utils/canvas/generateElement";
-
-import clsx from "clsx";
-import useRenderScene from "hooks/useRenderScene";
-import { randomSeed } from "roughjs/bin/math";
-import { commandManager } from "actions/commandManager";
-import { RoughGenerator } from "roughjs/bin/generator";
-import useMultiPhaseEvent from "hooks/useMultiPhaseEvent";
-import useEvent from "hooks/useEvent";
-
+import { useStore } from "store";
+import { ActionDeleteMarkedElements } from "actions/delete";
+import { ActionInsertElements } from "actions/insertElement";
+import { MdUndo } from "react-icons/md";
 const {
     setPosition,
     setZoomLevel,
@@ -338,6 +334,7 @@ function ZagyDraw() {
                 callback: (_, localState, setState) => {
                     const { currentSeed, currentlyDrawnFreeHand } = localState;
                     setPreviewElement(null);
+                    let el: ZagyCanvasElement | null = null;
                     if (cursorFn === CursorFn.Line) {
                         const line: ZagyCanvasLineElement = generateLineElement(
                             roughGenerator,
@@ -346,9 +343,7 @@ function ZagyDraw() {
 
                             {}
                         );
-                        setElements((prev) => {
-                            return [...prev, line];
-                        });
+                        el = line;
                         setState((prev) => ({ ...prev, currentSeed: randomSeed() }));
                     } else if (cursorFn === CursorFn.Rect) {
                         const rect = generateCacheRectElement(
@@ -360,18 +355,18 @@ function ZagyDraw() {
                         );
                         if (rect.endX - rect.x < 10 || rect.endY - rect.y < 10) return;
 
-                        setElements((prev) => {
-                            return [...prev, rect];
-                        });
+                        el = rect;
                         setState((prev) => ({ ...prev, currentSeed: randomSeed() }));
                     } else if (cursorFn === CursorFn.FreeDraw) {
                         // todo change this to one function like any other element
 
-                        const el = generateCachedHandDrawnElement(currentlyDrawnFreeHand);
-                        setElements((prev) => {
-                            return [...prev, el];
-                        });
+                        const handDrawnElement =
+                            generateCachedHandDrawnElement(currentlyDrawnFreeHand);
+                        el = handDrawnElement;
                         setState((prev) => ({ ...prev, currentlyDrawnFreeHand: [] }));
+                    }
+                    if (el !== null) {
+                        commandManager.executeCommand(new ActionInsertElements(el));
                     }
                 },
             },
@@ -459,7 +454,7 @@ function ZagyDraw() {
                 event: "pointerup",
                 callback: () => {
                     if (willDelete.current) {
-                        setElements((prev) => prev.filter((val) => !val.willDelete));
+                        commandManager.executeCommand(new ActionDeleteMarkedElements());
                         willDelete.current = false;
                     }
                 },
@@ -506,12 +501,12 @@ function ZagyDraw() {
                 onPointerUp={handlePointerUp}
             />
             <button
-                className="fixed bottom-1 left-1 h-fit w-fit bg-red-900 p-4"
+                className="bg-primary-600 fixed bottom-4 left-4 h-fit w-fit  rounded-lg p-2"
                 onClick={() => {
                     commandManager.undoCommand();
                     return;
                 }}>
-                UNDO
+                <MdUndo size={35} className="m-auto text-white" />
             </button>
         </>
     );

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import isClient from "utils/isClient";
 
-export default function useEvent<K extends keyof HTMLElementEventMap>(
+export function useEvent<K extends keyof HTMLElementEventMap>(
     event: K,
     callback: (event: HTMLElementEventMap[K]) => void,
     element: HTMLElement | null,

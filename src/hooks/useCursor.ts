@@ -6,7 +6,7 @@ import { CursorFn, ZagyCanvasElement } from "types/general";
  * @param cursorFn
  * @param isMouseDown
  */
-export default function useCursor(
+export function useCursor(
     cursorFn: CursorFn,
     isMouseDown: boolean,
     currentlyHoveredElement: ZagyCanvasElement | null
