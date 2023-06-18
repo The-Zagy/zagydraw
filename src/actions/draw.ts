@@ -92,7 +92,12 @@ class DrawAction {
             cursorFn !== CursorFn.FreeDraw
         )
             return null;
-
+        if (
+            this.lastMouseUpPosition[0] === 0 &&
+            this.lastMouseUpPosition[1] === 0 &&
+            this.currentlyDrawnFreeHand.length === 0
+        )
+            return null;
         return {
             execute: () => {
                 const { cursorFn, setPreviewElement } = useStore.getState();
@@ -129,6 +134,8 @@ class DrawAction {
                     const { setElements } = useStore.getState();
                     setElements((prev) => [...prev, el as ZagyCanvasElement]);
                 }
+                this.lastMouseDownPosition = [0, 0];
+                this.lastMouseUpPosition = [0, 0];
             },
             undo: () => {
                 const { setElements } = useStore.getState();
