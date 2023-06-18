@@ -13,9 +13,9 @@ class TextAction {
 
         if (cursorFn === CursorFn.Text && (!this.isAlreadyElement || currentText === "")) {
             this.isAlreadyElement = true;
-            const { position, setIsWriting } = useStore.getState();
-            const norm = normalizePos(position, coords);
-            this.lastMouseDownPosition = norm;
+            const { setIsWriting } = useStore.getState();
+
+            this.lastMouseDownPosition = coords;
             setIsWriting(true);
             return;
         }
@@ -68,13 +68,10 @@ class TextAction {
                 if (canvas === null) return;
                 const ctx = canvas.getContext("2d");
                 if (ctx === null) return;
-                const { currentText } = useStore.getState();
-                element = generateTextElement(
-                    ctx,
-                    currentText,
-                    [this.lastMouseDownPosition[0], this.lastMouseDownPosition[1]],
-                    {}
-                );
+                const { currentText, position } = useStore.getState();
+                const normalizedPosition = normalizePos(position, this.lastMouseDownPosition);
+                element = generateTextElement(ctx, currentText, normalizedPosition, {});
+
                 const { setCurrentText, setIsWriting } = useStore.getState();
                 this.isAlreadyElement = false;
                 const { setElements } = useStore.getState();
