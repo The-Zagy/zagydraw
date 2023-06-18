@@ -14,7 +14,6 @@ class TextAction {
         if (cursorFn === CursorFn.Text && (!this.isAlreadyElement || currentText === "")) {
             this.isAlreadyElement = true;
             const { setIsWriting } = useStore.getState();
-
             this.lastMouseDownPosition = coords;
             setIsWriting(true);
             return;
@@ -24,7 +23,8 @@ class TextAction {
         textAreaWrapper: HTMLDivElement | null,
         textArea: HTMLTextAreaElement | null
     ) {
-        if (!textAreaWrapper || !textArea) return;
+        const { cursorFn } = useStore.getState();
+        if (!textAreaWrapper || !textArea || cursorFn !== CursorFn.Text) return;
 
         textAreaWrapper.style.left = `${this.lastMouseDownPosition[0]}px`;
         textAreaWrapper.style.top = `${this.lastMouseDownPosition[1]}px`;
@@ -62,7 +62,10 @@ class TextAction {
     ): UndoableCommand | null {
         let element: ZagyCanvasElement | null = null;
         const { cursorFn } = useStore.getState();
+        textArea?.blur();
         if (cursorFn !== CursorFn.Text) return null;
+        const { currentText } = useStore.getState();
+        if (currentText === "") return null;
         return {
             execute: () => {
                 if (canvas === null) return;
@@ -78,7 +81,6 @@ class TextAction {
                 setElements((prev) => [...prev, element!]);
                 setCurrentText("");
                 setIsWriting(false);
-                textArea?.blur();
             },
             undo: () => {
                 const { setElements } = useStore.getState();
