@@ -125,9 +125,9 @@ function ZagyDraw() {
 
     // cursorfnHandler();
 
-    const handleTextAreaBlur: React.FocusEventHandler<HTMLTextAreaElement> = (e) => {
-        console.log(e.target.value);
-        commandManager.executeCommand(TextAction.end(canvas.current));
+    const handleTextAreaBlur: React.FocusEventHandler<HTMLTextAreaElement> = () => {
+        if (currentText === "") return;
+        commandManager.executeCommand(TextAction.end(canvas.current, textareaInput.current));
     };
 
     const handleScroll = (e: WheelEvent) => {
@@ -257,9 +257,7 @@ function ZagyDraw() {
             {
                 event: "pointerdown",
                 callback: (e) => {
-                    commandManager.executeCommand(
-                        TextAction.start([e.pageX, e.pageY], textareaInput.current)
-                    );
+                    commandManager.executeCommand(TextAction.start([e.pageX, e.pageY]));
                 },
                 options: true,
             },
@@ -300,7 +298,17 @@ function ZagyDraw() {
                     <textarea
                         ref={textareaInput}
                         onBlur={handleTextAreaBlur}
-                        onChange={(e) => setCurrentText(e.target.value)}
+                        value={currentText}
+                        onChange={(e) => {
+                            commandManager.executeCommand(TextAction.preEnd(e.target.value));
+                        }}
+                        onKeyUp={(e) => {
+                            if (e.key === "Escape") {
+                                commandManager.executeCommand(
+                                    TextAction.end(canvas.current, textareaInput.current)
+                                );
+                            }
+                        }}
                         className="m-0 bg-transparent p-0  leading-none outline-none"
                     />
                 </div>

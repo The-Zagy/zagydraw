@@ -29,8 +29,10 @@ class DeleteAction {
         };
     }
 
-    public static end(): UndoableCommand {
+    public static end(): UndoableCommand | null {
         let deletedElements: ZagyCanvasElement[] = [];
+        const { cursorFn } = useStore.getState();
+        if (cursorFn !== CursorFn.Erase) return null;
         return {
             execute: () => {
                 if (this.willDelete) {

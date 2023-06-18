@@ -83,8 +83,16 @@ class DrawAction {
             },
         };
     }
-    public static end(): UndoableCommand {
+    public static end(): UndoableCommand | null {
         const insertedElements: ZagyCanvasElement[] = [];
+        const { cursorFn } = useStore.getState();
+        if (
+            cursorFn !== CursorFn.Rect &&
+            cursorFn !== CursorFn.Line &&
+            cursorFn !== CursorFn.FreeDraw
+        )
+            return null;
+
         return {
             execute: () => {
                 const { cursorFn, setPreviewElement } = useStore.getState();

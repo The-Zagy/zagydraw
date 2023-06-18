@@ -3,22 +3,16 @@ import { CursorFn, ZagyCanvasElement } from "types/general";
 import { Point, normalizePos } from "utils";
 import { Command, UndoableCommand } from "./types";
 import { generateTextElement } from "utils/canvas/generateElement";
-import { flushSync } from "react-dom";
 
 class TextAction {
     private static lastMouseDownPosition: Point = [0, 0];
-    private static _start(coords: Point, textArea: HTMLTextAreaElement | null) {
-        const { cursorFn } = useStore.getState();
-        const { currentText, setCurrentText } = useStore.getState();
+    private static isAlreadyElement: boolean;
+    private static _start(coords: Point) {
+        const { cursorFn, currentText } = useStore.getState();
         //todo maybe find a better way to do this
-        flushSync(() => {
-            textArea?.blur();
-        });
-        if (currentText === "") setCurrentText("");
 
-        //at this point we're starting new text element, previous textField should be cleared
-
-        if (cursorFn === CursorFn.Text) {
+        if (cursorFn === CursorFn.Text && (!this.isAlreadyElement || currentText === "")) {
+            this.isAlreadyElement = true;
             const { position, setIsWriting } = useStore.getState();
             const norm = normalizePos(position, coords);
             this.lastMouseDownPosition = norm;
@@ -52,32 +46,47 @@ class TextAction {
         };
     }
 
-    public static end(canvas: HTMLCanvasElement | null): UndoableCommand {
-        let element: ZagyCanvasElement | null = null;
+    public static preEnd(text: string): Command {
         return {
             execute: () => {
                 const { currentText, setCurrentText } = useStore.getState();
+                setCurrentText(text);
                 if (currentText === "") return;
+            },
+        };
+    }
+
+    public static end(
+        canvas: HTMLCanvasElement | null,
+        textArea: HTMLTextAreaElement | null
+    ): UndoableCommand | null {
+        let element: ZagyCanvasElement | null = null;
+        const { cursorFn } = useStore.getState();
+        if (cursorFn !== CursorFn.Text) return null;
+        return {
+            execute: () => {
                 if (canvas === null) return;
                 const ctx = canvas.getContext("2d");
                 if (ctx === null) return;
-                const { setElements, isWriting, setIsWriting } = useStore.getState();
-                if (isWriting) {
-                    element = generateTextElement(
-                        ctx,
-                        currentText,
-                        [this.lastMouseDownPosition[0], this.lastMouseDownPosition[1]],
-                        {}
-                    );
-                    setCurrentText("");
-                    setElements((prev) => [...prev, element!]);
-                    setIsWriting(false);
-                }
+                const { currentText } = useStore.getState();
+                element = generateTextElement(
+                    ctx,
+                    currentText,
+                    [this.lastMouseDownPosition[0], this.lastMouseDownPosition[1]],
+                    {}
+                );
+                const { setCurrentText, setIsWriting } = useStore.getState();
+                this.isAlreadyElement = false;
+                const { setElements } = useStore.getState();
+                setElements((prev) => [...prev, element!]);
+                setCurrentText("");
+                setIsWriting(false);
+                textArea?.blur();
             },
             undo: () => {
-                if (element === null) return;
                 const { setElements } = useStore.getState();
-                setElements((prev) => prev.filter((val) => val.id !== element?.id));
+                if (element === null) return;
+                setElements((prev) => prev.filter((val) => val.id !== element!.id));
             },
         };
     }

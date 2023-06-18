@@ -12,7 +12,8 @@ export class CommandManager {
         this.commandStack = [];
     }
 
-    public executeCommand(cmd: Command) {
+    public executeCommand(cmd: Command | null) {
+        if (cmd === null) return;
         cmd.execute();
         // if cmd is undoable push it to the stack
 
