@@ -111,7 +111,7 @@ export const useStore = create<
             visibleElements: elements.filter((el) => {
                 return isElementVisible(el, [
                     [-position.x, -position.y],
-                    [-position.x + width, position.y + height],
+                    [-position.x + width, -position.y + height],
                 ]);
             }),
         }));
@@ -125,7 +125,7 @@ export const useStore = create<
             visibleElements: callback(elements).filter((el) => {
                 return isElementVisible(el, [
                     [-position.x, -position.y],
-                    [-position.x + width, position.y + height],
+                    [-position.x + width, -position.y + height],
                 ]);
             }),
         }));
