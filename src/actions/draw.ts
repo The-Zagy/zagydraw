@@ -102,7 +102,7 @@ class DrawAction {
             return null;
         return {
             execute: () => {
-                const { cursorFn, setPreviewElement } = useStore.getState();
+                const { cursorFn, position, setPreviewElement } = useStore.getState();
                 setPreviewElement(null);
                 let el: ZagyCanvasElement | null = null;
                 if (cursorFn === CursorFn.Line) {
@@ -110,6 +110,7 @@ class DrawAction {
                         this.roughGenerator,
                         this.lastMouseDownPosition,
                         this.lastMouseUpPosition,
+                        [position.x, position.y],
                         {}
                     );
                     el = line;

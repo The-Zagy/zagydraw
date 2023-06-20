@@ -2,6 +2,7 @@ import { useStore } from "store";
 import { CursorFn, ZagyCanvasElement, isHanddrawn } from "types/general";
 import { Point, getHitElement, normalizeToGrid } from "utils";
 import { Command, UndoableCommand } from "./types";
+import { constructHandDrawnElementPath2D } from "utils/canvas/generateElement";
 
 class MoveElementAction {
     private static hitElement: ZagyCanvasElement | null = null;
@@ -58,6 +59,7 @@ class MoveElementAction {
         this.hitElement.y = newStart[1];
         this.hitElement.endX = newEnd[0];
         this.hitElement.endY = newEnd[1];
+
         setElements((prev) => {
             const index = prev.findIndex((el) => el.id === this.hitElement!.id);
             const newPrev = [...prev];
@@ -89,12 +91,23 @@ class MoveElementAction {
         if (el === null) return null;
         return {
             execute: () => {
-                //do nothing
+                if (isHanddrawn(el)) {
+                    const offsetX = el.x - oldPositionStart[0];
+                    const offsetY = el.y - oldPositionStart[1];
+                    el.paths = el.paths.map((p) => [p[0] + offsetX, p[1] + offsetY]);
+                    el.path2D = constructHandDrawnElementPath2D(el.paths);
+                }
             },
 
             undo: () => {
                 const { setElements } = useStore.getState();
                 console.log(el);
+                if (isHanddrawn(el)) {
+                    const offsetX = el.x - oldPositionStart[0];
+                    const offsetY = el.y - oldPositionStart[1];
+                    el.paths = el.paths.map((p) => [p[0] - offsetX, p[1] - offsetY]);
+                    el.path2D = constructHandDrawnElementPath2D(el.paths);
+                }
                 el.x = oldPositionStart[0];
                 el.y = oldPositionStart[1];
                 el.endX = oldPositionEnd[0];

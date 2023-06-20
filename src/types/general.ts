@@ -69,6 +69,8 @@ interface ZagyCanvasRectElement extends CanvasRoughElement, Partial<CachableElem
 
 interface ZagyCanvasLineElement extends CanvasRoughElement, Partial<CachableElement> {
     shape: "line";
+    point1: Point;
+    point2: Point;
 }
 
 interface ZagyCanvasTextElement extends ZagyCanvasElement {

@@ -18,6 +18,7 @@ import {
     getGlobalMinMax,
     getSvgPathFromStroke,
     normalizeRectCoords,
+    normalizeToGrid,
 } from "utils";
 import { useStore } from "store";
 import { randomSeed } from "roughjs/bin/math";
@@ -155,7 +156,6 @@ const generateLineElement = (
     generator: RoughGenerator,
     startPos: Point,
     endPos: Point,
-
     options: Partial<LineOptions & { id: string }> = {}
 ): ZagyCanvasLineElement => {
     const { x, y, endX, endY } = getCorrectCoordOrder(startPos, endPos);
@@ -173,6 +173,8 @@ const generateLineElement = (
         y,
         endX,
         endY,
+        point1: startPos,
+        point2: endPos,
         shape: "line",
         opacity: opts.opacity,
     };
@@ -181,28 +183,27 @@ const generateCacheLineElement = (
     generator: RoughGenerator,
     startPos: Point,
     endPos: Point,
+    absolutePos: Point,
     options: Partial<LineOptions & Options & { id: string }>
 ): ZagyCanvasLineElement => {
     const { x, y, endX, endY } = normalizeRectCoords(startPos, endPos);
-
     const opts = normalizeRectOptions(options);
-    const el = generator.line(
-        CACHE_CANVAS_SIZE_THRESHOLD,
-        CACHE_CANVAS_SIZE_THRESHOLD,
-        endX - x,
-        endY - y,
-        {
-            roughness: 2,
-            ...opts,
-        }
-    );
+    console.log(startPos, endPos);
+    const el = generator.line(...startPos, ...endPos, {
+        roughness: 2,
+        ...opts,
+    });
     const cacheCanvas = document.createElement("canvas");
     // we have to add some threshold because roughjs rects have some offset
+
     cacheCanvas.width = endX - x + CACHE_CANVAS_SIZE_THRESHOLD * 4;
     cacheCanvas.height = endY - y + CACHE_CANVAS_SIZE_THRESHOLD * 4;
+
     const cacheCtx = cacheCanvas.getContext("2d");
     if (!cacheCtx) throw new Error("cacheCtx is null");
+    cacheCtx.translate(-x, -y);
     rough.canvas(cacheCanvas).draw(el);
+
     return {
         ...el,
         cache: cacheCanvas,
@@ -211,6 +212,8 @@ const generateCacheLineElement = (
         id: options.id !== undefined ? options.id : nanoid(),
         x,
         y,
+        point1: startPos,
+        point2: endPos,
         endX,
         endY,
         shape: "line",

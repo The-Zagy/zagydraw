@@ -102,8 +102,8 @@ export function getHitElement(
                 return elements[i];
             }
         } else if (elements[i].shape === "line") {
-            const { x, y, endX, endY } = elements[i] as ZagyCanvasLineElement;
-            if (pointNearLine([x, y], [endX, endY], mousePos)) {
+            const { point1, point2 } = elements[i] as ZagyCanvasLineElement;
+            if (pointNearLine(point1, point2, mousePos)) {
                 return elements[i];
             }
         } else if (elements[i].shape === "handdrawn") {
