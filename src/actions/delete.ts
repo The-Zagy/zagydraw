@@ -30,22 +30,21 @@ class DeleteAction {
     }
 
     public static end(): UndoableCommand | null {
-        let deletedElements: ZagyCanvasElement[] = [];
         const { cursorFn } = useStore.getState();
         if (cursorFn !== CursorFn.Erase) return null;
+        if (!this.willDelete) return null;
+        const { elements } = useStore.getState();
+        const deletedElements: ZagyCanvasElement[] = elements
+            .filter((val) => val.willDelete)
+            .map((val) => ({ ...val, willDelete: false }));
+        if (deletedElements.length === 0) return null;
         return {
             execute: () => {
-                if (this.willDelete) {
-                    const { elements, setElements } = useStore.getState();
-                    deletedElements = elements
-                        .filter((val) => val.willDelete)
-                        .map((val) => ({ ...val, willDelete: false }));
-                    setElements((prev) => prev.filter((val) => !val.willDelete));
-                    return;
-                }
+                const { setElements } = useStore.getState();
+                setElements((prev) => prev.filter((val) => !val.willDelete));
+                return;
             },
             undo: () => {
-                if (deletedElements.length === 0) return;
                 const { setElements } = useStore.getState();
                 setElements((prev) => [...prev, ...deletedElements]);
             },
