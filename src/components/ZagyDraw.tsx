@@ -340,10 +340,10 @@ function ZagyDraw() {
                 onPointerDown={handlePointerDown}
                 onPointerUp={handlePointerUp}
             />
-            <div className="fixed bottom-4 right-4 text-lg text-white">
+            {/* <div className="fixed bottom-4 right-4 text-lg text-white">
                 <pre>{JSON.stringify(position)}</pre>
                 <pre>{JSON.stringify(normalizePos(position, mouseCoords.current))}</pre>
-            </div>
+            </div> */}
             <button
                 className="bg-primary-600 fixed bottom-4 left-4 h-fit w-fit  rounded-lg p-2"
                 onClick={() => {
