@@ -25,31 +25,17 @@ export function renderRoughElement(
     roughCanvas: RoughCanvas
 ) {
     if (el.cache) {
-        if (el.shape === "rectangle" || el.shape === "handdrawn") {
-            ctx.drawImage(
-                el.cache,
-                0,
-                0,
-                el.cache.width,
-                el.cache.height,
-                el.x - CACHE_CANVAS_SIZE_THRESHOLD,
-                el.y - CACHE_CANVAS_SIZE_THRESHOLD,
-                el.cache.width,
-                el.cache.height
-            );
-        } else if (el.shape === "line") {
-            ctx.drawImage(
-                el.cache,
-                0,
-                0,
-                el.cache.width,
-                el.cache.height,
-                el.x,
-                el.y,
-                el.cache.width,
-                el.cache.height
-            );
-        }
+        ctx.drawImage(
+            el.cache,
+            0,
+            0,
+            el.cache.width,
+            el.cache.height,
+            el.x - CACHE_CANVAS_SIZE_THRESHOLD,
+            el.y - CACHE_CANVAS_SIZE_THRESHOLD,
+            el.cache.width,
+            el.cache.height
+        );
     } else {
         roughCanvas.draw(el);
     }

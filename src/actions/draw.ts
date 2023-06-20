@@ -58,7 +58,7 @@ class DrawAction {
                     this.roughGenerator,
                     this.lastMouseDownPosition,
                     this.lastMouseUpPosition,
-                    {}
+                    { seed: this.currentSeed }
                 );
                 setPreviewElement(line);
             } else if (cursorFn === CursorFn.FreeDraw) {
@@ -102,7 +102,7 @@ class DrawAction {
             return null;
         return {
             execute: () => {
-                const { cursorFn, position, setPreviewElement } = useStore.getState();
+                const { cursorFn, setPreviewElement } = useStore.getState();
                 setPreviewElement(null);
                 let el: ZagyCanvasElement | null = null;
                 if (cursorFn === CursorFn.Line) {
@@ -110,8 +110,8 @@ class DrawAction {
                         this.roughGenerator,
                         this.lastMouseDownPosition,
                         this.lastMouseUpPosition,
-                        [position.x, position.y],
-                        {}
+
+                        { seed: this.currentSeed }
                     );
                     el = line;
                     this.currentSeed = randomSeed();

@@ -156,7 +156,7 @@ const generateLineElement = (
     generator: RoughGenerator,
     startPos: Point,
     endPos: Point,
-    options: Partial<LineOptions & { id: string }> = {}
+    options: Partial<LineOptions & Options & { id: string }> = {}
 ): ZagyCanvasLineElement => {
     const { x, y, endX, endY } = getCorrectCoordOrder(startPos, endPos);
     // todo create normalize line options
@@ -183,22 +183,24 @@ const generateCacheLineElement = (
     generator: RoughGenerator,
     startPos: Point,
     endPos: Point,
-    absolutePos: Point,
     options: Partial<LineOptions & Options & { id: string }>
 ): ZagyCanvasLineElement => {
-    const { x, y, endX, endY } = normalizeRectCoords(startPos, endPos);
+    const { minX: x, minY: y, maxX: endX, maxY: endY } = getGlobalMinMax([startPos, endPos]);
     const opts = normalizeRectOptions(options);
-    console.log(startPos, endPos);
+
+    startPos = [
+        startPos[0] + CACHE_CANVAS_SIZE_THRESHOLD,
+        startPos[1] + CACHE_CANVAS_SIZE_THRESHOLD,
+    ];
+    endPos = [endPos[0] + CACHE_CANVAS_SIZE_THRESHOLD, endPos[1] + CACHE_CANVAS_SIZE_THRESHOLD];
     const el = generator.line(...startPos, ...endPos, {
         roughness: 2,
         ...opts,
     });
     const cacheCanvas = document.createElement("canvas");
     // we have to add some threshold because roughjs rects have some offset
-
     cacheCanvas.width = endX - x + CACHE_CANVAS_SIZE_THRESHOLD * 4;
     cacheCanvas.height = endY - y + CACHE_CANVAS_SIZE_THRESHOLD * 4;
-
     const cacheCtx = cacheCanvas.getContext("2d");
     if (!cacheCtx) throw new Error("cacheCtx is null");
     cacheCtx.translate(-x, -y);
