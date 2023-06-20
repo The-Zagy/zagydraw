@@ -1,5 +1,5 @@
 import { useStore } from "store";
-import { CursorFn, ZagyCanvasElement, isHanddrawn } from "types/general";
+import { CursorFn, ZagyCanvasElement, isHanddrawn, isLine } from "types/general";
 import { Point, getHitElement, normalizeToGrid } from "utils";
 import { Command, UndoableCommand } from "./types";
 import { constructHandDrawnElementPath2D } from "utils/canvas/generateElement";
@@ -91,22 +91,27 @@ class MoveElementAction {
         if (el === null) return null;
         return {
             execute: () => {
+                const offsetX = el.x - oldPositionStart[0];
+                const offsetY = el.y - oldPositionStart[1];
                 if (isHanddrawn(el)) {
-                    const offsetX = el.x - oldPositionStart[0];
-                    const offsetY = el.y - oldPositionStart[1];
                     el.paths = el.paths.map((p) => [p[0] + offsetX, p[1] + offsetY]);
                     el.path2D = constructHandDrawnElementPath2D(el.paths);
+                } else if (isLine(el)) {
+                    el.point1 = [el.point1[0] + offsetX, el.point1[1] + offsetY];
+                    el.point2 = [el.point2[0] + offsetX, el.point2[1] + offsetY];
                 }
             },
 
             undo: () => {
                 const { setElements } = useStore.getState();
-                console.log(el);
+                const offsetX = el.x - oldPositionStart[0];
+                const offsetY = el.y - oldPositionStart[1];
                 if (isHanddrawn(el)) {
-                    const offsetX = el.x - oldPositionStart[0];
-                    const offsetY = el.y - oldPositionStart[1];
                     el.paths = el.paths.map((p) => [p[0] - offsetX, p[1] - offsetY]);
                     el.path2D = constructHandDrawnElementPath2D(el.paths);
+                } else if (isLine(el)) {
+                    el.point1 = [el.point1[0] - offsetX, el.point1[1] - offsetY];
+                    el.point2 = [el.point2[0] - offsetX, el.point2[1] - offsetY];
                 }
                 el.x = oldPositionStart[0];
                 el.y = oldPositionStart[1];
