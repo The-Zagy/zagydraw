@@ -13,6 +13,9 @@ export function useCursor(
 ) {
     useEffect(() => {
         switch (cursorFn) {
+            case CursorFn.Move:
+                document.body.style.cursor = "move";
+                break;
             case CursorFn.Drag:
                 document.body.style.cursor = "grab";
                 if (isMouseDown) document.body.style.cursor = "grabbing";

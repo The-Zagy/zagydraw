@@ -56,6 +56,8 @@ interface ZagyCanvasElement extends Partial<CachableElement> {
     shape: ElementTypes;
     x: number;
     y: number;
+    endX: number;
+    endY: number;
     willDelete?: boolean;
     opacity: number;
 }
@@ -63,28 +65,20 @@ interface ZagyCanvasElement extends Partial<CachableElement> {
 type CanvasRoughElement = ZagyCanvasElement & Drawable & { seed: number };
 interface ZagyCanvasRectElement extends CanvasRoughElement, Partial<CachableElement> {
     shape: "rectangle";
-    endX: number;
-    endY: number;
 }
 
-interface ZagyCanvasLineElement extends CanvasRoughElement {
+interface ZagyCanvasLineElement extends CanvasRoughElement, Partial<CachableElement> {
     shape: "line";
-    endX: number;
-    endY: number;
 }
 
 interface ZagyCanvasTextElement extends ZagyCanvasElement {
     shape: "text";
     text: string[];
-    endX: number;
-    endY: number;
     options: TextOptions;
 }
 
 interface ZagyCanvasHandDrawnElement extends ZagyCanvasElement, Partial<CachableElement> {
     shape: "handdrawn";
-    endX: number;
-    endY: number;
     path: Path2D;
     options: SharedOptions;
 }
@@ -97,6 +91,7 @@ enum CursorFn {
     FreeDraw,
     Text,
     Erase,
+    Move,
 }
 
 function isRect(el: ZagyCanvasElement): el is ZagyCanvasRectElement {

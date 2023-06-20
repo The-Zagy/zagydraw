@@ -15,6 +15,8 @@ import DragAction from "actions/drag";
 import SingleSelectAction from "actions/singleSelect";
 import MultiSelectAction from "actions/multiselect";
 import TextAction from "actions/createText";
+import MoveElementAction from "actions/moveElement";
+import { normalizePos } from "utils";
 const { setZoomLevel, setDimensions, setIsMouseDown } = useStore.getState();
 
 const MAX_ZOOM = 96;
@@ -264,6 +266,33 @@ function ZagyDraw() {
         ],
         canvas.current
     );
+    useMultiPhaseEvent(
+        "moveElement",
+        [
+            {
+                event: "pointerdown",
+                callback: (e) => {
+                    commandManager.executeCommand(MoveElementAction.start([e.pageX, e.pageY]));
+                },
+                options: true,
+            },
+            {
+                event: "pointermove",
+                callback: (e) => {
+                    commandManager.executeCommand(
+                        MoveElementAction.inProgress([e.pageX, e.pageY], canvas.current)
+                    );
+                },
+            },
+            {
+                event: "pointerup",
+                callback: () => {
+                    commandManager.executeCommand(MoveElementAction.end());
+                },
+            },
+        ],
+        canvas.current
+    );
     return (
         <>
             {isWriting === true ? (
@@ -311,6 +340,10 @@ function ZagyDraw() {
                 onPointerDown={handlePointerDown}
                 onPointerUp={handlePointerUp}
             />
+            <div className="fixed left-4 top-4 text-lg text-white">
+                <pre>{JSON.stringify(position)}</pre>
+                <pre>{JSON.stringify(normalizePos(position, mouseCoords.current))}</pre>
+            </div>
             <button
                 className="bg-primary-600 fixed bottom-4 left-4 h-fit w-fit  rounded-lg p-2"
                 onClick={() => {

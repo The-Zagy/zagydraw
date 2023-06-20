@@ -16,9 +16,13 @@ export default function ToolbarUpper() {
                     onClick={() => setCursorFn(CursorFn.Default)}
                     className={clsx(
                         "mx-1 h-12 w-16 cursor-pointer rounded-2xl rounded-l-lg text-xl sm:w-14",
-                        { "bg-background-700": cursorFn === CursorFn.Default },
                         {
-                            "hover:bg-primary-400": cursorFn !== CursorFn.Default,
+                            "bg-background-700":
+                                cursorFn === CursorFn.Default || cursorFn === CursorFn.Move,
+                        },
+                        {
+                            "hover:bg-primary-400":
+                                cursorFn !== CursorFn.Default && cursorFn !== CursorFn.Move,
                         }
                     )}>
                     {cursorFn === CursorFn.Default ? (
