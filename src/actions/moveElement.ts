@@ -1,5 +1,5 @@
 import { useStore } from "store";
-import { CursorFn, ZagyCanvasElement } from "types/general";
+import { CursorFn, ZagyCanvasElement, isHanddrawn } from "types/general";
 import { Point, getHitElement, normalizeToGrid } from "utils";
 import { Command, UndoableCommand } from "./types";
 
@@ -58,7 +58,6 @@ class MoveElementAction {
         this.hitElement.y = newStart[1];
         this.hitElement.endX = newEnd[0];
         this.hitElement.endY = newEnd[1];
-
         setElements((prev) => {
             const index = prev.findIndex((el) => el.id === this.hitElement!.id);
             const newPrev = [...prev];

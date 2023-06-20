@@ -1,5 +1,5 @@
 import { Drawable } from "roughjs/bin/core";
-
+type Point = [number, number];
 type ElementTypes = "rectangle" | "line" | "text" | "handdrawn";
 
 const FontTypeOptions = {
@@ -79,7 +79,8 @@ interface ZagyCanvasTextElement extends ZagyCanvasElement {
 
 interface ZagyCanvasHandDrawnElement extends ZagyCanvasElement, Partial<CachableElement> {
     shape: "handdrawn";
-    path: Path2D;
+    path2D: Path2D;
+    paths: Point[];
     options: SharedOptions;
 }
 

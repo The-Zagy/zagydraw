@@ -10,7 +10,9 @@ import {
 } from "types/general";
 import { Point, normalizeToGrid } from "utils";
 import {
+    generateCacheLineElement,
     generateCacheRectElement,
+    generateCachedHandDrawnElement,
     generateHandDrawnElement,
     generateLineElement,
     generateRectElement,
@@ -104,7 +106,7 @@ class DrawAction {
                 setPreviewElement(null);
                 let el: ZagyCanvasElement | null = null;
                 if (cursorFn === CursorFn.Line) {
-                    const line: ZagyCanvasLineElement = generateLineElement(
+                    const line: ZagyCanvasLineElement = generateCacheLineElement(
                         this.roughGenerator,
                         this.lastMouseDownPosition,
                         this.lastMouseUpPosition,
@@ -125,7 +127,9 @@ class DrawAction {
                     el = rect;
                     this.currentSeed = randomSeed();
                 } else if (cursorFn === CursorFn.FreeDraw) {
-                    const handDrawnElement = generateHandDrawnElement(this.currentlyDrawnFreeHand);
+                    const handDrawnElement = generateCachedHandDrawnElement(
+                        this.currentlyDrawnFreeHand
+                    );
                     el = handDrawnElement;
                     this.currentlyDrawnFreeHand = [];
                 }

@@ -107,8 +107,8 @@ export function getHitElement(
                 return elements[i];
             }
         } else if (elements[i].shape === "handdrawn") {
-            const { path } = elements[i] as ZagyCanvasHandDrawnElement;
-            if (pointInPath(ctx, path, [mousePos[0], mousePos[1]])) {
+            const { path2D } = elements[i] as ZagyCanvasHandDrawnElement;
+            if (pointInPath(ctx, path2D, [mousePos[0], mousePos[1]])) {
                 return elements[i];
             }
         }

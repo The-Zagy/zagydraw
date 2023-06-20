@@ -290,10 +290,11 @@ const constructHandDrawnElementPath2D = (paths: Point[]) => {
         },
     });
     const svgFromStroke = getSvgPathFromStroke(stroke);
+
     return new Path2D(svgFromStroke);
 };
 export const generateHandDrawnElement = (paths: Point[]): ZagyCanvasHandDrawnElement => {
-    const path = constructHandDrawnElementPath2D(paths);
+    const path2D = constructHandDrawnElementPath2D(paths);
     const { minX, minY, maxX, maxY } = getGlobalMinMax(paths);
     return {
         id: nanoid(),
@@ -302,8 +303,8 @@ export const generateHandDrawnElement = (paths: Point[]): ZagyCanvasHandDrawnEle
         y: minY,
         endX: maxX,
         endY: maxY,
-
-        path: path,
+        paths: paths,
+        path2D: path2D,
         options: {
             opacity: 1,
             stroke: "transparent",
@@ -325,7 +326,7 @@ const generateCachedHandDrawnElement = (paths: Point[]) => {
         -el.y + CACHE_CANVAS_SIZE_THRESHOLD / 2
     );
     cacheCtx.fillStyle = "white";
-    cacheCtx.fill(el.path);
+    cacheCtx.fill(el.path2D);
     return {
         ...el,
         cache: cacheCanvas,
@@ -341,4 +342,5 @@ export {
     generateCacheRectElement,
     generateTextElement,
     generateCachedHandDrawnElement,
+    generateCacheLineElement,
 };
