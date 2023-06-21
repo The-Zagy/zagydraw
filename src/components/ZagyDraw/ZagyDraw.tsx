@@ -16,7 +16,7 @@ import SingleSelectAction from "actions/singleSelect";
 import MultiSelectAction from "actions/multiselect";
 import TextAction from "actions/createText";
 import MoveElementAction from "actions/moveElement";
-import { normalizePos } from "utils";
+
 const { setZoomLevel, setDimensions, setIsMouseDown } = useStore.getState();
 
 const MAX_ZOOM = 96;
@@ -335,6 +335,7 @@ function ZagyDraw() {
                 </div>
             ) : null}
             <canvas
+                data-testid="canvas"
                 className="h-screen w-screen overflow-hidden"
                 ref={canvas}
                 onPointerDown={handlePointerDown}
@@ -344,14 +345,6 @@ function ZagyDraw() {
                 <pre>{JSON.stringify(position)}</pre>
                 <pre>{JSON.stringify(normalizePos(position, mouseCoords.current))}</pre>
             </div> */}
-            <button
-                className="bg-primary-600 fixed bottom-4 left-4 h-fit w-fit  rounded-lg p-2"
-                onClick={() => {
-                    commandManager.undoCommand();
-                    return;
-                }}>
-                <MdUndo size={35} className="m-auto text-white" />
-            </button>
         </>
     );
 }

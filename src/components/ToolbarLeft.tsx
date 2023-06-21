@@ -35,7 +35,9 @@ const RadioButton: React.FC<{
 }> = (props) => {
     const id = props.name + props.value.toString();
     return (
-        <div className="hover:bg-primary-400 border-primary-400 h-fit w-1/5 overflow-hidden rounded-lg border">
+        <div
+            id="left-toolbar"
+            className="hover:bg-primary-400 border-primary-400 h-fit w-1/5 overflow-hidden rounded-lg border">
             <input
                 id={id}
                 name={props.name}
