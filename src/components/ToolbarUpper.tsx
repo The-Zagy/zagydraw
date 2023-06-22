@@ -13,6 +13,7 @@ export default function ToolbarUpper() {
         <div className="withFira scrollbar-thin scrollbar-thumb-zinc-600 bg-primary-600 fixed left-1/2 top-4 w-11/12 -translate-x-1/2 cursor-default  overflow-auto  whitespace-nowrap rounded-md py-1 sm:m-0 sm:w-auto sm:max-w-none">
             <div className="mx-auto w-fit">
                 <button
+                    data-testid="default-cursor"
                     onClick={() => setCursorFn(CursorFn.Default)}
                     className={clsx(
                         "mx-1 h-12 w-16 cursor-pointer rounded-2xl rounded-l-lg text-xl sm:w-14",
@@ -31,24 +32,9 @@ export default function ToolbarUpper() {
                         <RiCursorLine className="m-auto" color="white" />
                     )}
                 </button>
+
                 <button
-                    onClick={() => setCursorFn(CursorFn.FreeDraw)}
-                    className={clsx(
-                        "mx-1  h-12  w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
-                        {
-                            "bg-background-700": cursorFn === CursorFn.FreeDraw,
-                        },
-                        {
-                            "hover:bg-primary-400": cursorFn !== CursorFn.FreeDraw,
-                        }
-                    )}>
-                    {cursorFn === CursorFn.FreeDraw ? (
-                        <BsPencilFill className="m-auto" color="white" />
-                    ) : (
-                        <BsPencil className="m-auto" color="white" />
-                    )}
-                </button>
-                <button
+                    data-testid="drag-cursor"
                     className={clsx(
                         "mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
                         {
@@ -66,6 +52,25 @@ export default function ToolbarUpper() {
                     )}
                 </button>
                 <button
+                    data-testid="freedraw-cursor"
+                    onClick={() => setCursorFn(CursorFn.FreeDraw)}
+                    className={clsx(
+                        "mx-1  h-12  w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
+                        {
+                            "bg-background-700": cursorFn === CursorFn.FreeDraw,
+                        },
+                        {
+                            "hover:bg-primary-400": cursorFn !== CursorFn.FreeDraw,
+                        }
+                    )}>
+                    {cursorFn === CursorFn.FreeDraw ? (
+                        <BsPencilFill className="m-auto" color="white" />
+                    ) : (
+                        <BsPencil className="m-auto" color="white" />
+                    )}
+                </button>
+                <button
+                    data-testid="rect-cursor"
                     onClick={() => setCursorFn(CursorFn.Rect)}
                     className={clsx(
                         "mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
@@ -83,6 +88,7 @@ export default function ToolbarUpper() {
                     )}
                 </button>
                 <button
+                    data-testid="line-cursor"
                     onClick={() => setCursorFn(CursorFn.Line)}
                     className={clsx(
                         "mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
@@ -97,6 +103,7 @@ export default function ToolbarUpper() {
                 </button>
 
                 <button
+                    data-testid="text-cursor"
                     onClick={() => setCursorFn(CursorFn.Text)}
                     className={clsx(
                         "mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
@@ -110,6 +117,7 @@ export default function ToolbarUpper() {
                     <RiText className="m-auto" color="white" />
                 </button>
                 <button
+                    data-testid="erase-cursor"
                     onClick={() => setCursorFn(CursorFn.Erase)}
                     className={clsx(
                         "mx-1 h-12 w-16 cursor-pointer rounded-2xl rounded-r-lg text-xl sm:w-14",

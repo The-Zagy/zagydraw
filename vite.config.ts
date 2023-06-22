@@ -8,8 +8,14 @@ export default defineConfig({
     assetsInclude: "src/assets",
     test: {
         globals: true,
-        environment: "happy-dom",
+        threads: false,
+        environment: "jsdom",
+        environmentOptions: {
+            jsdom: {
+                resources: "usable",
+            },
+        },
         setupFiles: ".vitest/setup",
-        include: ["**/test.{ts,tsx}"],
+        include: ["src/tests/**/*.test.ts", "src/tests/**/*.test.tsx"],
     },
 });

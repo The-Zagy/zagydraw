@@ -16,7 +16,6 @@ import SingleSelectAction from "actions/singleSelect";
 import MultiSelectAction from "actions/multiselect";
 import TextAction from "actions/createText";
 import MoveElementAction from "actions/moveElement";
-import { normalizePos } from "utils";
 const { setZoomLevel, setDimensions, setIsMouseDown } = useStore.getState();
 
 const MAX_ZOOM = 96;
@@ -90,8 +89,8 @@ function ZagyDraw() {
 
     const handlePointerDown: PointerEventHandler<HTMLCanvasElement> = (e) => {
         setIsMouseDown(true);
-        const startX = e.pageX;
-        const startY = e.pageY;
+        const startX = e.clientX;
+        const startY = e.clientY;
         mouseCoords.current = [startX, startY];
     };
 
@@ -142,7 +141,7 @@ function ZagyDraw() {
 
     const selectSingleElement = (e: PointerEvent) => {
         commandManager.executeCommand(
-            SingleSelectAction.inProgress([e.pageX, e.pageY], canvas.current)
+            SingleSelectAction.inProgress([e.clientX, e.clientY], canvas.current)
         );
     };
 
@@ -156,7 +155,7 @@ function ZagyDraw() {
             {
                 event: "pointerdown",
                 callback: (e) => {
-                    commandManager.executeCommand(DragAction.start([e.pageX, e.pageY]));
+                    commandManager.executeCommand(DragAction.start([e.clientX, e.clientY]));
                 },
                 options: true,
             },
@@ -164,7 +163,7 @@ function ZagyDraw() {
                 event: "pointermove",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        DragAction.inProgress([e.pageX, e.pageY], canvas.current)
+                        DragAction.inProgress([e.clientX, e.clientY], canvas.current)
                     );
                 },
             },
@@ -177,7 +176,7 @@ function ZagyDraw() {
             {
                 event: "pointerdown",
                 callback: (e) => {
-                    commandManager.executeCommand(DrawAction.start([e.pageX, e.pageY]));
+                    commandManager.executeCommand(DrawAction.start([e.clientX, e.clientY]));
                 },
                 options: true,
             },
@@ -185,7 +184,7 @@ function ZagyDraw() {
                 event: "pointermove",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        DrawAction.inProgress([e.pageX, e.pageY], canvas.current)
+                        DrawAction.inProgress([e.clientX, e.clientY], canvas.current)
                     );
                 },
             },
@@ -204,7 +203,7 @@ function ZagyDraw() {
             {
                 event: "pointerdown",
                 callback: (e) => {
-                    commandManager.executeCommand(MultiSelectAction.start([e.pageX, e.pageY]));
+                    commandManager.executeCommand(MultiSelectAction.start([e.clientX, e.clientY]));
                 },
                 options: true,
             },
@@ -212,7 +211,7 @@ function ZagyDraw() {
                 event: "pointermove",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        MultiSelectAction.inProgress([e.pageX, e.pageY], canvas.current)
+                        MultiSelectAction.inProgress([e.clientX, e.clientY], canvas.current)
                     );
                 },
             },
@@ -232,7 +231,7 @@ function ZagyDraw() {
                 event: "pointermove",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        DeleteAction.inProgress([e.pageX, e.pageY], canvas.current)
+                        DeleteAction.inProgress([e.clientX, e.clientY], canvas.current)
                     );
                 },
             },
@@ -251,7 +250,7 @@ function ZagyDraw() {
             {
                 event: "pointerdown",
                 callback: (e) => {
-                    commandManager.executeCommand(TextAction.start([e.pageX, e.pageY]));
+                    commandManager.executeCommand(TextAction.start([e.clientX, e.clientY]));
                 },
                 options: true,
             },
@@ -272,7 +271,7 @@ function ZagyDraw() {
             {
                 event: "pointerdown",
                 callback: (e) => {
-                    commandManager.executeCommand(MoveElementAction.start([e.pageX, e.pageY]));
+                    commandManager.executeCommand(MoveElementAction.start([e.clientX, e.clientY]));
                 },
                 options: true,
             },
@@ -280,7 +279,7 @@ function ZagyDraw() {
                 event: "pointermove",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        MoveElementAction.inProgress([e.pageX, e.pageY], canvas.current)
+                        MoveElementAction.inProgress([e.clientX, e.clientY], canvas.current)
                     );
                 },
             },
@@ -339,6 +338,7 @@ function ZagyDraw() {
                 ref={canvas}
                 onPointerDown={handlePointerDown}
                 onPointerUp={handlePointerUp}
+                data-testid="canvas"
             />
             {/* <div className="fixed bottom-4 right-4 text-lg text-white">
                 <pre>{JSON.stringify(position)}</pre>

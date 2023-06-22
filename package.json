@@ -52,6 +52,8 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-tailwindcss": "^3.11.0",
     "happy-dom": "^9.9.2",
+    "jest-canvas-mock": "2.4.0",
+    "jsdom": "^22.1.0",
     "postcss": "^8.4.23",
     "prettier": "2.8.7",
     "tailwindcss": "^3.3.1",
