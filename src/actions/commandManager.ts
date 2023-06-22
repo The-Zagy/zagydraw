@@ -18,14 +18,13 @@ export class CommandManager {
         // if cmd is undoable push it to the stack
 
         if (cmd instanceof UndoableCommand || isUndoableCommand(cmd)) {
-            console.log("here");
             this.commandStack.push(cmd as UndoableCommand);
         }
     }
 
     public undoCommand() {
         const cmd = this.commandStack.pop();
-        console.log(cmd);
+
         // empty stack
         if (cmd === undefined) {
             return;

@@ -344,14 +344,6 @@ function ZagyDraw() {
                 <pre>{JSON.stringify(position)}</pre>
                 <pre>{JSON.stringify(normalizePos(position, mouseCoords.current))}</pre>
             </div> */}
-            <button
-                className="bg-primary-600 fixed bottom-4 left-4 h-fit w-fit  rounded-lg p-2"
-                onClick={() => {
-                    commandManager.undoCommand();
-                    return;
-                }}>
-                <MdUndo size={35} className="m-auto text-white" />
-            </button>
         </>
     );
 }

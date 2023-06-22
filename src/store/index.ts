@@ -120,9 +120,8 @@ export const useStore = create<
     setDimensions: (width, height) => set({ width, height }),
     setElements: (callback) => {
         set((state) => ({ elements: callback(state.elements) }));
-
         set(({ position, width, height, elements }) => ({
-            visibleElements: callback(elements).filter((el) => {
+            visibleElements: elements.filter((el) => {
                 return isElementVisible(el, [
                     [-position.x, -position.y],
                     [-position.x + width, -position.y + height],

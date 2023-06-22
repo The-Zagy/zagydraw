@@ -30,7 +30,6 @@ function renderScene(
     if (canvasState.multiSelectRect) {
         renderedElements.push(canvasState.multiSelectRect);
     }
-    console.log("elements length", canvasState.elements.length);
     renderElements(renderedElements, roughCanvas, ctx);
     renderBoundingRect(canvasState.selectedElements, ctx);
     ctx.restore();

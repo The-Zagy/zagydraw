@@ -80,10 +80,6 @@ export default function ToolbarLeft() {
             ? "HandWritten"
             : "Minecraft");
     ctx.textBaseline = "top";
-    console.log(
-        "🪵 [ToolbarLeft.tsx:58] ~ token ~ \x1b[0;32mselectedElements\x1b[0m = ",
-        selectedElements
-    );
 
     if (selectedElements.length == 0) {
         return null;
@@ -102,7 +98,7 @@ export default function ToolbarLeft() {
         try {
             commandManager.executeCommand(new ActionCopySelected());
         } catch (e) {
-            console.log("🪵 [ToolbarLeft.tsx:109] ~ token ~ \x1b[0;32me\x1b[0m = ", e);
+            //todo
         }
     };
     const handle = <T extends keyof CommonConfigOptions>(k: T, value: GlobalConfigOptions[T]) => {
@@ -159,56 +155,45 @@ export default function ToolbarLeft() {
     };
 
     const handleStroke: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        console.log(e.target.value);
         handle("stroke", e.target.value);
         setStroke(e.target.value);
     };
     const handleFill: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        console.log(e.target.value);
         handle("fill", e.target.value);
         setFill(e.target.value);
     };
     const handleFillStyle: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        console.log(e.target.value);
         // todo no type safety here haahahhahahahahah
         handle("fillStyle", e.target.value as FillStyleOptions);
         setFillStyle(e.target.value as FillStyleOptions);
     };
 
     const handleStrokeLineDash: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        console.log(e.target.value);
-        console.log("name", e.target.name);
-
         handle("strokeLineDash", +e.target.value === 1 ? [] : [10, 10]);
         setStrokeLineDash(+e.target.value === 1 ? [] : [10, 10]);
     };
 
     const handleStrokeWidth: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        console.log(e.target.value);
-        console.log("in width");
         handle("strokeWidth", +e.target.value as StrokeWidth);
         setStrokeWidth(+e.target.value as StrokeWidth);
     };
 
     const handleFontSize: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        console.log(e.target.value);
         handle("fontSize", +e.target.value as FontSize);
         setFontSize(+e.target.value as FontSize);
     };
 
     const handleFontFamily: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        console.log(e.target.value);
         handle("font", +e.target.value as FontTypeOptions);
         setFont(+e.target.value as FontTypeOptions);
     };
 
     // todo
     const handleTextAlign: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        console.log(e.target.value);
+        //todo
     };
 
     const handleOpacityChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        console.log(e.target.value);
         handle("opacity", +e.target.value);
         setOpacity(+e.target.value);
     };

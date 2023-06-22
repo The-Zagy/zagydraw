@@ -185,12 +185,7 @@ export const isElementInRect = (element: ZagyCanvasElement, rect: ZagyCanvasRect
         element.shape === "handdrawn"
     ) {
         const { x, y, endX, endY } = element as ZagyCanvasRectElement;
-        console.log("element", { x, y, endX, endY }, "rect", {
-            x: rect.x,
-            y: rect.y,
-            endX: rect.endX,
-            endY: rect.endY,
-        });
+
         if (x >= rect.x && y >= rect.y && endX <= rect.endX && endY <= rect.endY) {
             return true;
         }
