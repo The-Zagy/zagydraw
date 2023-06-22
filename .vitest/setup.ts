@@ -4,6 +4,7 @@ import matchers from "@testing-library/jest-dom/matchers";
 expect.extend(matchers);
 /* Workaround for jest-canvas-mock to work with vitest */
 import { afterAll, vi } from "vitest";
+import { cleanup } from "@testing-library/react";
 // @ts-expect-error: Global type missing
 global.jest = vi;
 
@@ -46,12 +47,13 @@ afterAll(() => {
     //@ts-expect-error
     delete global.window.jest;
 });
+
 /* Workaround for jest-canvas-mock to work with vitest */
 
 // Workaround for PointerEvent not being supported in JSDOM
 const pointerEventCtorProps = ["clientX", "clientY", "pointerType"];
 export default class PointerEventFake extends Event {
-    constructor(type, props) {
+    constructor(type, props = {}) {
         super(type, props);
         pointerEventCtorProps.forEach((prop) => {
             if (props[prop] != null) {
@@ -62,3 +64,8 @@ export default class PointerEventFake extends Event {
 }
 // @ts-expect-error: Global type missing
 global.PointerEvent = PointerEventFake;
+
+// cleanup dom after each test
+afterEach(() => {
+    cleanup();
+});

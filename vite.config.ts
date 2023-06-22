@@ -8,6 +8,7 @@ export default defineConfig({
     assetsInclude: "src/assets",
     test: {
         globals: true,
+        // necessary for jest-canvas-mock to work
         threads: false,
         environment: "jsdom",
         environmentOptions: {
