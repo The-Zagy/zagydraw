@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 const keysToCodes = {
     Enter: "Enter",
     Escape: "Escape",
@@ -81,8 +81,9 @@ export default function useKeyboardShortcut(
     },
     ..._shortcutCombination: [Keys, ...Keys[]]
 ) {
-    const shortcutCombination = useRef(
-        new Set<KeyCodes>(_shortcutCombination.map((key) => keysToCodes[key]))
+    const shortcutCombination = useMemo(
+        () => new Set<KeyCodes>(_shortcutCombination.map((key) => keysToCodes[key])),
+        [_shortcutCombination]
     );
     const pressedKeys = useRef(new Set<KeyCodes>());
     useEffect(() => {
@@ -91,10 +92,10 @@ export default function useKeyboardShortcut(
             // if the target is an input or textarea, don't do anything (this is to prevent the shortcut from firing while typing)
             const target = e.target as HTMLElement;
             if (target.nodeName === "INPUT" || target.nodeName === "TEXTAREA") return;
-            if (shortcutCombination.current.has(e.code as KeyCodes)) {
+            if (shortcutCombination.has(e.code as KeyCodes)) {
                 pressedKeys.current.add(e.code as KeyCodes);
             }
-            if (pressedKeys.current.size === shortcutCombination.current.size) {
+            if (pressedKeys.current.size === shortcutCombination.size) {
                 if (!options.continueWhilePressed) {
                     pressedKeys.current.clear();
                 }
@@ -102,7 +103,7 @@ export default function useKeyboardShortcut(
             }
         };
         const handleKeyup = (e: KeyboardEvent) => {
-            if (shortcutCombination.current.has(e.code as KeyCodes)) {
+            if (shortcutCombination.has(e.code as KeyCodes)) {
                 pressedKeys.current.delete(e.code as KeyCodes);
             }
         };
