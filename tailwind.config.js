@@ -12,7 +12,7 @@ module.exports = {
                     600: "#884ea0",
                     700: "#76448a",
                     800: "#633974",
-                    900: "#512e5f"
+                    900: "#512e5f",
                 },
                 primary: {
                     50: "#f4f4f4",
@@ -24,7 +24,7 @@ module.exports = {
                     600: "#171717",
                     700: "#131313",
                     800: "#0f0f0f",
-                    900: "#0c0c0c"
+                    900: "#0c0c0c",
                 },
                 highlight: {
                     50: "#f4f3f4",
@@ -36,7 +36,7 @@ module.exports = {
                     600: "#250f28",
                     700: "#1f0d21",
                     800: "#190a1a",
-                    900: "#140816"
+                    900: "#140816",
                 },
                 gray: {
                     50: "#fafafa",
@@ -48,7 +48,7 @@ module.exports = {
                     600: "#8a8a8a",
                     700: "#737373",
                     800: "#5c5c5c",
-                    900: "#4b4b4b"
+                    900: "#4b4b4b",
                 },
                 secondary1: {
                     50: "#fcf2ff",
@@ -60,7 +60,7 @@ module.exports = {
                     600: "#b800e6",
                     700: "#9900bf",
                     800: "#7a0099",
-                    900: "#64007d"
+                    900: "#64007d",
                 },
                 secondary: {
                     50: "#fef2ff",
@@ -72,17 +72,17 @@ module.exports = {
                     600: "#d600e6",
                     700: "#b300bf",
                     800: "#8f0099",
-                    900: "#75007d"
+                    900: "#75007d",
                 },
                 text: {
                     500: "#ffffff",
                     600: "#e6e6e6",
                     700: "#bfbfbf",
                     800: "#999999",
-                    900: "#7d7d7d"
-                }
-            }
-        }
+                    900: "#7d7d7d",
+                },
+            },
+        },
     },
-    plugins: [TailwindScrollbar({ nocompatible: true })]
+    plugins: [TailwindScrollbar({ nocompatible: true })],
 };

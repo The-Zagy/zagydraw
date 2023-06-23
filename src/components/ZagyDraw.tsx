@@ -7,7 +7,6 @@ import { useCursor, useEvent, useGlobalEvent, useMultiPhaseEvent, useRenderScene
 import { FontTypeOptions } from "types/general";
 
 import { useStore } from "store";
-import { MdUndo } from "react-icons/md";
 
 import DeleteAction from "actions/delete";
 import DrawAction from "actions/draw";

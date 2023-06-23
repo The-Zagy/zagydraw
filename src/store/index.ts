@@ -31,17 +31,17 @@ export type GeneralActionsState = {
 export type GeneralActionsActions = {
     setIsMouseDown: (isMouseDown: boolean) => void;
 };
-const CanvasStateDefaults: CanvasState = {
-    width: 400,
-    height: 300,
-    position: { x: 0, y: 0 },
-    zoomLevel: 48,
-    elements: [],
-    previewElement: null,
-    selectedElements: [],
-    visibleElements: [],
-    multiSelectRect: null,
-};
+// const CanvasStateDefaults: CanvasState = {
+//     width: 400,
+//     height: 300,
+//     position: { x: 0, y: 0 },
+//     zoomLevel: 48,
+//     elements: [],
+//     previewElement: null,
+//     selectedElements: [],
+//     visibleElements: [],
+//     multiSelectRect: null,
+// };
 export type ActionDrawElementState = {
     currentText: string;
     isWriting: boolean;

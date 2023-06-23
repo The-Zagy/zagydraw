@@ -1,7 +1,8 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import App from "components/App";
 import { useStore } from "store";
-
+import { clickCursor, pointerDown, pointerUp } from "tests/testUtils";
+import { CursorFn } from "types/general";
 const initialStoreState = useStore.getState();
 describe("misc", () => {
     beforeEach(() => {
@@ -11,25 +12,9 @@ describe("misc", () => {
         render(<App />);
         const canvas = await screen.findByTestId("canvas");
         if (!canvas) throw new Error("canvas not found");
-
-        fireEvent.pointerDown(
-            canvas,
-            new PointerEvent("pointerdown", {
-                clientX: 200,
-                clientY: 200,
-            })
-        );
-
+        pointerDown(canvas, [200, 200]);
         expect(useStore.getState().isMouseDown).toBe(true);
-
-        fireEvent.pointerUp(
-            canvas,
-            new PointerEvent("pointerup", {
-                clientX: 200,
-                clientY: 200,
-            })
-        );
-
+        pointerUp(canvas, [200, 200]);
         expect(useStore.getState().isMouseDown).toBe(false);
     });
     it("Clicking on any cursor button should transform the cursor to it's corresponding cursor style", async () => {
@@ -37,39 +22,19 @@ describe("misc", () => {
         const body = baseElement;
         const canvas = await screen.findByTestId("canvas");
         if (!canvas) throw new Error("canvas not found");
-        const defaultCursor = await screen.findByTestId("default-cursor");
-        if (!defaultCursor) throw new Error("drag cursor not found");
-        fireEvent.click(defaultCursor);
+        await clickCursor(CursorFn.Default);
         expect(body.style.cursor).toBe("default");
-
-        const dragCursor = await screen.findByTestId("drag-cursor");
-        if (!dragCursor) throw new Error("drag cursor not found");
-        fireEvent.click(dragCursor);
+        await clickCursor(CursorFn.Drag);
         expect(body.style.cursor).toBe("grab");
-
-        const freedrawCursor = await screen.findByTestId("freedraw-cursor");
-        if (!freedrawCursor) throw new Error("drag cursor not found");
-        fireEvent.click(freedrawCursor);
+        await clickCursor(CursorFn.FreeDraw);
         expect(body.style.cursor).toBe("crosshair");
-
-        const eraserCursor = await screen.findByTestId("erase-cursor");
-        if (!eraserCursor) throw new Error("drag cursor not found");
-        fireEvent.click(eraserCursor);
+        await clickCursor(CursorFn.Erase);
         expect(body.style.cursor).toBe("crosshair");
-
-        const lineCursor = await screen.findByTestId("line-cursor");
-        if (!lineCursor) throw new Error("drag cursor not found");
-        fireEvent.click(lineCursor);
+        await clickCursor(CursorFn.Line);
         expect(body.style.cursor).toBe("crosshair");
-
-        const rectCursor = await screen.findByTestId("rect-cursor");
-        if (!rectCursor) throw new Error("drag cursor not found");
-        fireEvent.click(rectCursor);
+        await clickCursor(CursorFn.Rect);
         expect(body.style.cursor).toBe("crosshair");
-
-        const textCursor = await screen.findByTestId("text-cursor");
-        if (!textCursor) throw new Error("drag cursor not found");
-        fireEvent.click(textCursor);
+        await clickCursor(CursorFn.Text);
         expect(body.style.cursor).toBe("text");
     });
 });

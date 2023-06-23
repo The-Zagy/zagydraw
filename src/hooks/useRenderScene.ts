@@ -16,6 +16,7 @@ const useRenderScene = (...params: Params) => {
             renderScene(roughCanvas, ctx, canvasState);
             lastAnimationFrame.current = null;
         });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [canvasState]);
 };
 

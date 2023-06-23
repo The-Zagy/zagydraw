@@ -1,13 +1,20 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import App from "components/App";
 import { useStore } from "store";
-import { createElement } from "./testUtils";
 import { Point } from "utils";
 import { act } from "@testing-library/react";
+import { CursorFn } from "types/general";
+import {
+    clickCursor,
+    clickUndo,
+    createElement,
+    pointerDown,
+    pointerMove,
+    pointerUp,
+} from "../testUtils";
 
 const initialStoreState = useStore.getState();
-initialStoreState.width = 1000;
-initialStoreState.height = 1000;
+
 describe("delete elements with cursor", () => {
     const deleteStartPos: Point = [100, 100];
     const deleteEndPos: Point = [300, 300];
@@ -18,56 +25,32 @@ describe("delete elements with cursor", () => {
         render(<App />);
         const canvas = await screen.findByTestId<HTMLCanvasElement>("canvas");
         if (!canvas) throw new Error("canvas not found");
-        await act(() => useStore.setState({ width: 1000, height: 1000 }));
-
+        act(() => useStore.setState({ width: 1000, height: 1000 }));
         //create rect in delete way
         const offset = 10;
-
-        createElement("rectangle", canvas, deleteStartPos, [
+        await createElement("rectangle", canvas, deleteStartPos, [
             deleteEndPos[0] / 2,
             deleteEndPos[1] / 2,
         ]);
         //create rect not in delete way
-        createElement("rectangle", canvas, [800, 800], [1000, 1000]);
+        await createElement("rectangle", canvas, [800, 800], [1000, 1000]);
         //and so on
         // todo add handdrawn when we have better threshold
-        // createElement(
-        //     "handdrawn",
-        //     canvas,
-        //     [elementStartPos[0] + offset, elementStartPos[0] + offset],
-        //     [elementStartPos[0] + offset, elementStartPos[0] + offset]
-        // );
-        // offset += 10;
-        createElement(
+        await createElement(
             "line",
             canvas,
             [elementStartPos[0] + offset, elementStartPos[0] + offset],
             [elementEndPos[0] + offset, elementEndPos[0] + offset]
         );
-
         //todo add text element when its bounding rect is fixed
-        const deleteCursor = await screen.findByTestId("erase-cursor");
-        if (!deleteCursor) throw new Error("drag cursor not found");
-        fireEvent.click(deleteCursor);
+        await clickCursor(CursorFn.Erase);
     });
     it("should mark the items hit as willDelete", async () => {
         const canvas = await screen.findByTestId<HTMLCanvasElement>("canvas");
         if (!canvas) throw new Error("canvas not found");
-        fireEvent.pointerDown(
-            canvas,
-            new PointerEvent("pointerdown", {
-                clientX: deleteStartPos[0],
-                clientY: deleteStartPos[1],
-            })
-        );
+        pointerDown(canvas, deleteStartPos);
         for (let i = 0; i < deleteEndPos[0]; i += 0.5) {
-            fireEvent.pointerMove(
-                canvas,
-                new PointerEvent("pointermove", {
-                    clientX: deleteStartPos[0] + i,
-                    clientY: deleteStartPos[1] + i,
-                })
-            );
+            pointerMove(canvas, [deleteStartPos[0] + i, deleteStartPos[1] + i]);
         }
         const willBeDeletedCount = useStore
             .getState()
@@ -77,49 +60,23 @@ describe("delete elements with cursor", () => {
     it("should delete the items on pointerup", async () => {
         const canvas = await screen.findByTestId<HTMLCanvasElement>("canvas");
         if (!canvas) throw new Error("canvas not found");
-        fireEvent.pointerDown(
-            canvas,
-            new PointerEvent("pointerdown", {
-                clientX: deleteStartPos[0],
-                clientY: deleteStartPos[1],
-            })
-        );
+        pointerDown(canvas, deleteStartPos);
         for (let i = 0; i < deleteEndPos[0]; i += 0.5) {
-            fireEvent.pointerMove(
-                canvas,
-                new PointerEvent("pointermove", {
-                    clientX: deleteStartPos[0] + i,
-                    clientY: deleteStartPos[1] + i,
-                })
-            );
+            pointerMove(canvas, [deleteStartPos[0] + i, deleteStartPos[1] + i]);
         }
-        fireEvent.pointerUp(canvas, new PointerEvent("pointerup"));
+        pointerUp(canvas);
         expect(useStore.getState().elements.length).toBe(1);
     });
 
     it("should be able to undo deletion action upon clicking on undo", async () => {
         const canvas = await screen.findByTestId<HTMLCanvasElement>("canvas");
         if (!canvas) throw new Error("canvas not found");
-        fireEvent.pointerDown(
-            canvas,
-            new PointerEvent("pointerdown", {
-                clientX: deleteStartPos[0],
-                clientY: deleteStartPos[1],
-            })
-        );
+        pointerDown(canvas, deleteStartPos);
         for (let i = 0; i < deleteEndPos[0]; i += 0.5) {
-            fireEvent.pointerMove(
-                canvas,
-                new PointerEvent("pointermove", {
-                    clientX: deleteStartPos[0] + i,
-                    clientY: deleteStartPos[1] + i,
-                })
-            );
+            pointerMove(canvas, [deleteStartPos[0] + i, deleteStartPos[1] + i]);
         }
-        fireEvent.pointerUp(canvas, new PointerEvent("pointerup"));
-        const undoButton = await screen.findByTestId("undo-button");
-        if (!undoButton) throw new Error("undo button not found");
-        fireEvent.click(undoButton);
+        pointerUp(canvas);
+        await clickUndo();
         expect(useStore.getState().elements.length).toBe(3);
     });
 });

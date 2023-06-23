@@ -1,9 +1,9 @@
 import { commandManager } from "actions/commandManager";
+import { IconContext } from "react-icons";
+import { MdUndo } from "react-icons/md";
 import ToolbarLeft from "./ToolbarLeft";
 import ToolbarUpper from "./ToolbarUpper";
 import ZagyDraw from "./ZagyDraw";
-import { IconContext } from "react-icons";
-import { MdUndo } from "react-icons/md";
 
 export default function App() {
     return (

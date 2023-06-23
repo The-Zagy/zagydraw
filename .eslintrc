@@ -10,11 +10,10 @@
       "version": "detect"
     },
     "tailwindcss": {
-
-        "whitelist": [
-          //help needed math scrollbar-* for the tailwind-scrollbar plugin
-          "scrollbar-*"
-        ]
+      "whitelist": [
+        //help needed math scrollbar-* for the tailwind-scrollbar plugin
+        "scrollbar-*"
+      ]
     }
   },
   "extends": [
@@ -23,7 +22,7 @@
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended",
-    "plugin:tailwindcss/recommended"
+    "plugin:tailwindcss/recommended",
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -37,7 +36,8 @@
     "react",
     "react-hooks",
     "@typescript-eslint",
-    "tailwindcss"
+    "tailwindcss",
+    "eslint-plugin-import"
   ],
   "rules": {
     "react-hooks/rules-of-hooks": "error",
@@ -53,6 +53,19 @@
     "semi": [
       "error",
       "always"
+    ],
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "external",
+          "builtin",
+          "internal",
+          "sibling",
+          "parent",
+          "index"
+        ]
+      }
     ]
   }
 }

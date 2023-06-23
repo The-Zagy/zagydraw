@@ -1,4 +1,3 @@
-import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
 import { RoughCanvas } from "roughjs/bin/canvas";
 
 import {
@@ -12,6 +11,7 @@ import {
     isText,
     isHanddrawn,
 } from "types/general";
+import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
 
 /**
  * draw any element that extend RoughDrawable, and apply the shared options

@@ -1,8 +1,8 @@
 import { useStore } from "store";
 import { CursorFn, ZagyCanvasElement, isHanddrawn, isLine } from "types/general";
 import { Point, getHitElement, normalizeToGrid } from "utils";
-import { Command, UndoableCommand } from "./types";
 import { constructHandDrawnElementPath2D } from "utils/canvas/generateElement";
+import { Command, UndoableCommand } from "./types";
 
 class MoveElementAction {
     private static hitElement: ZagyCanvasElement | null = null;
@@ -41,6 +41,7 @@ class MoveElementAction {
                 setCursorFn(CursorFn.Default);
             }
         }
+
         if (this.hitElement === null) return;
         if (!isMouseDown) return;
         this.isDragging = true;

@@ -11,18 +11,17 @@ import {
 } from "types/general";
 import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
-import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
 import {
     Point,
     getCorrectCoordOrder,
     getGlobalMinMax,
     getSvgPathFromStroke,
     normalizeRectCoords,
-    normalizeToGrid,
 } from "utils";
 import { useStore } from "store";
 import { randomSeed } from "roughjs/bin/math";
 import { RoughGenerator } from "roughjs/bin/generator";
+import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
 
 const { getConfigState } = useStore.getState();
 

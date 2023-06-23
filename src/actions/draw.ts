@@ -1,4 +1,3 @@
-import { UndoableCommand } from "./types";
 import { RoughGenerator } from "roughjs/bin/generator";
 import { randomSeed } from "roughjs/bin/math";
 import { useStore } from "store";
@@ -17,6 +16,7 @@ import {
     generateLineElement,
     generateRectElement,
 } from "utils/canvas/generateElement";
+import { UndoableCommand } from "./types";
 
 class DrawAction {
     private static roughGenerator = new RoughGenerator();

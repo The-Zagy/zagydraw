@@ -13,7 +13,6 @@ import {
     isRect,
     isText,
 } from "types/general";
-import InputWithIcon from "./form/input";
 import { CommonConfigOptions, getElementsCommonConfig, isEqualArray } from "utils";
 import {
     generateCacheRectElement,
@@ -23,6 +22,7 @@ import {
 import { commandManager } from "actions/commandManager";
 import { ActionDeleteSelected } from "actions";
 import { ActionCopySelected } from "actions/copySelected";
+import InputWithIcon from "./form/input";
 
 const gen = rough.generator();
 
@@ -189,7 +189,7 @@ export default function ToolbarLeft() {
     };
 
     // todo
-    const handleTextAlign: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const handleTextAlign: React.ChangeEventHandler<HTMLInputElement> = () => {
         //todo
     };
 
