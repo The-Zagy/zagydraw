@@ -3,7 +3,7 @@ import { IconContext } from "react-icons";
 import ToolbarLeft from "./ToolbarLeft";
 import ToolbarUpper from "./ToolbarUpper";
 import ZagyDraw from "./ZagyDraw";
-import Undo from "./undo";
+import Undo from "./Undo";
 
 export default function App() {
     return (
