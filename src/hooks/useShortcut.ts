@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
+import { s } from "vitest/dist/types-e3c9754d";
 const keysToCodes = {
     Enter: "Enter",
     Escape: "Escape",
@@ -15,7 +16,8 @@ const keysToCodes = {
     Delete: "Delete",
     Space: "Space",
     Shift: "Shift",
-    Control: "Control",
+    ControlLeft: "ControlLeft",
+    ControlRight: "ControlRight",
     AltLeft: "AltLeft",
     AltRight: "AltRight",
     Meta: "Meta",
@@ -78,33 +80,69 @@ export default function useKeyboardShortcut(
         onShortcut: (...args: [KeyboardEvent, ...unknown[]]) => unknown;
         onRelease?: (...args: [KeyboardEvent, ...unknown[]]) => unknown;
         continueWhilePressed?: boolean;
+        orderMatters?: boolean;
     },
     ..._shortcutCombination: [Keys, ...Keys[]]
 ) {
-    const shortcutCombination = useMemo(
+    const shortcutCombinationSet = useMemo(
         () => new Set<KeyCodes>(_shortcutCombination.map((key) => keysToCodes[key])),
         [_shortcutCombination]
     );
-    const pressedKeys = useRef(new Set<KeyCodes>());
+    const shortcutCombinationSorted = useMemo(
+        () => _shortcutCombination.map((key) => keysToCodes[key]),
+        [_shortcutCombination]
+    );
+    const pressedKeysSet = useRef(new Set<KeyCodes>());
+    const pressedKeysSorted = useRef<KeyCodes[]>([]);
+    const alreadyExecuted = useRef(false);
+    // console.log(shortcutCombinationSorted, pressedKeysSorted.current);
+    // console.log(shortcutCombinationSet, pressedKeysSet.current);
+    // console.log(alreadyExecuted.current);
+
     useEffect(() => {
         const element = options.element ?? window;
         const handleKeydown = (e: KeyboardEvent) => {
             // if the target is an input or textarea, don't do anything (this is to prevent the shortcut from firing while typing)
             const target = e.target as HTMLElement;
             if (target.nodeName === "INPUT" || target.nodeName === "TEXTAREA") return;
-            if (shortcutCombination.has(e.code as KeyCodes)) {
-                pressedKeys.current.add(e.code as KeyCodes);
-            }
-            if (pressedKeys.current.size === shortcutCombination.size) {
-                if (!options.continueWhilePressed) {
-                    pressedKeys.current.clear();
+            if (options.orderMatters) {
+                if (shortcutCombinationSorted[pressedKeysSorted.current.length] === e.code) {
+                    pressedKeysSorted.current.push(e.code);
                 }
-                options.onShortcut(e);
+                if (pressedKeysSorted.current.length === shortcutCombinationSorted.length) {
+                    if (!options.continueWhilePressed) {
+                        if (alreadyExecuted.current) {
+                            return;
+                        }
+                        alreadyExecuted.current = true;
+                    }
+                    options.onShortcut(e);
+                }
+            } else {
+                if (shortcutCombinationSet.has(e.code as KeyCodes)) {
+                    pressedKeysSet.current.add(e.code as KeyCodes);
+                }
+                if (pressedKeysSet.current.size === shortcutCombinationSet.size) {
+                    if (!options.continueWhilePressed) {
+                        if (alreadyExecuted.current) {
+                            return;
+                        }
+                        alreadyExecuted.current = true;
+                    }
+                    options.onShortcut(e);
+                }
             }
         };
         const handleKeyup = (e: KeyboardEvent) => {
-            if (shortcutCombination.has(e.code as KeyCodes)) {
-                pressedKeys.current.delete(e.code as KeyCodes);
+            alreadyExecuted.current = false;
+            if (options.orderMatters) {
+                const keyIndex = shortcutCombinationSorted.indexOf(e.code as KeyCodes);
+                if (keyIndex === -1) return;
+                pressedKeysSorted.current.splice(keyIndex);
+            } else {
+                if (shortcutCombinationSet.has(e.code as KeyCodes)) {
+                    pressedKeysSet.current.delete(e.code as KeyCodes);
+                }
             }
         };
         // this check is purely for typescript's satisfaction
@@ -122,7 +160,7 @@ export default function useKeyboardShortcut(
                 element.removeEventListener("keydown", handleKeydown);
             }
         };
-    }, [options, shortcutCombination]);
+    }, [options, shortcutCombinationSet, shortcutCombinationSorted]);
 }
 
 export { keysToCodes };
