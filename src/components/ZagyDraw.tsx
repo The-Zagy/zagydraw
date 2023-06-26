@@ -333,7 +333,7 @@ function ZagyDraw() {
                 </div>
             ) : null}
             <canvas
-                className="h-screen w-screen overflow-hidden"
+                className="h-screen w-screen touch-none overflow-hidden"
                 ref={canvas}
                 onPointerDown={handlePointerDown}
                 onPointerUp={handlePointerUp}
