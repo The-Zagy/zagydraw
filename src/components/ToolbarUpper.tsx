@@ -5,10 +5,52 @@ import { CiEraser } from "react-icons/ci";
 import { MdOutlineHorizontalRule, MdOutlineBackHand, MdBackHand } from "react-icons/md";
 import { CursorFn } from "types/general";
 import { useStore } from "store";
+import useKeyboardShortcut from "hooks/useShortcut";
 const { setCursorFn } = useStore.getState();
 export default function ToolbarUpper() {
     const cursorFn = useStore((state) => state.cursorFn);
-
+    useKeyboardShortcut(
+        {
+            onShortcut: () => setCursorFn(CursorFn.Default),
+        },
+        "1"
+    );
+    useKeyboardShortcut(
+        {
+            onShortcut: () => setCursorFn(CursorFn.Drag),
+        },
+        "2"
+    );
+    useKeyboardShortcut(
+        {
+            onShortcut: () => setCursorFn(CursorFn.FreeDraw),
+        },
+        "3"
+    );
+    useKeyboardShortcut(
+        {
+            onShortcut: () => setCursorFn(CursorFn.Rect),
+        },
+        "4"
+    );
+    useKeyboardShortcut(
+        {
+            onShortcut: () => setCursorFn(CursorFn.Line),
+        },
+        "5"
+    );
+    useKeyboardShortcut(
+        {
+            onShortcut: () => setCursorFn(CursorFn.Text),
+        },
+        "6"
+    );
+    useKeyboardShortcut(
+        {
+            onShortcut: () => setCursorFn(CursorFn.Erase),
+        },
+        "7"
+    );
     return (
         <div className="withFira scrollbar-thin scrollbar-thumb-zinc-600 bg-primary-600 fixed left-1/2 top-4 w-11/12 -translate-x-1/2 cursor-default  overflow-auto  whitespace-nowrap rounded-md py-1 sm:m-0 sm:w-auto sm:max-w-none">
             <div className="mx-auto w-fit">
@@ -16,7 +58,7 @@ export default function ToolbarUpper() {
                     data-testid="default-cursor"
                     onClick={() => setCursorFn(CursorFn.Default)}
                     className={clsx(
-                        "mx-1 h-12 w-16 cursor-pointer rounded-2xl rounded-l-lg text-xl sm:w-14",
+                        "relative mx-1 h-12 w-16 cursor-pointer rounded-2xl rounded-l-lg text-xl sm:w-14",
                         {
                             "bg-background-700":
                                 cursorFn === CursorFn.Default || cursorFn === CursorFn.Move,
@@ -31,12 +73,15 @@ export default function ToolbarUpper() {
                     ) : (
                         <RiCursorLine className="m-auto" color="white" />
                     )}
+                    <span className="absolute bottom-1.5 left-1.5 text-xs font-thin text-gray-500">
+                        1
+                    </span>
                 </button>
 
                 <button
                     data-testid="drag-cursor"
                     className={clsx(
-                        "mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
+                        "relative mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
                         {
                             "bg-background-700": cursorFn === CursorFn.Drag,
                         },
@@ -50,12 +95,15 @@ export default function ToolbarUpper() {
                     ) : (
                         <MdOutlineBackHand className="m-auto" color="white" />
                     )}
+                    <span className="absolute bottom-1.5 left-1.5 text-xs font-thin text-gray-500">
+                        2
+                    </span>
                 </button>
                 <button
                     data-testid="freedraw-cursor"
                     onClick={() => setCursorFn(CursorFn.FreeDraw)}
                     className={clsx(
-                        "mx-1  h-12  w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
+                        "relative  mx-1  h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
                         {
                             "bg-background-700": cursorFn === CursorFn.FreeDraw,
                         },
@@ -68,12 +116,15 @@ export default function ToolbarUpper() {
                     ) : (
                         <BsPencil className="m-auto" color="white" />
                     )}
+                    <span className="absolute bottom-1.5 left-1.5 text-xs font-thin text-gray-500">
+                        3
+                    </span>
                 </button>
                 <button
                     data-testid="rect-cursor"
                     onClick={() => setCursorFn(CursorFn.Rect)}
                     className={clsx(
-                        "mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
+                        "relative mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
                         {
                             "bg-background-700": cursorFn === CursorFn.Rect,
                         },
@@ -86,12 +137,15 @@ export default function ToolbarUpper() {
                     ) : (
                         <BsSquare className="m-auto" color="white" />
                     )}
+                    <span className="absolute bottom-1.5 left-1.5 text-xs font-thin text-gray-500 ">
+                        4
+                    </span>
                 </button>
                 <button
                     data-testid="line-cursor"
                     onClick={() => setCursorFn(CursorFn.Line)}
                     className={clsx(
-                        "mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
+                        "relative mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
                         {
                             "bg-background-700": cursorFn === CursorFn.Line,
                         },
@@ -100,13 +154,16 @@ export default function ToolbarUpper() {
                         }
                     )}>
                     <MdOutlineHorizontalRule className="m-auto" color="white" />
+                    <span className="absolute bottom-1.5 left-1.5 text-xs font-thin text-gray-500">
+                        5
+                    </span>
                 </button>
 
                 <button
                     data-testid="text-cursor"
                     onClick={() => setCursorFn(CursorFn.Text)}
                     className={clsx(
-                        "mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
+                        "relative mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
                         {
                             "bg-background-700": cursorFn === CursorFn.Text,
                         },
@@ -115,12 +172,15 @@ export default function ToolbarUpper() {
                         }
                     )}>
                     <RiText className="m-auto" color="white" />
+                    <span className="absolute bottom-1.5 left-1.5 text-xs font-thin text-gray-500">
+                        6
+                    </span>
                 </button>
                 <button
                     data-testid="erase-cursor"
                     onClick={() => setCursorFn(CursorFn.Erase)}
                     className={clsx(
-                        "mx-1 h-12 w-16 cursor-pointer rounded-2xl rounded-r-lg text-xl sm:w-14",
+                        "relative mx-1 h-12 w-16 cursor-pointer rounded-2xl rounded-r-lg text-xl sm:w-14",
                         {
                             "bg-background-700": cursorFn === CursorFn.Erase,
                         },
@@ -129,6 +189,9 @@ export default function ToolbarUpper() {
                         }
                     )}>
                     <CiEraser className="m-auto" color="white" />
+                    <span className="absolute bottom-1.5 left-1.5 text-xs font-thin text-gray-500">
+                        7
+                    </span>
                 </button>
             </div>
         </div>
