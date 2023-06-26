@@ -8,7 +8,7 @@ class SingleSelectAction {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
         const { cursorFn, position, visibleElements, setSelectedElements } = useStore.getState();
-        if (cursorFn !== CursorFn.Default) return;
+        if (cursorFn !== CursorFn.Default && cursorFn !== CursorFn.Move) return;
         const el = getHitElement(visibleElements, ctx, coords, position);
         if (el !== null) {
             setSelectedElements(() => [el]);
