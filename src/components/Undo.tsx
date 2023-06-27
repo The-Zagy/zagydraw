@@ -8,8 +8,7 @@ export default function Undo() {
             orderMatters: true,
         },
         "ControlLeft",
-        "z",
-        "q"
+        "z"
     );
     return (
         <button
