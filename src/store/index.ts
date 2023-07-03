@@ -148,7 +148,7 @@ export const useStore = create<
     strokeWidth: 6,
     strokeLineDash: [],
     fillStyle: "hachure",
-    font: FontTypeOptions.minecraft,
+    font: "minecraft",
     fontSize: 24,
     opacity: 1,
     getConfigState() {

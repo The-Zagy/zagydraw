@@ -4,11 +4,12 @@ type Point = [number, number];
 type ElementTypes = "rectangle" | "line" | "text" | "handdrawn";
 
 const FontTypeOptions = {
-    code: 0,
-    hand: 1,
-    minecraft: 2,
+    code: "FiraCode",
+    hand: "HandWritten",
+    minecraft: "Minecraft",
 } as const;
-type FontTypeOptions = (typeof FontTypeOptions)[keyof typeof FontTypeOptions];
+
+type FontTypeOptions = keyof typeof FontTypeOptions;
 type FillStyleOptions = "solid" | "zigzag" | "dots" | "hachure";
 
 interface SharedOptions {

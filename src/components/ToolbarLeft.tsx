@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect, useMemo } from "react";
 import rough from "roughjs";
 import { MdDeleteOutline, MdCopyAll } from "react-icons/md";
 import { IconContext } from "react-icons";
@@ -14,12 +14,14 @@ import {
     GlobalConfigOptions,
     StrokeWidth,
     ZagyCanvasElement,
+    isHanddrawn,
     isLine,
     isRect,
     isText,
 } from "types/general";
 import { CommonConfigOptions, getElementsCommonConfig, isEqualArray } from "utils";
 import {
+    generateCacheLineElement,
     generateCacheRectElement,
     generateLineElement,
     generateTextElement,
@@ -145,26 +147,26 @@ export default function ToolbarLeft() {
         setStrokeWidth,
     } = useStore.getState();
     const selectedElements = useStore((state) => state.selectedElements);
-    const ctx = document.createElement("canvas").getContext("2d");
-    if (!ctx) return null;
-    ctx.font =
-        `${fontSize}px ` +
-        (font === FontTypeOptions.code
-            ? "FiraCode"
-            : font === FontTypeOptions.hand
-            ? "HandWritten"
-            : "Minecraft");
-    ctx.textBaseline = "top";
 
-    if (selectedElements.length == 0) {
-        return null;
-    }
+    const ctx = useMemo(() => {
+        const canvas = document.createElement("canvas");
+        canvas.width = 100;
+        canvas.height = 100;
+        return canvas.getContext("2d")!;
+    }, []);
 
-    // const commonConf = useMemo(
-    //     () => getElementsCommonConfig(selectedElements),
-    //     [selectedElements]
-    // );
-    const commonConf = getElementsCommonConfig(selectedElements);
+    useEffect(() => {
+        if (!ctx) return;
+        ctx.font = `${fontSize}px ` + FontTypeOptions[font];
+        ctx.textBaseline = "top";
+    }, [ctx, font, fontSize]);
+
+    const commonConf = useMemo(() => {
+        if (selectedElements.length === 0) return null;
+        return getElementsCommonConfig(selectedElements);
+    }, [selectedElements]);
+    if (!commonConf) return null;
+
     const handleDeleteOnClick: React.MouseEventHandler<HTMLButtonElement> = () => {
         commandManager.executeCommand(new ActionDeleteSelected());
     };
@@ -176,7 +178,10 @@ export default function ToolbarLeft() {
             //todo
         }
     };
-    const handle = <T extends keyof CommonConfigOptions>(k: T, value: GlobalConfigOptions[T]) => {
+    const handleConfigChange = <T extends keyof CommonConfigOptions>(
+        k: T,
+        value: GlobalConfigOptions[T]
+    ) => {
         // create hash for check up
         const ids = new Set<string>();
         for (const itm of selectedElements) {
@@ -186,33 +191,19 @@ export default function ToolbarLeft() {
         selectedElements.forEach((el) => {
             if (isRect(el)) {
                 els.push(
-                    generateCacheRectElement(
-                        gen,
-                        [el.x, el.y],
-                        [el.endX, el.endY],
-
-                        // @ts-ignore
-                        {
-                            ...el.options,
-                            [k]: value,
-                            id: el.id,
-                        }
-                    )
+                    generateCacheRectElement(gen, [el.x, el.y], [el.endX, el.endY], {
+                        ...el.options,
+                        [k]: value,
+                        id: el.id,
+                    })
                 );
             } else if (isLine(el)) {
                 els.push(
-                    generateLineElement(
-                        gen,
-                        [el.x, el.y],
-                        [el.endX, el.endY],
-
-                        // @ts-ignore
-                        {
-                            ...el.options,
-                            id: el.id,
-                            [k]: value,
-                        }
-                    )
+                    generateCacheLineElement(gen, [el.x, el.y], [el.endX, el.endY], {
+                        ...el.options,
+                        id: el.id,
+                        [k]: value,
+                    })
                 );
             } else if (isText(el)) {
                 els.push(
@@ -221,6 +212,8 @@ export default function ToolbarLeft() {
                         [k]: value,
                     })
                 );
+            } else if (isHanddrawn(el)) {
+                //todo
             }
         });
         // change global config to new options
@@ -230,46 +223,45 @@ export default function ToolbarLeft() {
     };
 
     const handleStroke = (value: string) => {
-        handle("stroke", value);
+        handleConfigChange("stroke", value);
         setStroke(value);
     };
     const handleFill = (value: string) => {
-        handle("fill", value);
+        handleConfigChange("fill", value);
         setFill(value);
     };
     const handleFillStyle: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        // todo no type safety here haahahhahahahahah
-        handle("fillStyle", e.target.value as FillStyleOptions);
+        handleConfigChange("fillStyle", e.target.value as FillStyleOptions);
         setFillStyle(e.target.value as FillStyleOptions);
     };
 
     const handleStrokeLineDash: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        handle("strokeLineDash", +e.target.value === 1 ? [] : [10, 10]);
+        handleConfigChange("strokeLineDash", +e.target.value === 1 ? [] : [10, 10]);
         setStrokeLineDash(+e.target.value === 1 ? [] : [10, 10]);
     };
 
     const handleStrokeWidth: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        handle("strokeWidth", +e.target.value as StrokeWidth);
+        handleConfigChange("strokeWidth", +e.target.value as StrokeWidth);
         setStrokeWidth(+e.target.value as StrokeWidth);
     };
 
     const handleFontSize: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        handle("fontSize", +e.target.value as FontSize);
+        handleConfigChange("fontSize", +e.target.value as FontSize);
         setFontSize(+e.target.value as FontSize);
     };
 
     const handleFontFamily: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        handle("font", +e.target.value as FontTypeOptions);
-        setFont(+e.target.value as FontTypeOptions);
+        handleConfigChange("font", e.target.value as FontTypeOptions);
+        setFont(e.target.value as FontTypeOptions);
     };
 
     // todo
-    const handleTextAlign: React.ChangeEventHandler<HTMLInputElement> = () => {
-        //todo
-    };
+    // const handleTextAlign: React.ChangeEventHandler<HTMLInputElement> = () => {
+    //     //todo
+    // };
 
     const handleOpacityChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        handle("opacity", +e.target.value);
+        handleConfigChange("opacity", +e.target.value);
         setOpacity(+e.target.value);
     };
     const baseSize = 1.2;
@@ -353,24 +345,24 @@ export default function ToolbarLeft() {
                                 <div>Font family</div>
                                 <div className="flex w-full gap-2">
                                     <RadioButton
-                                        isChecked={commonConf.font == FontTypeOptions.hand}
+                                        isChecked={commonConf.font == "hand"}
                                         onChange={handleFontFamily}
                                         name="font-family"
-                                        value={FontTypeOptions.hand}>
+                                        value={"hand"}>
                                         <FaSignature />
                                     </RadioButton>
                                     <RadioButton
-                                        isChecked={commonConf.font == FontTypeOptions.code}
+                                        isChecked={commonConf.font == "code"}
                                         onChange={handleFontFamily}
                                         name="font-family"
-                                        value={FontTypeOptions.code}>
+                                        value={"code"}>
                                         <FaCode />
                                     </RadioButton>
                                     <RadioButton
-                                        isChecked={commonConf.font == FontTypeOptions.minecraft}
+                                        isChecked={commonConf.font == "minecraft"}
                                         onChange={handleFontFamily}
                                         name="font-family"
-                                        value={FontTypeOptions.minecraft}>
+                                        value={"minecraft"}>
                                         <SiMinetest />
                                     </RadioButton>
                                 </div>

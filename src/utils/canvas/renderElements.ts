@@ -12,7 +12,7 @@ import {
     ZagyCanvasRectElement,
     ZagyCanvasLineElement,
 } from "types/general";
-import { Drawable } from "roughjs/bin/core";
+
 import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
 
 /**
@@ -46,13 +46,7 @@ export function renderRoughElement(
 function renderTextElement(el: ZagyCanvasTextElement, ctx: CanvasRenderingContext2D) {
     ctx.save();
 
-    ctx.font =
-        `${el.options.fontSize}px ` +
-        (el.options.font === FontTypeOptions.code
-            ? "FiraCode"
-            : el.options.font === FontTypeOptions.hand
-            ? "HandWritten"
-            : "Minecraft");
+    ctx.font = `${el.options.fontSize}px ` + FontTypeOptions[el.options.font];
     ctx.fillStyle = el.options.stroke;
     ctx.textBaseline = "top";
     el.text.forEach((val, i) => ctx.fillText(val, el.x, el.y + i * el.options.fontSize));

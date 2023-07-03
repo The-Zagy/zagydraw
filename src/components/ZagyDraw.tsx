@@ -297,12 +297,12 @@ function ZagyDraw() {
                 <div
                     ref={textAreaWrapper}
                     className={clsx(
-                        { "font-firacode ": font === FontTypeOptions.code },
+                        { "font-firacode ": font === "code" },
                         {
-                            "font-handwritten ": font === FontTypeOptions.hand,
+                            "font-handwritten ": font === "hand",
                         },
                         {
-                            "font-minecraft ": font === FontTypeOptions.minecraft,
+                            "font-minecraft ": font === "minecraft",
                         },
                         " m-0  p-0  leading-none outline-none",
                         "grow-wrap pointer-events-none fixed bg-transparent"
