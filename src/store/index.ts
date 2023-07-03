@@ -11,7 +11,7 @@ import {
 import { isElementVisible } from "utils";
 import { create } from "zustand";
 
-type ConfigState = GlobalConfigOptions;
+type ConfigState = Omit<GlobalConfigOptions, "seed"> & { cursorFn: CursorFn };
 
 export type CanvasState<T extends ZagyCanvasElement = ZagyCanvasElement> = {
     width: number;
@@ -27,9 +27,11 @@ export type CanvasState<T extends ZagyCanvasElement = ZagyCanvasElement> = {
 
 export type GeneralActionsState = {
     isMouseDown: boolean;
+    cursorFn: CursorFn;
 };
 export type GeneralActionsActions = {
     setIsMouseDown: (isMouseDown: boolean) => void;
+    setCursorFn: (fn: CursorFn) => void;
 };
 // const CanvasStateDefaults: CanvasState = {
 //     width: 400,

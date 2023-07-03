@@ -1,4 +1,5 @@
 import { Drawable } from "roughjs/bin/core";
+
 type Point = [number, number];
 type ElementTypes = "rectangle" | "line" | "text" | "handdrawn";
 
@@ -24,11 +25,13 @@ type FontSize = 16 | 24 | 32 | 48;
 interface RectOptions extends SharedOptions {
     fill: string;
     fillStyle: FillStyleOptions;
+    seed: number;
 }
 
 interface LineOptions extends SharedOptions {
     fill: string;
     fillStyle: FillStyleOptions;
+    seed: number;
 }
 
 interface TextOptions extends SharedOptions {
@@ -36,11 +39,7 @@ interface TextOptions extends SharedOptions {
     fontSize: FontSize;
 }
 
-type GlobalConfigOptions = TextOptions &
-    RectOptions &
-    LineOptions & {
-        cursorFn: CursorFn;
-    };
+type GlobalElementOptions = TextOptions & RectOptions & LineOptions;
 
 interface Position {
     x: number;
@@ -59,16 +58,19 @@ interface ZagyCanvasElement extends Partial<CachableElement> {
     endX: number;
     endY: number;
     willDelete?: boolean;
-    opacity: number;
+    options: SharedOptions;
 }
-
-type CanvasRoughElement = ZagyCanvasElement & Drawable & { seed: number };
-interface ZagyCanvasRectElement extends CanvasRoughElement, Partial<CachableElement> {
+interface ZagyCanvasRoughElement extends ZagyCanvasElement {
+    roughElement: Drawable;
+}
+interface ZagyCanvasRectElement extends ZagyCanvasRoughElement {
     shape: "rectangle";
+    options: RectOptions;
 }
 
-interface ZagyCanvasLineElement extends CanvasRoughElement, Partial<CachableElement> {
+interface ZagyCanvasLineElement extends ZagyCanvasRoughElement {
     shape: "line";
+    options: LineOptions;
     point1: Point;
     point2: Point;
 }
@@ -116,10 +118,9 @@ function isHanddrawn(el: ZagyCanvasElement): el is ZagyCanvasHandDrawnElement {
 export type {
     ZagyCanvasElement,
     ZagyCanvasLineElement,
-    CanvasRoughElement,
     ZagyCanvasRectElement,
     ZagyCanvasTextElement,
-    GlobalConfigOptions,
+    GlobalElementOptions as GlobalConfigOptions,
     ZagyCanvasHandDrawnElement,
     ElementTypes,
     Position,

@@ -1,5 +1,5 @@
 import rough from "roughjs";
-import { Options } from "roughjs/bin/core";
+
 import {
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
@@ -37,9 +37,7 @@ function normalizeTextOptions(options: Partial<TextOptions>): TextOptions {
     };
 }
 
-function normalizeRectOptions(
-    options: Partial<RectOptions & { seed: number }>
-): RectOptions & { seed: number } {
+function normalizeRectOptions(options: Partial<RectOptions>) {
     const globalConfig = getConfigState();
     return {
         fill: options.fill || globalConfig.fill,
@@ -56,24 +54,26 @@ const generateRectElement = (
     generator: RoughGenerator,
     startPos: Point,
     endPos: Point,
-    options: Partial<RectOptions & Options & { id: string }>
+    options: Partial<RectOptions & { id: string }>
 ): ZagyCanvasRectElement => {
     const { x, y, endX, endY } = normalizeRectCoords(startPos, endPos);
     const opts = normalizeRectOptions(options);
-    const r = generator.rectangle(x, y, endX - x, endY - y, {
+    const roughElement = generator.rectangle(x, y, endX - x, endY - y, {
         roughness: 2,
         ...opts,
     });
     return {
-        ...r,
-        seed: opts.seed,
+        roughElement,
+        options: {
+            ...opts,
+        },
+
         id: options.id !== undefined ? options.id : nanoid(),
         x,
         y,
         endX,
         endY,
         shape: "rectangle",
-        opacity: opts.opacity,
     };
 };
 
@@ -81,12 +81,12 @@ const generateCacheRectElement = (
     generator: RoughGenerator,
     startPos: Point,
     endPos: Point,
-    options: Partial<RectOptions & Options & { id: string }>
+    options: Partial<RectOptions & { id: string }>
 ): ZagyCanvasRectElement => {
     const { x, y, endX, endY } = normalizeRectCoords(startPos, endPos);
 
     const opts = normalizeRectOptions(options);
-    const el = generator.rectangle(
+    const roughElement = generator.rectangle(
         CACHE_CANVAS_SIZE_THRESHOLD,
         CACHE_CANVAS_SIZE_THRESHOLD,
         endX - x,
@@ -102,19 +102,20 @@ const generateCacheRectElement = (
     cacheCanvas.height = endY - y + CACHE_CANVAS_SIZE_THRESHOLD * 4;
     const cacheCtx = cacheCanvas.getContext("2d");
     if (!cacheCtx) throw new Error("cacheCtx is null");
-    rough.canvas(cacheCanvas).draw(el);
+    rough.canvas(cacheCanvas).draw(roughElement);
     return {
-        ...el,
+        roughElement,
+        options: {
+            ...opts,
+        },
         cache: cacheCanvas,
         cacheCtx,
-        seed: opts.seed,
         id: options.id !== undefined ? options.id : nanoid(),
         x,
         y,
         endX,
         endY,
         shape: "rectangle",
-        opacity: opts.opacity,
     };
 };
 
@@ -124,29 +125,35 @@ const generateSelectRectElement = (
     endPos: Point
 ): ZagyCanvasRectElement => {
     const { x, y, endX, endY } = getCorrectCoordOrder(startPos, endPos);
-    const rect = generator.rectangle(
+    const opts: RectOptions = {
+        fill: "#9b59b6",
+        fillStyle: "solid",
+        strokeWidth: 1,
+        stroke: "transparent",
+        seed: 0,
+        opacity: 0.3,
+        strokeLineDash: [],
+    };
+    const roughElement = generator.rectangle(
         startPos[0],
         startPos[1],
         endPos[0] - startPos[0],
         endPos[1] - startPos[1],
-        {
-            fill: "#9b59b6",
-            fillStyle: "solid",
-            strokeWidth: 0,
-            stroke: "transparent",
-            roughness: 0,
-        }
+        { ...opts, roughness: 0 }
     );
     return {
-        ...rect,
+        roughElement,
+        options: {
+            ...opts,
+        },
         // dummy seed
-        seed: 0,
+
         x,
         y,
         endX,
         endY,
         shape: "rectangle",
-        opacity: 0.3,
+
         id: nanoid(),
     };
 };
@@ -155,18 +162,21 @@ const generateLineElement = (
     generator: RoughGenerator,
     startPos: Point,
     endPos: Point,
-    options: Partial<LineOptions & Options & { id: string }> = {}
+    options: Partial<LineOptions & { id: string }> = {}
 ): ZagyCanvasLineElement => {
     const { x, y, endX, endY } = getCorrectCoordOrder(startPos, endPos);
     // todo create normalize line options
     const opts = normalizeRectOptions(options);
-    const l = generator.line(startPos[0], startPos[1], endPos[0], endPos[1], {
+    const roughElement = generator.line(startPos[0], startPos[1], endPos[0], endPos[1], {
         roughness: 2,
         ...opts,
     });
     return {
-        ...l,
-        seed: opts.seed,
+        roughElement,
+        options: {
+            ...opts,
+        },
+
         id: options.id || nanoid(),
         x,
         y,
@@ -175,14 +185,13 @@ const generateLineElement = (
         point1: startPos,
         point2: endPos,
         shape: "line",
-        opacity: opts.opacity,
     };
 };
 const generateCacheLineElement = (
     generator: RoughGenerator,
     startPos: Point,
     endPos: Point,
-    options: Partial<LineOptions & Options & { id: string }>
+    options: Partial<LineOptions & { id: string }>
 ): ZagyCanvasLineElement => {
     const { minX: x, minY: y, maxX: endX, maxY: endY } = getGlobalMinMax([startPos, endPos]);
     const opts = normalizeRectOptions(options);
@@ -192,7 +201,7 @@ const generateCacheLineElement = (
         startPos[1] + CACHE_CANVAS_SIZE_THRESHOLD,
     ];
     endPos = [endPos[0] + CACHE_CANVAS_SIZE_THRESHOLD, endPos[1] + CACHE_CANVAS_SIZE_THRESHOLD];
-    const el = generator.line(...startPos, ...endPos, {
+    const roughElement = generator.line(...startPos, ...endPos, {
         roughness: 2,
         ...opts,
     });
@@ -203,13 +212,16 @@ const generateCacheLineElement = (
     const cacheCtx = cacheCanvas.getContext("2d");
     if (!cacheCtx) throw new Error("cacheCtx is null");
     cacheCtx.translate(-x, -y);
-    rough.canvas(cacheCanvas).draw(el);
+    rough.canvas(cacheCanvas).draw(roughElement);
 
     return {
-        ...el,
+        roughElement,
+        options: {
+            ...opts,
+        },
         cache: cacheCanvas,
         cacheCtx,
-        seed: opts.seed,
+
         id: options.id !== undefined ? options.id : nanoid(),
         x,
         y,
@@ -218,7 +230,6 @@ const generateCacheLineElement = (
         endX,
         endY,
         shape: "line",
-        opacity: opts.opacity,
     };
 };
 /**
@@ -273,7 +284,6 @@ const generateTextElement = (
         options: {
             ...opts,
         },
-        opacity: opts.opacity,
     };
 };
 
@@ -315,7 +325,6 @@ export const generateHandDrawnElement = (paths: Point[]): ZagyCanvasHandDrawnEle
             strokeLineDash: [],
             strokeWidth: 1,
         },
-        opacity: 1,
     };
 };
 const generateCachedHandDrawnElement = (paths: Point[]) => {

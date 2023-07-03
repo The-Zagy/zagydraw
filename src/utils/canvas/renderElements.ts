@@ -4,13 +4,15 @@ import {
     FontTypeOptions,
     type ZagyCanvasElement,
     type ZagyCanvasHandDrawnElement,
-    type CanvasRoughElement,
     type ZagyCanvasTextElement,
     isLine,
     isRect,
     isText,
     isHanddrawn,
+    ZagyCanvasRectElement,
+    ZagyCanvasLineElement,
 } from "types/general";
+import { Drawable } from "roughjs/bin/core";
 import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
 
 /**
@@ -20,7 +22,7 @@ import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
  * @param roughCanvas
  */
 export function renderRoughElement(
-    el: CanvasRoughElement,
+    el: ZagyCanvasRectElement | ZagyCanvasLineElement,
     ctx: CanvasRenderingContext2D,
     roughCanvas: RoughCanvas
 ) {
@@ -37,7 +39,7 @@ export function renderRoughElement(
             el.cache.height
         );
     } else {
-        roughCanvas.draw(el);
+        roughCanvas.draw(el.roughElement);
     }
 }
 
@@ -89,9 +91,9 @@ function renderElements<T extends ZagyCanvasElement>(
         ctx.save();
         let opacity: number;
         if (el.willDelete) {
-            opacity = el.opacity * 0.5;
+            opacity = el.options.opacity * 0.5;
         } else {
-            opacity = el.opacity;
+            opacity = el.options.opacity;
         }
         ctx.globalAlpha = opacity;
         if (isRect(el) || isLine(el)) renderRoughElement(el, ctx, roughCanvas);
