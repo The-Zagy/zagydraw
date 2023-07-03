@@ -19,7 +19,7 @@ import {
     isRect,
     isText,
 } from "types/general";
-import { CommonConfigOptions, getElementsCommonConfig, isEqualArray } from "utils";
+import { CommonConfigOptions, getElementsUnionConfig, isEqualArray } from "utils";
 import {
     generateCacheLineElement,
     generateCacheRectElement,
@@ -37,7 +37,8 @@ const gen = rough.generator();
 type Props = {
     labelName: string;
     defaultValue?: string;
-    onBlur?: (value: string) => void;
+
+    onChange?: (value: string) => void;
 };
 const isValidColor = (color: string) => {
     const s = new Option().style;
@@ -76,13 +77,15 @@ const InputWithIcon: React.FC<Props> = (props) => {
                             inputRef.current!.value = lastValue.current;
                             return;
                         }
-                        if (props.onBlur) {
-                            props.onBlur("#" + inputRef.current!.value);
-                        }
                     }}
                     onFocus={(e) => {
                         setIsFocus(true);
                         lastValue.current = e.target.value;
+                    }}
+                    onChange={(e) => {
+                        if (isValidColor("#" + e.target.value) && props.onChange) {
+                            props.onChange("#" + e.target.value);
+                        }
                     }}
                     className="dark:text-text-600
                                 block w-full min-w-0 flex-1
@@ -163,10 +166,9 @@ export default function ToolbarLeft() {
 
     const commonConf = useMemo(() => {
         if (selectedElements.length === 0) return null;
-        return getElementsCommonConfig(selectedElements);
+        return getElementsUnionConfig(selectedElements);
     }, [selectedElements]);
     if (!commonConf) return null;
-
     const handleDeleteOnClick: React.MouseEventHandler<HTMLButtonElement> = () => {
         commandManager.executeCommand(new ActionDeleteSelected());
     };
@@ -188,6 +190,7 @@ export default function ToolbarLeft() {
             ids.add(itm.id);
         }
         const els: ZagyCanvasElement[] = [];
+        //todo maybe optimize so that if the element's own config isn't changed no need to re-generate
         selectedElements.forEach((el) => {
             if (isRect(el)) {
                 els.push(
@@ -279,7 +282,7 @@ export default function ToolbarLeft() {
                                 defaultValue={
                                     commonConf.stroke !== null ? commonConf.stroke : undefined
                                 }
-                                onBlur={(value) => {
+                                onChange={(value) => {
                                     handleStroke(value);
                                 }}
                             />
@@ -291,7 +294,7 @@ export default function ToolbarLeft() {
                                 defaultValue={
                                     commonConf.fill !== null ? commonConf.fill : undefined
                                 }
-                                onBlur={(value) => {
+                                onChange={(value) => {
                                     handleFill(value);
                                 }}
                             />

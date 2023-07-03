@@ -7,6 +7,10 @@ import {
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
     GlobalConfigOptions,
+    isRect,
+    isLine,
+    isText,
+    isHanddrawn,
 } from "types/general";
 
 export function classNames(...classes: unknown[]): string {
@@ -267,70 +271,68 @@ export function isEqualArray<T>(a1: T[], a2: T[]): boolean {
 }
 
 export type CommonConfigOptions = {
-    [k in keyof GlobalConfigOptions]?: GlobalConfigOptions[k] | null;
+    [k in keyof GlobalConfigOptions]?: GlobalConfigOptions[k];
 };
 
 /**
- * get common config between many elements
- * , there's three possible values for each prop
- * @returns undefined: prop not shared, null: shared prop but conflict in value, otherwise return normal value for the prop
+ *  get union config of many elements
  */
-export function getElementsCommonConfig<T extends ZagyCanvasElement = ZagyCanvasElement>(
+export function getElementsUnionConfig<T extends ZagyCanvasElement = ZagyCanvasElement>(
     elements: T[]
 ): CommonConfigOptions {
-    if (elements.length === 0) throw new Error("cannot get common config on empty array");
+    if (elements.length === 0) return {};
+    const elementTypesSoFar: {
+        [k in ZagyCanvasElement["shape"]]: boolean;
+    } = {
+        rectangle: false,
+        line: false,
+        text: false,
+        handdrawn: false,
+    };
+    const keysCount = Object.keys(elementTypesSoFar).length;
+    let count = 0;
+    let res: CommonConfigOptions = {};
 
-    // hack to remove rough options that i don't count for now
-    const t = Object.keys({
-        cursorFn: undefined,
-        fill: undefined,
-        fillStyle: undefined,
-        font: undefined,
-        fontSize: undefined,
-        opacity: undefined,
-        stroke: undefined,
-        strokeLineDash: undefined,
-        strokeWidth: undefined,
-    } as CommonConfigOptions);
-
-    const res: CommonConfigOptions = {};
-    // from first element copy only options i care about in this context
-    // now elements[0] is my base for the common config
-    t.forEach((key) => {
-        // @ts-ignore
-        res[key] = elements[0]["options"][key];
-    });
-
-    elements.forEach((el, i) => {
-        if (i === 0) return;
-        // @ts-ignore
-        for (const k of t) {
-            // already have been decided this value is not shared, so skip
-            // @ts-ignore
-            if (res[k] === undefined) continue;
-            // found not shared prop
-            //@ts-ignore
-            if (el.options[k] === undefined) {
-                //@ts-ignore
-                res[k] = undefined;
-                continue;
+    for (const element of elements) {
+        if (count === keysCount) break;
+        if (elementTypesSoFar[element.shape]) continue;
+        if (isRect(element)) {
+            if (!elementTypesSoFar["rectangle"]) {
+                elementTypesSoFar["rectangle"] = true;
+                count++;
             }
-            //@ts-ignore
-            if (res[k] === null) continue;
-            // check for conflict in values
-            //@ts-ignore
-            if (
-                //@ts-ignore
-                Array.isArray(el.options[k])
-                    ? //@ts-ignore
-                      !isEqualArray(el.options[k], res[k])
-                    : //@ts-ignore
-                      el.options[k] !== res[k]
-            )
-                //@ts-ignore
-                res[k] = null;
+            res = {
+                ...res,
+                ...element.options,
+            };
+        } else if (isLine(element)) {
+            if (!elementTypesSoFar["line"]) {
+                elementTypesSoFar["line"] = true;
+                count++;
+            }
+            res = {
+                ...res,
+                ...element.options,
+            };
+        } else if (isText(element)) {
+            if (!elementTypesSoFar["text"]) {
+                elementTypesSoFar["text"] = true;
+                count++;
+            }
+            res = {
+                ...res,
+                ...element.options,
+            };
+        } else if (isHanddrawn(element)) {
+            if (!elementTypesSoFar["handdrawn"]) {
+                elementTypesSoFar["handdrawn"] = true;
+                count++;
+            }
+            res = {
+                ...res,
+                ...element.options,
+            };
         }
-    });
-
+    }
     return res;
 }

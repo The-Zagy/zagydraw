@@ -4,7 +4,6 @@ import { RoughCanvas } from "roughjs/bin/canvas";
 import clsx from "clsx";
 import { commandManager } from "actions/commandManager";
 import { useCursor, useEvent, useGlobalEvent, useMultiPhaseEvent, useRenderScene } from "hooks";
-import { FontTypeOptions } from "types/general";
 
 import { useStore } from "store";
 
