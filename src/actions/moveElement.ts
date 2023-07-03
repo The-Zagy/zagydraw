@@ -96,7 +96,7 @@ class MoveElementAction {
                 const offsetY = el.y - oldPositionStart[1];
                 if (isHanddrawn(el)) {
                     el.paths = el.paths.map((p) => [p[0] + offsetX, p[1] + offsetY]);
-                    el.path2D = constructHandDrawnElementPath2D(el.paths);
+                    el.path2D = constructHandDrawnElementPath2D(el.paths, el.options);
                 } else if (isLine(el)) {
                     el.point1 = [el.point1[0] + offsetX, el.point1[1] + offsetY];
                     el.point2 = [el.point2[0] + offsetX, el.point2[1] + offsetY];
@@ -109,7 +109,7 @@ class MoveElementAction {
                 const offsetY = el.y - oldPositionStart[1];
                 if (isHanddrawn(el)) {
                     el.paths = el.paths.map((p) => [p[0] - offsetX, p[1] - offsetY]);
-                    el.path2D = constructHandDrawnElementPath2D(el.paths);
+                    el.path2D = constructHandDrawnElementPath2D(el.paths, el.options);
                 } else if (isLine(el)) {
                     el.point1 = [el.point1[0] - offsetX, el.point1[1] - offsetY];
                     el.point2 = [el.point2[0] - offsetX, el.point2[1] - offsetY];

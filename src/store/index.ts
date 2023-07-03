@@ -1,11 +1,7 @@
-//gitkeep
-//init zustand store
-
 import {
     ZagyCanvasElement,
     CursorFn,
     GlobalConfigOptions,
-    FontTypeOptions,
     ZagyCanvasRectElement,
 } from "types/general";
 import { isElementVisible } from "utils";

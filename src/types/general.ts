@@ -15,7 +15,7 @@ type FillStyleOptions = "solid" | "zigzag" | "dots" | "hachure";
 interface SharedOptions {
     opacity: number;
     stroke: string;
-    strokeLineDash: StrokeLineDash;
+
     strokeWidth: StrokeWidth;
 }
 
@@ -26,12 +26,14 @@ type FontSize = 16 | 24 | 32 | 48;
 interface RectOptions extends SharedOptions {
     fill: string;
     fillStyle: FillStyleOptions;
+    strokeLineDash: StrokeLineDash;
     seed: number;
 }
 
 interface LineOptions extends SharedOptions {
     fill: string;
     fillStyle: FillStyleOptions;
+    strokeLineDash: StrokeLineDash;
     seed: number;
 }
 
@@ -39,6 +41,8 @@ interface TextOptions extends SharedOptions {
     font: FontTypeOptions;
     fontSize: FontSize;
 }
+
+type HanddrawnOptions = SharedOptions;
 
 type GlobalElementOptions = TextOptions & RectOptions & LineOptions;
 
@@ -133,5 +137,6 @@ export type {
     FontSize,
     FillStyleOptions,
     CachableElement,
+    HanddrawnOptions,
 };
 export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn };

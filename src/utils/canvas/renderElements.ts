@@ -71,6 +71,7 @@ const renderFreeDrawElement = (el: ZagyCanvasHandDrawnElement, ctx: CanvasRender
         ctx.restore();
         return;
     }
+    ctx.fillStyle = el.options.stroke;
     ctx.fill(el.path2D);
     ctx.restore();
 };

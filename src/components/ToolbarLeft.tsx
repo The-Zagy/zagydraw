@@ -2,7 +2,7 @@ import React, { ReactNode, useEffect, useMemo } from "react";
 import rough from "roughjs";
 import { MdDeleteOutline, MdCopyAll } from "react-icons/md";
 import { IconContext } from "react-icons";
-import { TbLetterL, TbLetterM, TbLetterS, TbLetterX, TbSquare0Filled } from "react-icons/tb";
+import { TbLetterL, TbLetterM, TbLetterS, TbLetterX } from "react-icons/tb";
 import { SiMinetest } from "react-icons/si";
 import { AiOutlineDash, AiOutlineLine } from "react-icons/ai";
 import { FaCode, FaMinus, FaSignature, FaSquare } from "react-icons/fa";
@@ -23,13 +23,13 @@ import { CommonConfigOptions, getElementsCommonConfig, isEqualArray } from "util
 import {
     generateCacheLineElement,
     generateCacheRectElement,
-    generateLineElement,
+    generateCachedHandDrawnElement,
     generateTextElement,
 } from "utils/canvas/generateElement";
 import { commandManager } from "actions/commandManager";
 import { ActionDeleteSelected } from "actions";
 import { ActionCopySelected } from "actions/copySelected";
-import { BsTextCenter, BsTextLeft, BsTextRight } from "react-icons/bs";
+//import { BsTextCenter, BsTextLeft, BsTextRight } from "react-icons/bs";
 import clsx from "clsx";
 
 const gen = rough.generator();
@@ -213,7 +213,7 @@ export default function ToolbarLeft() {
                     })
                 );
             } else if (isHanddrawn(el)) {
-                //todo
+                els.push(generateCachedHandDrawnElement(el.paths, { ...el.options, [k]: value }));
             }
         });
         // change global config to new options
