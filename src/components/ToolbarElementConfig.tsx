@@ -277,7 +277,7 @@ export default function ToolbarLeft() {
                 value={{
                     size: `${baseSize}rem`,
                 }}>
-                <div className="scrollbar-thin scrollbar-thumb-zinc-600 bg-primary-600  fixed inset-0 m-auto flex max-h-[70%]  w-11/12 flex-col gap-1 overflow-auto whitespace-nowrap rounded-md text-xs md:left-2 md:top-20 md:m-0  md:ml-1  md:max-h-[75%] md:w-fit">
+                <div className="scrollbar-thin scrollbar-thumb-zinc-600 bg-primary-600 fixed  inset-0 m-auto flex max-h-[70%] w-11/12  select-none flex-col gap-1 overflow-auto whitespace-nowrap rounded-md text-xs md:left-2 md:top-20 md:m-0  md:ml-1  md:max-h-[75%] md:w-fit">
                     <div className="text-text-800 flex w-fit flex-col gap-2 p-3 ">
                         {commonConf.stroke !== undefined ? (
                             <InputWithIcon

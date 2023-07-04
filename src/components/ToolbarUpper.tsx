@@ -52,7 +52,7 @@ export default function ToolbarUpper() {
         "7"
     );
     return (
-        <div className="withFira scrollbar-thin scrollbar-thumb-zinc-600 bg-primary-600 fixed left-1/2 top-4 w-11/12 -translate-x-1/2 cursor-default overflow-auto  whitespace-nowrap  rounded-md py-1 md:w-6/12 lg:m-0 lg:w-auto lg:max-w-none">
+        <div className="withFira scrollbar-thin scrollbar-thumb-zinc-600 bg-primary-600 fixed left-1/2 top-4 w-11/12 -translate-x-1/2 cursor-default select-none overflow-auto  whitespace-nowrap  rounded-md py-1 md:w-6/12 lg:m-0 lg:w-auto lg:max-w-none">
             <div className="mx-auto w-fit">
                 <button
                     data-testid="default-cursor"
