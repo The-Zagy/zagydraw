@@ -269,7 +269,9 @@ function ZagyDraw() {
             {
                 event: "pointerdown",
                 callback: (e) => {
-                    commandManager.executeCommand(MoveElementAction.start([e.clientX, e.clientY]));
+                    commandManager.executeCommand(
+                        MoveElementAction.start([e.clientX, e.clientY], canvas.current)
+                    );
                 },
                 options: true,
             },
@@ -280,6 +282,7 @@ function ZagyDraw() {
                         MoveElementAction.inProgress([e.clientX, e.clientY], canvas.current)
                     );
                 },
+                options: true,
             },
             {
                 event: "pointerup",

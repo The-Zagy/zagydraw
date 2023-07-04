@@ -40,48 +40,30 @@ describe("multi selection", () => {
         expect(useStore.getState().multiSelectRect).toBeNull();
     });
 
-    it("should select elements within this rect", async () => {
+    it("should select elements within selection rect", async () => {
         render(<App />);
         const canvas = await screen.findByTestId<HTMLCanvasElement>("canvas");
         if (!canvas) throw new Error("canvas not found");
         // set screen size
         //todo maybe add this to some kind of test utils
         act(() => useStore.setState({ width: 1000, height: 1000 }));
-        const pointerDownPos: Point = [300, 300];
-        const movement: Point = [200, 200];
+
+        const pointerDownPos: Point = [10, 10];
+        const movement: Point = [150, 150];
         const endPos: Point = [pointerDownPos[0] + movement[0], pointerDownPos[1] + movement[1]];
         //create selectable rect element
-        await createElement(
-            "rectangle",
-            canvas,
-            [pointerDownPos[0] + 50, pointerDownPos[1] + 50],
-            [endPos[0] - 50, endPos[1] - 50]
-        );
+        await createElement("rectangle", canvas, [50, 50], [100, 100]);
         // create unselectable rect element
-        await createElement(
-            "rectangle",
-            canvas,
-            [pointerDownPos[0] + 50, pointerDownPos[1] + 50],
-            [pointerDownPos[0] - 150, pointerDownPos[1] - 150]
-        );
+        await createElement("rectangle", canvas, [100, 100], [200, 200]);
         //create handdrawn element
-        await createElement(
-            "handdrawn",
-            canvas,
-            [pointerDownPos[0] + 50, pointerDownPos[1] + 50],
-            [endPos[0] - 50, endPos[1] - 50]
-        );
+        await createElement("handdrawn", canvas, [30, 30], [100, 100]);
         //create line
-        await createElement(
-            "line",
-            canvas,
-            [pointerDownPos[0] + 50, pointerDownPos[1] + 50],
-            [endPos[0] - 50, endPos[1] - 50]
-        );
+        await createElement("line", canvas, [80, 80], [120, 120]);
         //todo add text element when its bounding rect is fixed
         await clickCursor(CursorFn.Default);
         pointerDown(canvas, pointerDownPos);
         pointerMove(canvas, endPos);
+
         pointerUp(canvas, endPos);
         expect(useStore.getState().selectedElements.length).toBe(3);
     });

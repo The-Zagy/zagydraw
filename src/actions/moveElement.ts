@@ -11,32 +11,38 @@ class MoveElementAction {
     private static position: { x: number; y: number } = { x: 0, y: 0 };
     private static lastMouseDownPosition: Point = [0, 0];
     private static isDragging = false;
-    private static _start(pointerCoords: Point) {
+    private static _start(pointerCoords: Point, ctx: CanvasRenderingContext2D) {
         this.lastMouseDownPosition = pointerCoords;
+        const { position, visibleElements } = useStore.getState();
+        const hitElement = getHitElement(visibleElements, ctx, pointerCoords, position);
+        this.hitElement = hitElement;
+        if (!hitElement) return;
+        this.oldPositionStart = [hitElement.x + position.x, hitElement.y + position.y];
+        this.oldPositionEnd = [hitElement.endX + position.x, hitElement.endY + position.y];
+        this.position = position;
     }
-    public static start(pointerCoords: Point): Command | null {
+    public static start(pointerCoords: Point, canvas: HTMLCanvasElement | null): Command | null {
+        if (!canvas) return null;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return null;
         const { cursorFn } = useStore.getState();
         if (cursorFn !== CursorFn.Default && cursorFn !== CursorFn.Move) return null;
+
         return {
             execute: () => {
-                MoveElementAction._start(pointerCoords);
+                MoveElementAction._start(pointerCoords, ctx);
             },
         };
     }
 
     private static _inProgress(pointerCoords: Point, canvas: HTMLCanvasElement) {
-        const { visibleElements, setCursorFn, isMouseDown } = useStore.getState();
+        const { setCursorFn, isMouseDown } = useStore.getState();
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
         const { position, setElements } = useStore.getState();
         if (!this.isDragging) {
-            const hitElement = getHitElement(visibleElements, ctx, pointerCoords, position);
-            if (hitElement !== null) {
+            if (this.hitElement !== null) {
                 setCursorFn(CursorFn.Move);
-                this.hitElement = hitElement;
-                this.oldPositionStart = [hitElement.x + position.x, hitElement.y + position.y];
-                this.oldPositionEnd = [hitElement.endX + position.x, hitElement.endY + position.y];
-                this.position = position;
             } else {
                 setCursorFn(CursorFn.Default);
             }

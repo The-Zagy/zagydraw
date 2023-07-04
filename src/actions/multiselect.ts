@@ -5,12 +5,11 @@ import { Point, isElementInRect, normalizePos } from "utils";
 import { generateSelectRectElement } from "utils/canvas/generateElement";
 
 class MultiSelectAction {
-    private static lastMouseUpPosition: Point = [0, 0];
-    private static lastMouseDownPosition: Point = [0, 0];
+    private static lastMouseUpPosition: Point | null = [0, 0];
+    private static lastMouseDownPosition: Point | null = [0, 0];
     private static roughGenerator = new RoughGenerator();
     private static _start(coords: Point) {
         const { position } = useStore.getState();
-
         const norm = normalizePos(position, coords);
         this.lastMouseDownPosition = norm;
     }
@@ -19,10 +18,9 @@ class MultiSelectAction {
         if (isMouseDown && canvas) {
             const norm = normalizePos(position, coords);
             this.lastMouseUpPosition = norm;
-
             const rect: ZagyCanvasRectElement = generateSelectRectElement(
                 this.roughGenerator,
-                this.lastMouseDownPosition,
+                this.lastMouseDownPosition!,
                 this.lastMouseUpPosition
             );
             setMultiSelectRect(rect);
@@ -35,8 +33,8 @@ class MultiSelectAction {
             const selected = visibleElements.filter((el) => isElementInRect(el, multiSelectRect));
             setSelectedElements(() => selected);
         }
-        this.lastMouseDownPosition = [0, 0];
-        this.lastMouseUpPosition = [0, 0];
+        this.lastMouseDownPosition = null;
+        this.lastMouseUpPosition = null;
         setMultiSelectRect(null);
     }
     public static start(...args: Parameters<typeof MultiSelectAction._start>) {
@@ -51,7 +49,7 @@ class MultiSelectAction {
     public static inProgress(...args: Parameters<typeof MultiSelectAction._inProgress>) {
         const { cursorFn } = useStore.getState();
         if (cursorFn !== CursorFn.Default) return null;
-        if (this.lastMouseDownPosition[0] === 0 && this.lastMouseDownPosition[1] === 0) return null;
+        if (!this.lastMouseDownPosition) return null;
         return {
             execute: () => {
                 this._inProgress(...args);
@@ -59,7 +57,7 @@ class MultiSelectAction {
         };
     }
     public static end(...args: Parameters<typeof MultiSelectAction._end>) {
-        if (this.lastMouseUpPosition[0] === 0 && this.lastMouseUpPosition[1] === 0) return null;
+        if (!this.lastMouseDownPosition || !this.lastMouseUpPosition) return null;
         return {
             execute: () => {
                 this._end(...args);
