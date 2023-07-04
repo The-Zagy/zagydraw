@@ -125,7 +125,7 @@ export type {
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
     ZagyCanvasTextElement,
-    GlobalElementOptions as GlobalConfigOptions,
+    GlobalElementOptions,
     ZagyCanvasHandDrawnElement,
     ElementTypes,
     Position,

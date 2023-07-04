@@ -1,13 +1,18 @@
+import { randomSeed } from "roughjs/bin/math";
 import {
     ZagyCanvasElement,
     CursorFn,
-    GlobalConfigOptions,
+    GlobalElementOptions,
     ZagyCanvasRectElement,
 } from "types/general";
 import { isElementVisible } from "utils";
 import { create } from "zustand";
 
-type ConfigState = Omit<GlobalConfigOptions, "seed"> & { cursorFn: CursorFn };
+type ConfigState = Omit<GlobalElementOptions, "seed"> & {
+    cursorFn: CursorFn;
+    isToolbarElementConfigOpen: boolean;
+    isMobile: boolean;
+};
 
 export type CanvasState<T extends ZagyCanvasElement = ZagyCanvasElement> = {
     width: number;
@@ -62,9 +67,8 @@ type CanvasActions = {
 type ConfigStateActions = {
     [K in keyof ConfigState as `set${Capitalize<K & string>}`]: (value: ConfigState[K]) => void;
 } & {
-    getConfigState: () => ConfigState;
+    getElementConfigState: () => GlobalElementOptions;
 };
-// non standard but useful
 
 export const useStore = create<
     CanvasState &
@@ -91,6 +95,14 @@ export const useStore = create<
     isMouseDown: false,
     currentText: "",
     isWriting: false,
+    isToolbarElementConfigOpen: false,
+    isMobile: false,
+    setIsMobile: (isMobile) => {
+        set({ isMobile });
+    },
+    setIsToolbarElementConfigOpen: (isToolbarElementConfigOpen) => {
+        set({ isToolbarElementConfigOpen });
+    },
     setCurrentText: (currentText) => {
         set({ currentText });
     },
@@ -147,9 +159,8 @@ export const useStore = create<
     font: "minecraft",
     fontSize: 24,
     opacity: 1,
-    getConfigState() {
+    getElementConfigState() {
         return {
-            cursorFn: get().cursorFn,
             fill: get().fill,
             fillStyle: get().fillStyle,
             font: get().font,
@@ -158,6 +169,7 @@ export const useStore = create<
             stroke: get().stroke,
             strokeLineDash: get().strokeLineDash,
             strokeWidth: get().strokeWidth,
+            seed: randomSeed(),
         };
     },
     //setConfigState

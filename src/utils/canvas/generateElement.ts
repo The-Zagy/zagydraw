@@ -24,7 +24,7 @@ import { randomSeed } from "roughjs/bin/math";
 import { RoughGenerator } from "roughjs/bin/generator";
 import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
 
-const { getConfigState } = useStore.getState();
+const { getElementConfigState: getConfigState } = useStore.getState();
 function normalizeHanddrawnOptions(options: Partial<HanddrawnOptions>): HanddrawnOptions {
     const globalConfig = getConfigState();
     return {

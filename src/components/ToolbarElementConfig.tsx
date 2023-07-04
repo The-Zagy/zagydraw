@@ -11,7 +11,7 @@ import {
     FillStyleOptions,
     FontSize,
     FontTypeOptions,
-    GlobalConfigOptions,
+    GlobalElementOptions,
     StrokeWidth,
     ZagyCanvasElement,
     isHanddrawn,
@@ -133,23 +133,25 @@ const RadioButton: React.FC<{
         </div>
     );
 };
-
+const {
+    setElements,
+    setSelectedElements,
+    setFont,
+    setFontSize,
+    setFill,
+    setFillStyle,
+    setOpacity,
+    setStroke,
+    setStrokeLineDash,
+    setStrokeWidth,
+} = useStore.getState();
 export default function ToolbarLeft() {
-    const {
-        setElements,
-        setSelectedElements,
-        fontSize,
-        font,
-        setFont,
-        setFontSize,
-        setFill,
-        setFillStyle,
-        setOpacity,
-        setStroke,
-        setStrokeLineDash,
-        setStrokeWidth,
-    } = useStore.getState();
+    const [font, fontSize] = useStore((state) => [state.font, state.fontSize]);
     const selectedElements = useStore((state) => state.selectedElements);
+    const [isMobile, toolbarElementConfigOpen] = useStore((state) => [
+        state.isMobile,
+        state.isToolbarElementConfigOpen,
+    ]);
 
     const ctx = useMemo(() => {
         const canvas = document.createElement("canvas");
@@ -182,7 +184,7 @@ export default function ToolbarLeft() {
     };
     const handleConfigChange = <T extends keyof CommonConfigOptions>(
         k: T,
-        value: GlobalConfigOptions[T]
+        value: GlobalElementOptions[T]
     ) => {
         // create hash for check up
         const ids = new Set<string>();
@@ -268,14 +270,15 @@ export default function ToolbarLeft() {
         setOpacity(+e.target.value);
     };
     const baseSize = 1.2;
+    if (isMobile && !toolbarElementConfigOpen) return null;
     return (
         <>
             <IconContext.Provider
                 value={{
                     size: `${baseSize}rem`,
                 }}>
-                <div className="scrollbar-thin scrollbar-thumb-zinc-600 bg-primary-600 fixed left-2 top-24 flex max-h-[80%] w-1/5 flex-col gap-1 overflow-auto  whitespace-nowrap  rounded-md text-xs sm:m-0 sm:w-auto sm:max-w-none">
-                    <div className="text-text-800 mx-auto flex w-fit flex-col gap-2 p-3">
+                <div className="scrollbar-thin scrollbar-thumb-zinc-600 bg-primary-600  fixed inset-0 m-auto flex max-h-[70%]  w-11/12 flex-col gap-1 overflow-auto whitespace-nowrap rounded-md text-xs md:left-2 md:top-20 md:m-0  md:ml-1  md:max-h-[75%] md:w-fit">
+                    <div className="text-text-800 flex w-fit flex-col gap-2 p-3 ">
                         {commonConf.stroke !== undefined ? (
                             <InputWithIcon
                                 labelName={"Stroke"}

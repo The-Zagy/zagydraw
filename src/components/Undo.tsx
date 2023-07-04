@@ -14,7 +14,7 @@ export default function Undo() {
     return (
         <button
             data-testid="undo-button"
-            className="bg-primary-600 fixed bottom-4 left-4 h-fit w-fit  rounded-lg p-2"
+            className="bg-primary-600 invisible fixed bottom-4 right-4 h-fit w-fit rounded-lg  p-2 md:visible"
             onClick={() => {
                 commandManager.undoCommand();
                 return;

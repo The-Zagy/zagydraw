@@ -52,13 +52,13 @@ export default function ToolbarUpper() {
         "7"
     );
     return (
-        <div className="withFira scrollbar-thin scrollbar-thumb-zinc-600 bg-primary-600 fixed left-1/2 top-4 w-11/12 -translate-x-1/2 cursor-default  overflow-auto  whitespace-nowrap rounded-md py-1 sm:m-0 sm:w-auto sm:max-w-none">
+        <div className="withFira scrollbar-thin scrollbar-thumb-zinc-600 bg-primary-600 fixed left-1/2 top-4 w-11/12 -translate-x-1/2 cursor-default overflow-auto  whitespace-nowrap  rounded-md py-1 md:w-6/12 lg:m-0 lg:w-auto lg:max-w-none">
             <div className="mx-auto w-fit">
                 <button
                     data-testid="default-cursor"
                     onClick={() => setCursorFn(CursorFn.Default)}
                     className={clsx(
-                        "relative mx-1 h-12 w-16 cursor-pointer rounded-2xl rounded-l-lg text-xl sm:w-14",
+                        "relative mx-1 h-12 w-12 cursor-pointer rounded-lg text-xl lg:rounded-l-none  ",
                         {
                             "bg-background-700":
                                 cursorFn === CursorFn.Default || cursorFn === CursorFn.Move,
@@ -81,7 +81,7 @@ export default function ToolbarUpper() {
                 <button
                     data-testid="drag-cursor"
                     className={clsx(
-                        "relative mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
+                        "relative mx-1 h-12 w-12 cursor-pointer rounded-lg text-xl  ",
                         {
                             "bg-background-700": cursorFn === CursorFn.Drag,
                         },
@@ -103,7 +103,7 @@ export default function ToolbarUpper() {
                     data-testid="freedraw-cursor"
                     onClick={() => setCursorFn(CursorFn.FreeDraw)}
                     className={clsx(
-                        "relative  mx-1  h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
+                        "relative mx-1 h-12 w-12 cursor-pointer rounded-lg text-xl  ",
                         {
                             "bg-background-700": cursorFn === CursorFn.FreeDraw,
                         },
@@ -124,7 +124,7 @@ export default function ToolbarUpper() {
                     data-testid="rect-cursor"
                     onClick={() => setCursorFn(CursorFn.Rect)}
                     className={clsx(
-                        "relative mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
+                        "relative mx-1 h-12 w-12 cursor-pointer rounded-lg text-xl  ",
                         {
                             "bg-background-700": cursorFn === CursorFn.Rect,
                         },
@@ -145,7 +145,7 @@ export default function ToolbarUpper() {
                     data-testid="line-cursor"
                     onClick={() => setCursorFn(CursorFn.Line)}
                     className={clsx(
-                        "relative mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
+                        "relative mx-1 h-12 w-12 cursor-pointer rounded-lg text-xl  ",
                         {
                             "bg-background-700": cursorFn === CursorFn.Line,
                         },
@@ -163,7 +163,7 @@ export default function ToolbarUpper() {
                     data-testid="text-cursor"
                     onClick={() => setCursorFn(CursorFn.Text)}
                     className={clsx(
-                        "relative mx-1 h-12 w-16 cursor-pointer rounded-2xl text-xl sm:w-14",
+                        "relative mx-1 h-12 w-12 cursor-pointer rounded-lg text-xl  ",
                         {
                             "bg-background-700": cursorFn === CursorFn.Text,
                         },
@@ -180,7 +180,7 @@ export default function ToolbarUpper() {
                     data-testid="erase-cursor"
                     onClick={() => setCursorFn(CursorFn.Erase)}
                     className={clsx(
-                        "relative mx-1 h-12 w-16 cursor-pointer rounded-2xl rounded-r-lg text-xl sm:w-14",
+                        "relative mx-1 h-12 w-12 cursor-pointer rounded-lg text-xl lg:rounded-r-none ",
                         {
                             "bg-background-700": cursorFn === CursorFn.Erase,
                         },

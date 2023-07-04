@@ -6,7 +6,7 @@ import {
     ZagyCanvasHandDrawnElement,
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
-    GlobalConfigOptions,
+    GlobalElementOptions,
     isRect,
     isLine,
     isText,
@@ -271,7 +271,7 @@ export function isEqualArray<T>(a1: T[], a2: T[]): boolean {
 }
 
 export type CommonConfigOptions = {
-    [k in keyof GlobalConfigOptions]?: GlobalConfigOptions[k];
+    [k in keyof GlobalElementOptions]?: GlobalElementOptions[k];
 };
 
 /**
