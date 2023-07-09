@@ -10,6 +10,7 @@ class SingleSelectAction {
         const { cursorFn, position, visibleElements, setSelectedElements } = useStore.getState();
         if (cursorFn !== CursorFn.Default && cursorFn !== CursorFn.Move) return;
         const el = getHitElement(visibleElements, ctx, coords, position);
+        console.log(el);
         if (el !== null) {
             setSelectedElements(() => [el]);
         } else {

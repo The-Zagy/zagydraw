@@ -15,6 +15,7 @@
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@testing-library/user-event": "^14.4.3",
     "@types/throttle-debounce": "^5.0.0",
     "clsx": "^1.2.1",
     "nanoid": "^4.0.2",
