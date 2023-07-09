@@ -9,6 +9,7 @@ import {
     LineOptions,
     ZagyCanvasHandDrawnElement,
     HanddrawnOptions,
+    FontTypeOptions,
 } from "types/general";
 import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
@@ -246,7 +247,8 @@ function textElementHelper(
     ctx: CanvasRenderingContext2D,
     text: string,
     startPos: Point,
-    fontSize: number
+    fontSize: number,
+    font: TextOptions["font"]
 ): { text: string[]; startPos: Point; endPos: Point } {
     const lines = text.split("\n");
     // text element width is the largest line width
@@ -258,7 +260,11 @@ function textElementHelper(
             largestLineIndex = i;
         }
     });
+
+    ctx.save();
+    ctx.font = `${fontSize}px ` + FontTypeOptions[font];
     const width = ctx.measureText(lines[largestLineIndex]).width;
+    ctx.restore();
     // note using font-size as line height
     // calc height = number of lines * lineHeight
     const height = lines.length * fontSize;
@@ -277,7 +283,13 @@ const generateTextElement = (
     options: Partial<TextOptions & { id: string }> = {}
 ): ZagyCanvasTextElement => {
     const normalizedOptions = normalizeTextOptions(options);
-    const norm = textElementHelper(ctx, text, startPos, normalizedOptions.fontSize);
+    const norm = textElementHelper(
+        ctx,
+        text,
+        startPos,
+        normalizedOptions.fontSize,
+        normalizedOptions.font
+    );
     const { x, y, endX, endY } = getCorrectCoordOrder(startPos, [norm.endPos[0], norm.endPos[1]]);
     return {
         id: options.id || nanoid(),
