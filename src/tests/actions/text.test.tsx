@@ -4,7 +4,6 @@ import App from "components/App";
 import { useStore } from "store";
 import { clickCursor, pointerDown, pointerUp } from "tests/testUtils";
 import { CursorFn, FontSize, FontTypeOptions, ZagyCanvasTextElement } from "types/general";
-import { vi } from "vitest";
 
 const initialStoreState = useStore.getState();
 describe("text", () => {
