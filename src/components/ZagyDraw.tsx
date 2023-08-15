@@ -14,10 +14,11 @@ import SingleSelectAction from "actions/singleSelect";
 import MultiSelectAction from "actions/multiselect";
 import TextAction from "actions/createText";
 import MoveElementAction from "actions/moveElement";
+import { normalizePos } from "utils";
 const { setZoomLevel, setDimensions, setIsMouseDown } = useStore.getState();
 
-const MAX_ZOOM = 96;
-const MIN_ZOOM = 24;
+const MAX_ZOOM = 5;
+const MIN_ZOOM = 0.1;
 
 function ZagyDraw() {
     const position = useStore((state) => state.position);
@@ -41,16 +42,35 @@ function ZagyDraw() {
     const isMouseDown = useStore((state) => state.isMouseDown);
 
     const canvasElements = useStore((state) => state.elements);
-
+    console.log(
+        "canvasElements",
+        canvasElements[0] && {
+            x: canvasElements[0].x,
+            y: canvasElements[0].y,
+            endX: canvasElements[0].endX,
+            endY: canvasElements[0].endY,
+        }
+    );
     const handleZoom = (zoomType: "in" | "out") => {
+        console.log("zooming", zoomLevel, zoomType);
         if (zoomType === "in") {
-            const currentZoom = zoomLevel + 12;
-            if (currentZoom > MAX_ZOOM) return;
+            const currentZoom =
+                zoomLevel < 1 ? +(zoomLevel + 0.1).toFixed(1) : +(zoomLevel * 1.1).toFixed(1);
+            if (currentZoom > MAX_ZOOM) {
+                if (zoomLevel === MAX_ZOOM) return;
+                setZoomLevel(MAX_ZOOM);
+                return;
+            }
             setZoomLevel(currentZoom);
             return;
         }
-        const currentZoom = zoomLevel - 12;
-        if (currentZoom <= MIN_ZOOM) return;
+        const currentZoom =
+            zoomLevel > 1 ? +(zoomLevel * 0.9).toFixed(1) : +(zoomLevel - 0.1).toFixed(1);
+        if (currentZoom <= MIN_ZOOM) {
+            if (zoomLevel === MIN_ZOOM) return;
+            setZoomLevel(MIN_ZOOM);
+            return;
+        }
         setZoomLevel(currentZoom);
     };
     const canvas = useRef<HTMLCanvasElement>(null);
@@ -139,7 +159,10 @@ function ZagyDraw() {
 
     const selectSingleElement = (e: PointerEvent) => {
         commandManager.executeCommand(
-            SingleSelectAction.inProgress([e.clientX, e.clientY], canvas.current)
+            SingleSelectAction.inProgress(
+                [e.clientX / zoomLevel, e.clientY / zoomLevel],
+                canvas.current
+            )
         );
     };
 
@@ -174,7 +197,9 @@ function ZagyDraw() {
             {
                 event: "pointerdown",
                 callback: (e) => {
-                    commandManager.executeCommand(DrawAction.start([e.clientX, e.clientY]));
+                    commandManager.executeCommand(
+                        DrawAction.start([e.clientX / zoomLevel, e.clientY / zoomLevel])
+                    );
                 },
                 options: true,
             },
@@ -182,7 +207,10 @@ function ZagyDraw() {
                 event: "pointermove",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        DrawAction.inProgress([e.clientX, e.clientY], canvas.current)
+                        DrawAction.inProgress(
+                            [e.clientX / zoomLevel, e.clientY / zoomLevel],
+                            canvas.current
+                        )
                     );
                 },
             },
@@ -201,7 +229,9 @@ function ZagyDraw() {
             {
                 event: "pointerdown",
                 callback: (e) => {
-                    commandManager.executeCommand(MultiSelectAction.start([e.clientX, e.clientY]));
+                    commandManager.executeCommand(
+                        MultiSelectAction.start([e.clientX / zoomLevel, e.clientY / zoomLevel])
+                    );
                 },
                 options: true,
             },
@@ -209,7 +239,10 @@ function ZagyDraw() {
                 event: "pointermove",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        MultiSelectAction.inProgress([e.clientX, e.clientY], canvas.current)
+                        MultiSelectAction.inProgress(
+                            [e.clientX / zoomLevel, e.clientY / zoomLevel],
+                            canvas.current
+                        )
                     );
                 },
             },
@@ -229,7 +262,10 @@ function ZagyDraw() {
                 event: "pointermove",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        DeleteAction.inProgress([e.clientX, e.clientY], canvas.current)
+                        DeleteAction.inProgress(
+                            [e.clientX / zoomLevel, e.clientY / zoomLevel],
+                            canvas.current
+                        )
                     );
                 },
             },
@@ -248,7 +284,9 @@ function ZagyDraw() {
             {
                 event: "pointerdown",
                 callback: (e) => {
-                    commandManager.executeCommand(TextAction.start([e.clientX, e.clientY]));
+                    commandManager.executeCommand(
+                        TextAction.start([e.clientX / zoomLevel, e.clientY / zoomLevel])
+                    );
                 },
                 options: true,
             },
@@ -270,7 +308,10 @@ function ZagyDraw() {
                 event: "pointerdown",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        MoveElementAction.start([e.clientX, e.clientY], canvas.current)
+                        MoveElementAction.start(
+                            [e.clientX / zoomLevel, e.clientY / zoomLevel],
+                            canvas.current
+                        )
                     );
                 },
                 options: true,
@@ -279,7 +320,10 @@ function ZagyDraw() {
                 event: "pointermove",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        MoveElementAction.inProgress([e.clientX, e.clientY], canvas.current)
+                        MoveElementAction.inProgress(
+                            [e.clientX / zoomLevel, e.clientY / zoomLevel],
+                            canvas.current
+                        )
                     );
                 },
                 options: true,
@@ -341,10 +385,26 @@ function ZagyDraw() {
                 onPointerUp={handlePointerUp}
                 data-testid="canvas"
             />
-            {/* <div className="fixed bottom-4 right-4 text-lg text-white">
+            <div className="absolute bottom-2 left-2 text-white">
+                {Number.parseInt(String(zoomLevel * 100))}%
+            </div>
+            <div className="fixed bottom-4 right-4 text-lg text-white">
                 <pre>{JSON.stringify(position)}</pre>
-                <pre>{JSON.stringify(normalizePos(position, mouseCoords.current))}</pre>
-            </div> */}
+                <pre>
+                    {JSON.stringify(
+                        normalizePos(position, [
+                            mouseCoords.current[0] / zoomLevel,
+                            mouseCoords.current[1] / zoomLevel,
+                        ])
+                    )}
+                </pre>
+                <pre>
+                    {JSON.stringify([
+                        mouseCoords.current[0] / zoomLevel,
+                        mouseCoords.current[1] / zoomLevel,
+                    ])}
+                </pre>
+            </div>
         </>
     );
 }

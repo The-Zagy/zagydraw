@@ -6,14 +6,16 @@ function drawGrid(
     width: number,
     height: number,
     ctx: CanvasRenderingContext2D,
+    zoom = 1,
     color = "#282828",
     cellSide = CELL_SIZE,
-    lineWidth = 1
+    lineWidth = 1.3
 ) {
+    cellSide *= zoom;
     const xStart = Math.floor(y) % cellSide;
     const yStart = Math.floor(x) % cellSide;
     ctx.strokeStyle = color;
-    ctx.lineWidth = lineWidth;
+    ctx.lineWidth = lineWidth * zoom;
     ctx.beginPath();
     for (let i = xStart; i < height; i += cellSide) {
         ctx.moveTo(0, i);

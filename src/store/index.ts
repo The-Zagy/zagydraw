@@ -63,6 +63,7 @@ type CanvasActions = {
     setPreviewElement: (el: CanvasState["previewElement"]) => void;
     setSelectedElements: (callback: (prev: ZagyCanvasElement[]) => ZagyCanvasElement[]) => void;
     setMultiSelectRect: (rect: CanvasState["multiSelectRect"]) => void;
+    getPosition: () => { x: number; y: number };
 };
 type ConfigStateActions = {
     [K in keyof ConfigState as `set${Capitalize<K & string>}`]: (value: ConfigState[K]) => void;
@@ -82,7 +83,7 @@ export const useStore = create<
 >()((set, get) => ({
     //state
     position: { x: 0, y: 0 },
-    zoomLevel: 48,
+    zoomLevel: 1,
     width: 400,
     height: 300,
     cursorFn: CursorFn.Drag,
@@ -97,6 +98,12 @@ export const useStore = create<
     isWriting: false,
     isToolbarElementConfigOpen: false,
     isMobile: false,
+    getPosition: () => {
+        return {
+            x: get().position.x / get().zoomLevel,
+            y: get().position.y / get().zoomLevel,
+        };
+    },
     setIsMobile: (isMobile) => {
         set({ isMobile });
     },
@@ -117,16 +124,25 @@ export const useStore = create<
     setPosition: (position) => {
         set({ position });
         //update visible elements
-        set(({ elements, position, width, height }) => ({
+        set(({ elements, width, height, zoomLevel }) => ({
             visibleElements: elements.filter((el) => {
+                const position = get().position;
                 return isElementVisible(el, [
                     [-position.x, -position.y],
-                    [-position.x + width, -position.y + height],
+                    [-position.x + width / zoomLevel, -position.y + height / zoomLevel],
                 ]);
             }),
         }));
     },
-    setZoomLevel: (zoomLevel) => set({ zoomLevel }),
+    setZoomLevel: (newZoomLevel) => {
+        set(() => {
+            //const delta = +(newZoomLevel - zoomLevel).toPrecision(1);
+
+            return {
+                zoomLevel: newZoomLevel,
+            };
+        });
+    },
     setDimensions: (width, height) => set({ width, height }),
     setElements: (callback) => {
         set((state) => ({ elements: callback(state.elements) }));

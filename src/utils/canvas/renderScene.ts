@@ -19,11 +19,13 @@ function renderScene(
         canvasState.position.y,
         canvasState.width,
         canvasState.height,
-        ctx
+        ctx,
+        canvasState.zoomLevel
     );
     ctx.save();
     ctx.translate(canvasState.position.x, canvasState.position.y);
-    const renderedElements: CanvasState["elements"] = [...canvasState.visibleElements];
+    ctx.scale(canvasState.zoomLevel, canvasState.zoomLevel);
+    const renderedElements: CanvasState["elements"] = [...canvasState.elements];
     if (canvasState.previewElement) {
         renderedElements.push(canvasState.previewElement);
     }

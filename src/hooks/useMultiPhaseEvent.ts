@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useStore } from "store";
 
 type MultiPhaseEventConstituent<K extends keyof HTMLElementEventMap> = {
     event: K;
@@ -35,6 +36,7 @@ class MultiphaseEvent<TEventTypes extends readonly (keyof HTMLElementEventMap)[]
         this.events = events;
         this.element = element;
         this.callbacks = [] as typeof this.callbacks;
+
         for (const event of events) {
             const { callback } = event;
             const myFunc = (e: Parameters<typeof callback>["0"]) => {
@@ -54,7 +56,6 @@ class MultiphaseEvent<TEventTypes extends readonly (keyof HTMLElementEventMap)[]
 
 const useMultiPhaseEvent = <TEventTypes extends readonly (keyof HTMLElementEventMap)[]>(
     name: string,
-
     events: [
         ...{
             [I in keyof TEventTypes]: MultiPhaseEventConstituent<TEventTypes[I]>;
@@ -64,12 +65,7 @@ const useMultiPhaseEvent = <TEventTypes extends readonly (keyof HTMLElementEvent
 ) => {
     useEffect(() => {
         if (!element) return;
-        const event = new MultiphaseEvent(
-            name,
-
-            events,
-            element
-        );
+        const event = new MultiphaseEvent(name, events, element);
         return () => {
             event.destory();
         };

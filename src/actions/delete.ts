@@ -10,7 +10,8 @@ class DeleteAction {
         if (!canvas) return;
         const { cursorFn, isMouseDown } = useStore.getState();
         if (!(cursorFn === CursorFn.Erase && isMouseDown)) return;
-        const { setElements, visibleElements, position } = useStore.getState();
+        const { setElements, visibleElements, getPosition } = useStore.getState();
+        const position = getPosition();
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
         const el = getHitElement(visibleElements, ctx, coords, position);
