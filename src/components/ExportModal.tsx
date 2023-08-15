@@ -1,7 +1,7 @@
 import { useStore } from "store/index";
 import React, { useEffect, useRef, useState } from "react";
 import { commandManager } from "actions/commandManager";
-import { ActionExportScene, ExportOpeions } from "actions/export";
+import { ActionExportScene, ExportOpeions, ExportTypes } from "actions/export";
 import { RxImage } from "react-icons/rx";
 import { BsDownload } from "react-icons/bs";
 import { FiCopy } from "react-icons/fi";
@@ -75,21 +75,33 @@ export function ExportModal() {
                     <div className="m-auto flex w-full flex-wrap justify-center gap-5">
                         {/* PNG */}
                         <button
-                            onClick={() => commandManager.executeCommand(new ActionExportScene())}
+                            onClick={() =>
+                                commandManager.executeCommand(
+                                    new ActionExportScene(ExportTypes.PNG)
+                                )
+                            }
                             className="bg-background-800 m-auto flex w-fit justify-between gap-4 rounded-lg p-4 text-white">
                             <BsDownload size={20} className="m-auto text-white" />
                             <span>PNG</span>
                         </button>
                         {/* SVG */}
                         <button
-                            onClick={() => commandManager.executeCommand(new ActionExportScene())}
+                            onClick={() =>
+                                commandManager.executeCommand(
+                                    new ActionExportScene(ExportTypes.SVG)
+                                )
+                            }
                             className="bg-background-800 m-auto flex w-fit justify-between gap-4 rounded-lg p-4 text-white">
                             <BsDownload size={20} className="m-auto text-white" />
                             <span>SVG</span>
                         </button>
                         {/* Clipboard */}
                         <button
-                            onClick={() => commandManager.executeCommand(new ActionExportScene())}
+                            onClick={() =>
+                                commandManager.executeCommand(
+                                    new ActionExportScene(ExportTypes.COPY)
+                                )
+                            }
                             className="bg-background-800 m-auto flex w-fit justify-between gap-4 rounded-lg p-4 text-white">
                             <FiCopy size={20} className="m-auto text-white" />
                             <span>Copy to Clipboard</span>

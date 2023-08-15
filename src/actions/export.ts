@@ -10,11 +10,25 @@ export type ExportOpeions = {
     background: boolean;
 };
 
+export const ExportTypes = {
+    PNG: 0,
+    SVG: 1,
+    COPY: 2,
+} as const;
+
+type ExportTypes = (typeof ExportTypes)[keyof typeof ExportTypes];
+
 /**
  * must call showPreview before you can download because showPreview is what set the canvas ref into the class
  */
 export class ActionExportScene extends Command {
     private static exportCanvas: HTMLCanvasElement | null | undefined;
+
+    private type: ExportTypes;
+    constructor(type: ExportTypes) {
+        super();
+        this.type = type;
+    }
 
     private static drawCanvas(elements: ZagyCanvasElement[], options: ExportOpeions) {
         if (!ActionExportScene.exportCanvas) return false;
@@ -54,9 +68,11 @@ export class ActionExportScene extends Command {
     }
 
     public execute() {
-        if (ActionExportScene.exportCanvas === null) return;
+        if (!ActionExportScene.exportCanvas) {
+            throw new Error("cannot download before showing preview");
+        }
 
-        if (ActionExportScene.exportCanvas) {
+        if (this.type === ExportTypes.PNG) {
             // Create a link to trigger the download
             const downloadLink = document.createElement("a");
             downloadLink.href = ActionExportScene.exportCanvas.toDataURL("image/png");
@@ -64,8 +80,23 @@ export class ActionExportScene extends Command {
 
             // Simulate a click event on the link to trigger the download
             downloadLink.click();
-        } else {
-            throw new Error("cannot download before showing");
+        } else if (this.type === ExportTypes.COPY) {
+            ActionExportScene.exportCanvas.toBlob(function (blob) {
+                if (blob) {
+                    navigator.clipboard
+                        .write([
+                            new ClipboardItem({
+                                [blob.type]: blob,
+                            }),
+                        ])
+                        .then(function () {
+                            console.log("Image copied to clipboard");
+                        })
+                        .catch(function (error) {
+                            console.error("Unable to copy image to clipboard", error);
+                        });
+                }
+            });
         }
 
         return;
