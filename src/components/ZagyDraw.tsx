@@ -27,6 +27,7 @@ function ZagyDraw() {
     const stroke = useStore((state) => state.stroke);
     const opacity = useStore((state) => state.opacity);
     const zoomLevel = useStore((state) => state.zoomLevel);
+    const getPosition = useStore((state) => state.getPosition);
     const width = useStore((state) => state.width);
     const height = useStore((state) => state.height);
     const cursorFn = useStore((state) => state.cursorFn);
@@ -42,15 +43,22 @@ function ZagyDraw() {
     const isMouseDown = useStore((state) => state.isMouseDown);
 
     const canvasElements = useStore((state) => state.elements);
-    console.log(
-        "canvasElements",
-        canvasElements[0] && {
-            x: canvasElements[0].x,
-            y: canvasElements[0].y,
-            endX: canvasElements[0].endX,
-            endY: canvasElements[0].endY,
-        }
-    );
+    // console.log(
+    //     "canvasElements",
+    //     canvasElements[0] && {
+    //         x: canvasElements[0].x,
+    //         y: canvasElements[0].y,
+    //         endX: canvasElements[0].endX,
+    //         endY: canvasElements[0].endY,
+    //     }
+    // );
+    // console.clear();
+    useEffect(() => {
+        console.log("canvasElements", canvasElements);
+    }, [canvasElements]);
+    useEffect(() => {
+        console.log("visibleElements", visibleElements);
+    }, [visibleElements.length]);
     const handleZoom = (zoomType: "in" | "out") => {
         console.log("zooming", zoomLevel, zoomType);
         if (zoomType === "in") {
@@ -390,9 +398,15 @@ function ZagyDraw() {
             </div>
             <div className="fixed bottom-4 right-4 text-lg text-white">
                 <pre>{JSON.stringify(position)}</pre>
+                <pre>{JSON.stringify(getPosition())}</pre>
                 <pre>
                     {JSON.stringify(
-                        normalizePos(position, [
+                        normalizePos(position, [mouseCoords.current[0], mouseCoords.current[1]])
+                    )}
+                </pre>
+                <pre>
+                    {JSON.stringify(
+                        normalizePos(getPosition(), [
                             mouseCoords.current[0] / zoomLevel,
                             mouseCoords.current[1] / zoomLevel,
                         ])

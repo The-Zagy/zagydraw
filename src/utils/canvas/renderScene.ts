@@ -25,7 +25,7 @@ function renderScene(
     ctx.save();
     ctx.translate(canvasState.position.x, canvasState.position.y);
     ctx.scale(canvasState.zoomLevel, canvasState.zoomLevel);
-    const renderedElements: CanvasState["elements"] = [...canvasState.elements];
+    const renderedElements: CanvasState["elements"] = [...canvasState.visibleElements];
     if (canvasState.previewElement) {
         renderedElements.push(canvasState.previewElement);
     }

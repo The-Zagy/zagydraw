@@ -124,13 +124,10 @@ export const useStore = create<
     setPosition: (position) => {
         set({ position });
         //update visible elements
-        set(({ elements, width, height, zoomLevel }) => ({
+        set(({ elements, width, height, zoomLevel, getPosition }) => ({
             visibleElements: elements.filter((el) => {
-                const position = get().position;
-                return isElementVisible(el, [
-                    [-position.x, -position.y],
-                    [-position.x + width / zoomLevel, -position.y + height / zoomLevel],
-                ]);
+                const position = getPosition();
+                return isElementVisible(el, [-position.x, -position.y], width, height, zoomLevel);
             }),
         }));
     },
@@ -143,15 +140,21 @@ export const useStore = create<
             };
         });
     },
-    setDimensions: (width, height) => set({ width, height }),
+    setDimensions: (width, height) => {
+        set({ width, height });
+        set(({ elements, width, height, zoomLevel, getPosition }) => ({
+            visibleElements: elements.filter((el) => {
+                const position = getPosition();
+                return isElementVisible(el, [-position.x, -position.y], width, height, zoomLevel);
+            }),
+        }));
+    },
     setElements: (callback) => {
         set((state) => ({ elements: callback(state.elements) }));
-        set(({ position, width, height, elements }) => ({
+        set(({ getPosition, width, height, elements, zoomLevel }) => ({
             visibleElements: elements.filter((el) => {
-                return isElementVisible(el, [
-                    [-position.x, -position.y],
-                    [-position.x + width, -position.y + height],
-                ]);
+                const position = getPosition();
+                return isElementVisible(el, [-position.x, -position.y], width, height, zoomLevel);
             }),
         }));
     },

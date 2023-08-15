@@ -44,7 +44,8 @@ export function normalizeToGrid(
     // for perfect square this would be the normalized y pos
     const rowNumber = Math.round((mousePosY - xStart) / 20);
     const rowPosition = xStart + rowNumber * 20;
-    return [columnPos - pos.x, rowPosition - pos.y];
+
+    return [Math.floor(columnPos - pos.x), Math.floor(rowPosition - pos.y)];
 }
 const distance = (p1: Point, p2: Point) => {
     return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2));
@@ -99,6 +100,7 @@ export function getHitElement(
 ): null | CanvasState["elements"][number] {
     //todo deal with stacking elements when stacking is implemented
     mousePos = [mousePos[0] - pos.x, mousePos[1] - pos.y];
+    console.log(mousePos);
     for (let i = 0; i < elements.length; i++) {
         if (elements[i].shape === "rectangle" || elements[i].shape === "text") {
             const { x, y, endX, endY } = elements[i] as ZagyCanvasRectElement;
@@ -199,7 +201,10 @@ export const isElementInRect = (element: ZagyCanvasElement, rect: ZagyCanvasRect
 
 export const isElementVisible = (
     element: ZagyCanvasElement,
-    rectCoords: [[x: number, y: number], [xEnd: number, yEnd: number]]
+    rectStart: [x: number, y: number],
+    width: number,
+    height: number,
+    zoom: number
 ) => {
     //the check not needed currently but maybe other shapes will be added in the future
     if (
@@ -209,7 +214,11 @@ export const isElementVisible = (
         element.shape === "handdrawn"
     ) {
         const { x, y, endX, endY } = element as ZagyCanvasRectElement;
-        const [[rectX, rectY], [rectEndX, rectEndY]] = rectCoords;
+        const [rectX, rectY] = rectStart;
+
+        const rectEndX = rectX + width / zoom;
+        const rectEndY = rectY + height / zoom;
+
         // if any of the element's corners is inside the rectangle that is the screen
         // also notice that we don't need to do the same calculations in the function pointInRectangle
         // because we know for sure that the screen isn't rotated
