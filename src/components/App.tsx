@@ -7,6 +7,7 @@ import ZagyDraw from "./ZagyDraw";
 import Undo from "./Undo";
 import ToolbarLower from "./ToolbarLower";
 import { ExportModal } from "./ExportModal";
+import { DropDown } from "./DropDown";
 
 export default function App() {
     useIsMobile();
@@ -20,6 +21,7 @@ export default function App() {
                 <ExportModal />
             </IconContext.Provider>
             <Undo />
+            <DropDown />
             <ZagyDraw />
         </div>
     );

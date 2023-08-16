@@ -15,6 +15,7 @@
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@headlessui/react": "^1.7.16",
     "@testing-library/user-event": "^14.4.3",
     "@types/throttle-debounce": "^5.0.0",
     "clsx": "^1.2.1",
