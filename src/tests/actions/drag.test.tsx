@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import App from "components/App";
-import { useStore } from "store";
-import { clickCursor, pointerDown, pointerMove, pointerUp } from "tests/testUtils";
-import { CursorFn } from "types/general";
+import App from "@/components/App";
+import { useStore } from "@/store";
+import { clickCursor, pointerDown, pointerMove, pointerUp } from "@/tests/testUtils";
+import { CursorFn } from "@/types/general";
 
 const initialStoreState = useStore.getState();
 describe("dragging", () => {

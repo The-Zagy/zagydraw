@@ -1,5 +1,18 @@
 import rough from "roughjs";
 
+import { nanoid } from "nanoid";
+import getStroke from "perfect-freehand";
+import { randomSeed } from "roughjs/bin/math";
+import { RoughGenerator } from "roughjs/bin/generator";
+import { CACHE_CANVAS_SIZE_THRESHOLD } from "@/constants/index";
+import { useStore } from "@/store";
+import {
+    Point,
+    getCorrectCoordOrder,
+    getGlobalMinMax,
+    getSvgPathFromStroke,
+    normalizeRectCoords,
+} from "@/utils";
 import {
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
@@ -10,20 +23,7 @@ import {
     ZagyCanvasHandDrawnElement,
     HanddrawnOptions,
     FontTypeOptions,
-} from "types/general";
-import { nanoid } from "nanoid";
-import getStroke from "perfect-freehand";
-import {
-    Point,
-    getCorrectCoordOrder,
-    getGlobalMinMax,
-    getSvgPathFromStroke,
-    normalizeRectCoords,
-} from "utils";
-import { useStore } from "store";
-import { randomSeed } from "roughjs/bin/math";
-import { RoughGenerator } from "roughjs/bin/generator";
-import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
+} from "@/types/general";
 
 const { getElementConfigState: getConfigState } = useStore.getState();
 function normalizeHanddrawnOptions(options: Partial<HanddrawnOptions>): HanddrawnOptions {

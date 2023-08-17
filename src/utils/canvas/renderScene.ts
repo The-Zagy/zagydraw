@@ -1,9 +1,9 @@
 import { RoughCanvas } from "roughjs/bin/canvas";
-import { CanvasState } from "store";
 import renderElements from "./renderElements";
 import drawGrid from "./renderGrid";
 
 import renderBoundingRect from "./renderBoundingRect";
+import { CanvasState } from "@/store";
 
 function renderScene(
     roughCanvas: RoughCanvas,

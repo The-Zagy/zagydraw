@@ -1,9 +1,9 @@
-import { commandManager } from "actions/commandManager";
 import { useMemo } from "react";
 import { IconContext } from "react-icons";
 import { BsFillPaletteFill } from "react-icons/bs";
 import { MdUndo } from "react-icons/md";
-import { useStore } from "store";
+import { commandManager } from "@/actions/commandManager";
+import { useStore } from "@/store";
 const { setIsToolbarElementConfigOpen } = useStore.getState();
 const ToolbarLower = () => {
     const selectedElements = useStore((state) => state.selectedElements);

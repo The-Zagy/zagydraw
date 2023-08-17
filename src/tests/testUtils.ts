@@ -1,6 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
-import { CursorFn, ZagyCanvasElement } from "types/general";
-import { Point } from "utils";
+import { CursorFn, ZagyCanvasElement } from "@/types/general";
+import { Point } from "@/utils";
 const cursorToTestId = {
     [CursorFn.Default]: "default-cursor",
     [CursorFn.Move]: "move-cursor",

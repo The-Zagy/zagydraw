@@ -1,8 +1,8 @@
-import { useStore } from "store";
-import { CursorFn, ZagyCanvasElement } from "types/general";
-import { Point, normalizePos } from "utils";
-import { generateTextElement } from "utils/canvas/generateElement";
 import { Command, UndoableCommand } from "./types";
+import { useStore } from "@/store";
+import { CursorFn, ZagyCanvasElement } from "@/types/general";
+import { Point, normalizePos } from "@/utils";
+import { generateTextElement } from "@/utils/canvas/generateElement";
 
 class TextAction {
     private static lastMouseDownPosition: Point = [0, 0];

@@ -1,8 +1,8 @@
 import { RoughGenerator } from "roughjs/bin/generator";
-import { useStore } from "store";
-import { CursorFn, ZagyCanvasRectElement } from "types/general";
-import { Point, isElementInRect, normalizePos } from "utils";
-import { generateSelectRectElement } from "utils/canvas/generateElement";
+import { useStore } from "@/store";
+import { CursorFn, ZagyCanvasRectElement } from "@/types/general";
+import { Point, isElementInRect, normalizePos } from "@/utils";
+import { generateSelectRectElement } from "@/utils/canvas/generateElement";
 
 class MultiSelectAction {
     private static lastMouseUpPosition: Point | null = [0, 0];

@@ -1,6 +1,5 @@
 import { IconContext } from "react-icons";
 
-import { useIsMobile } from "hooks";
 import ToolbarLeft from "./ToolbarElementConfig";
 import ToolbarUpper from "./ToolbarUpper";
 import ZagyDraw from "./ZagyDraw";
@@ -8,6 +7,7 @@ import Undo from "./Undo";
 import ToolbarLower from "./ToolbarLower";
 import { ExportModal } from "./ExportModal";
 import { DropDown } from "./DropDown";
+import { useIsMobile } from "@/hooks";
 
 export default function App() {
     useIsMobile();

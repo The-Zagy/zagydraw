@@ -1,12 +1,12 @@
 import { randomSeed } from "roughjs/bin/math";
+import { create } from "zustand";
 import {
     ZagyCanvasElement,
     CursorFn,
     GlobalElementOptions,
     ZagyCanvasRectElement,
-} from "types/general";
-import { isElementVisible } from "utils";
-import { create } from "zustand";
+} from "@/types/general";
+import { isElementVisible } from "@/utils";
 
 type ConfigState = Omit<GlobalElementOptions, "seed"> & {
     cursorFn: CursorFn;

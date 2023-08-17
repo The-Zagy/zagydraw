@@ -1,9 +1,9 @@
-import { useStore } from "store/index";
-import { getBoundingRect } from "utils";
 import rough from "roughjs";
-import renderElements from "utils/canvas/renderElements";
-import { type ZagyCanvasElement } from "types/general";
 import { Command } from "./types";
+import { useStore } from "@/store/index";
+import { getBoundingRect } from "@/utils";
+import renderElements from "@/utils/canvas/renderElements";
+import { type ZagyCanvasElement } from "@/types/general";
 
 export type ExportOpeions = {
     onlySelected: boolean;

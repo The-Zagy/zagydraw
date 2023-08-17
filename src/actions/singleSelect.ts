@@ -1,6 +1,6 @@
-import { useStore } from "store";
-import { CursorFn } from "types/general";
-import { Point, getHitElement } from "utils";
+import { useStore } from "@/store";
+import { CursorFn } from "@/types/general";
+import { Point, getHitElement } from "@/utils";
 
 class SingleSelectAction {
     private static _inProgress(coords: Point, canvas: HTMLCanvasElement | null) {

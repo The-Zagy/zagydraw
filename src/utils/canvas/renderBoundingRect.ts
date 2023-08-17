@@ -1,5 +1,5 @@
-import { ZagyCanvasElement } from "types/general";
-import { getBoundingRect } from "utils";
+import { ZagyCanvasElement } from "@/types/general";
+import { getBoundingRect } from "@/utils";
 
 export default function renderBoundingRect(
     elements: ZagyCanvasElement[],

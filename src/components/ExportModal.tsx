@@ -1,20 +1,20 @@
-import { useStore } from "store/index";
+import { Image } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { commandManager } from "actions/commandManager";
-import { ActionExportScene, ExportOpeions, ExportTypes } from "actions/export";
-import { RxImage } from "react-icons/rx";
 import { BsDownload } from "react-icons/bs";
 import { FiCopy } from "react-icons/fi";
-import { Modal } from "./Modal";
-import { Switch } from "./form/switch";
+// import { Switch } from "./form/switch";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { ActionExportScene, ExportOpeions, ExportTypes } from "@/actions/export";
+import { commandManager } from "@/actions/commandManager";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 export function ExportModal() {
-    const { selectedElements } = useStore.getState();
-    const dialogRef = useRef<HTMLDialogElement>(null);
     const canvas = useRef<HTMLCanvasElement>(null);
     const [exportOptions, setExportOptions] = useState<ExportOpeions>({
         background: true,
-        onlySelected: selectedElements.length > 0,
+        onlySelected: false,
     });
 
     useEffect(() => {
@@ -22,20 +22,23 @@ export function ExportModal() {
     }, [exportOptions]);
 
     return (
-        <Modal
-            buttonAttrs={{
-                className:
-                    "bg-primary-600 invisible fixed bottom-4 right-20 h-fit w-fit rounded-lg  p-2 md:visible",
-            }}
-            buttonChildren={<RxImage size={35} className="m-auto text-white" />}
-            dialogAttrs={{}}
-            runBeforeOpen={() => {
-                if (canvas.current) ActionExportScene.showPreview(canvas.current, exportOptions);
-            }}
-            dialogRef={dialogRef}>
-            <div className="flex  h-full w-full flex-wrap  justify-between gap-5 overflow-y-auto">
+        <Dialog
+            onOpenChange={(open) => {
+                // hack to get canvas ref after content load
+                setTimeout(() => {
+                    if (open && canvas.current) {
+                        ActionExportScene.showPreview(canvas.current, exportOptions);
+                    }
+                }, 0);
+            }}>
+            <DialogTrigger asChild>
+                <Button variant="secondary" size="icon" className="fixed bottom-4 right-20">
+                    <Image size={35} className="m-auto text-white" />
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="flex h-full w-full  cursor-auto flex-wrap justify-between gap-5  overflow-y-auto md:h-4/6   ">
                 {/* preview */}
-                <div className="previewExport  relative  h-full w-full rounded-xl border-2 border-gray-600  lg:w-3/6">
+                <div className="previewExport  bg-checkerboard relative  h-full w-full rounded-xl border-2 border-gray-600  lg:w-3/6">
                     <canvas
                         ref={canvas}
                         className="absolute left-0 top-0 h-full w-full touch-none object-contain"
@@ -46,28 +49,32 @@ export function ExportModal() {
                 <div className="exportSettings  flex h-2/3 w-full flex-col gap-7 md:h-full lg:w-2/5">
                     <h1 className="mb-4 line-clamp-3 py-3 text-4xl text-white">Export Image</h1>
                     <div className="flex w-full justify-between ">
-                        <label className="flex text-white">only selected</label>
+                        <Label htmlFor="exportSelected" className="text-xl text-white">
+                            only selected
+                        </Label>
                         <Switch
+                            id="exportSelected"
                             defaultChecked={exportOptions.onlySelected}
-                            onChange={() => {
+                            onCheckedChange={(checked) => {
+                                console.log("change");
                                 setExportOptions((prev) => ({
                                     ...prev,
-                                    onlySelected: !prev.onlySelected,
+                                    onlySelected: checked,
                                 }));
                             }}
                         />
                     </div>
                     <div className="flex w-full justify-between">
-                        <label htmlFor="exportBg" className=" text-white">
+                        <Label htmlFor="exportBg" className=" text-xl text-white">
                             Background
-                        </label>
+                        </Label>
                         <Switch
                             id="exportBg"
                             defaultChecked={exportOptions.background}
-                            onChange={() => {
+                            onCheckedChange={(checked) => {
                                 setExportOptions((prev) => ({
                                     ...prev,
-                                    background: !prev.background,
+                                    background: checked,
                                 }));
                             }}
                         />
@@ -84,8 +91,8 @@ export function ExportModal() {
                             <BsDownload size={20} className="m-auto text-white" />
                             <span>PNG</span>
                         </button>
-                        {/* SVG */}
-                        <button
+                        {/* TODO SVG */}
+                        {/* <button
                             onClick={() =>
                                 commandManager.executeCommand(
                                     new ActionExportScene(ExportTypes.SVG)
@@ -94,7 +101,7 @@ export function ExportModal() {
                             className="bg-background-800 m-auto flex w-fit justify-between gap-4 rounded-lg p-4 text-white">
                             <BsDownload size={20} className="m-auto text-white" />
                             <span>SVG</span>
-                        </button>
+                        </button> */}
                         {/* Clipboard */}
                         <button
                             onClick={() =>
@@ -108,7 +115,21 @@ export function ExportModal() {
                         </button>
                     </div>
                 </div>
-            </div>
-        </Modal>
+                {/* <DialogFooter>
+                    <Button type="submit">Save changes</Button>
+                </DialogFooter> */}
+            </DialogContent>
+        </Dialog>
+        // <Modal
+        //     buttonAttrs={{
+        //         className:
+        //             "bg-primary-600 invisible fixed bottom-4 right-20 h-fit w-fit rounded-lg  p-2 md:visible",
+        //     }}
+        //     buttonChildren={<RxImage size={35} className="m-auto text-white" />}
+        //     dialogAttrs={{}}
+        //     runBeforeOpen={() => {
+        //     }}
+        //     dialogRef={dialogRef}>
+        // </Modal>
     );
 }

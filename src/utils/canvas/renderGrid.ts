@@ -1,4 +1,4 @@
-import { CELL_SIZE } from "constants/index";
+import { CELL_SIZE } from "@/constants/index";
 
 function drawGrid(
     x: number,
