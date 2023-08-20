@@ -26,13 +26,14 @@ function renderScene(
     ctx.translate(canvasState.position.x, canvasState.position.y);
     ctx.scale(canvasState.zoomLevel, canvasState.zoomLevel);
     const renderedElements: CanvasState["elements"] = [...canvasState.visibleElements];
+
     if (canvasState.previewElement) {
         renderedElements.push(canvasState.previewElement);
     }
     if (canvasState.multiSelectRect) {
         renderedElements.push(canvasState.multiSelectRect);
     }
-    renderElements(renderedElements, roughCanvas, ctx);
+    renderElements(renderedElements, roughCanvas, ctx, canvasState.zoomLevel);
     renderBoundingRect(canvasState.selectedElements, ctx);
     ctx.restore();
 }

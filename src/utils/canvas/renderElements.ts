@@ -24,20 +24,24 @@ import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
 export function renderRoughElement(
     el: ZagyCanvasRectElement | ZagyCanvasLineElement,
     ctx: CanvasRenderingContext2D,
-    roughCanvas: RoughCanvas
+    roughCanvas: RoughCanvas,
+    zoom: number
 ) {
     if (el.cache) {
+        ctx.save();
+        ctx.scale(1 / zoom, 1 / zoom);
         ctx.drawImage(
             el.cache,
             0,
             0,
             el.cache.width,
             el.cache.height,
-            el.x - CACHE_CANVAS_SIZE_THRESHOLD,
-            el.y - CACHE_CANVAS_SIZE_THRESHOLD,
+            (el.x - CACHE_CANVAS_SIZE_THRESHOLD) * zoom,
+            (el.y - CACHE_CANVAS_SIZE_THRESHOLD) * zoom,
             el.cache.width,
             el.cache.height
         );
+        ctx.restore();
     } else {
         roughCanvas.draw(el.roughElement);
     }
@@ -53,18 +57,23 @@ function renderTextElement(el: ZagyCanvasTextElement, ctx: CanvasRenderingContex
     ctx.restore();
 }
 
-const renderFreeDrawElement = (el: ZagyCanvasHandDrawnElement, ctx: CanvasRenderingContext2D) => {
+const renderFreeDrawElement = (
+    el: ZagyCanvasHandDrawnElement,
+    ctx: CanvasRenderingContext2D,
+    zoom: number
+) => {
     ctx.save();
     ctx.fillStyle = "white";
     if (el.cache) {
+        ctx.scale(1 / zoom, 1 / zoom);
         ctx.drawImage(
             el.cache,
             0,
             0,
             el.cache.width,
             el.cache.height,
-            el.x - CACHE_CANVAS_SIZE_THRESHOLD / 2,
-            el.y - CACHE_CANVAS_SIZE_THRESHOLD / 2,
+            (el.x - CACHE_CANVAS_SIZE_THRESHOLD / 2) * zoom,
+            (el.y - CACHE_CANVAS_SIZE_THRESHOLD / 2) * zoom,
             el.cache.width,
             el.cache.height
         );
@@ -80,7 +89,8 @@ const renderFreeDrawElement = (el: ZagyCanvasHandDrawnElement, ctx: CanvasRender
 function renderElements<T extends ZagyCanvasElement>(
     elements: T[],
     roughCanvas: RoughCanvas,
-    ctx: CanvasRenderingContext2D
+    ctx: CanvasRenderingContext2D,
+    zoom: number
 ) {
     elements.forEach((el) => {
         ctx.save();
@@ -91,11 +101,11 @@ function renderElements<T extends ZagyCanvasElement>(
             opacity = el.options.opacity;
         }
         ctx.globalAlpha = opacity;
-        if (isRect(el) || isLine(el)) renderRoughElement(el, ctx, roughCanvas);
+        if (isRect(el) || isLine(el)) renderRoughElement(el, ctx, roughCanvas, zoom);
         else if (isText(el)) {
             renderTextElement(el, ctx);
         } else if (isHanddrawn(el)) {
-            renderFreeDrawElement(el, ctx);
+            renderFreeDrawElement(el, ctx, zoom);
         }
         ctx.restore();
     });

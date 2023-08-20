@@ -15,8 +15,20 @@ import MultiSelectAction from "actions/multiselect";
 import TextAction from "actions/createText";
 import MoveElementAction from "actions/moveElement";
 import { normalizePos } from "utils";
-const { setZoomLevel, setDimensions, setIsMouseDown } = useStore.getState();
+import { regenerateCacheElement } from "utils/canvas/generateElement";
+import { RoughGenerator } from "roughjs/bin/generator";
 
+const { setZoomLevel, setDimensions, setIsMouseDown, setElements } = useStore.getState();
+
+// const debouncedRegenerateCacheElements = debounce(
+//     100,
+//     (elements: readonly ZagyCanvasElement[], clampedZoom: number) => {
+//         setElements((elements) =>
+//             elements.map((e) => regenerateCacheElement(e, clampedZoom, roughGenerator))
+//         );
+//     }
+// );
+const roughGenerator = new RoughGenerator();
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.1;
 
@@ -59,27 +71,18 @@ function ZagyDraw() {
     useEffect(() => {
         console.log("visibleElements", visibleElements);
     }, [visibleElements.length]);
+
     const handleZoom = (zoomType: "in" | "out") => {
-        console.log("zooming", zoomLevel, zoomType);
-        if (zoomType === "in") {
-            const currentZoom =
-                zoomLevel < 1 ? +(zoomLevel + 0.1).toFixed(1) : +(zoomLevel * 1.1).toFixed(1);
-            if (currentZoom > MAX_ZOOM) {
-                if (zoomLevel === MAX_ZOOM) return;
-                setZoomLevel(MAX_ZOOM);
-                return;
-            }
-            setZoomLevel(currentZoom);
+        const zoomFactor = zoomType === "in" ? 1.1 : 0.9;
+        const currentZoom = +(zoomLevel * zoomFactor).toFixed(1);
+        const clampedZoom = Math.min(Math.max(currentZoom, MIN_ZOOM), MAX_ZOOM);
+        if (clampedZoom === zoomLevel) {
             return;
         }
-        const currentZoom =
-            zoomLevel > 1 ? +(zoomLevel * 0.9).toFixed(1) : +(zoomLevel - 0.1).toFixed(1);
-        if (currentZoom <= MIN_ZOOM) {
-            if (zoomLevel === MIN_ZOOM) return;
-            setZoomLevel(MIN_ZOOM);
-            return;
-        }
-        setZoomLevel(currentZoom);
+        setZoomLevel(clampedZoom);
+        setElements((elements) =>
+            elements.map((e) => regenerateCacheElement(e, clampedZoom, roughGenerator))
+        );
     };
     const canvas = useRef<HTMLCanvasElement>(null);
     const roughCanvas = useRef<RoughCanvas | null>(null);
