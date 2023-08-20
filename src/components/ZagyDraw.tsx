@@ -55,22 +55,6 @@ function ZagyDraw() {
     const isMouseDown = useStore((state) => state.isMouseDown);
 
     const canvasElements = useStore((state) => state.elements);
-    // console.log(
-    //     "canvasElements",
-    //     canvasElements[0] && {
-    //         x: canvasElements[0].x,
-    //         y: canvasElements[0].y,
-    //         endX: canvasElements[0].endX,
-    //         endY: canvasElements[0].endY,
-    //     }
-    // );
-    // console.clear();
-    useEffect(() => {
-        console.log("canvasElements", canvasElements);
-    }, [canvasElements]);
-    useEffect(() => {
-        console.log("visibleElements", visibleElements);
-    }, [visibleElements.length]);
 
     const handleZoom = (zoomType: "in" | "out") => {
         const zoomFactor = zoomType === "in" ? 1.1 : 0.9;
@@ -400,7 +384,7 @@ function ZagyDraw() {
                 {Number.parseInt(String(zoomLevel * 100))}%
             </div>
             <div className="fixed bottom-4 right-4 text-lg text-white">
-                <pre>{JSON.stringify(position)}</pre>
+                {/* <pre>{JSON.stringify(position)}</pre>
                 <pre>{JSON.stringify(getPosition())}</pre>
                 <pre>
                     {JSON.stringify(
@@ -420,7 +404,7 @@ function ZagyDraw() {
                         mouseCoords.current[0] / zoomLevel,
                         mouseCoords.current[1] / zoomLevel,
                     ])}
-                </pre>
+                </pre> */}
             </div>
         </>
     );
