@@ -214,15 +214,18 @@ const generateCacheLineElement = (
 ): ZagyCanvasLineElement => {
     const { minX: x, minY: y, maxX: endX, maxY: endY } = getGlobalMinMax([startPos, endPos]);
     const normalizedOptions = normalizeRectOptions(options);
-
-    const roughElement = generator.line(
-        ...[startPos[0] + CACHE_CANVAS_SIZE_THRESHOLD, startPos[1] + CACHE_CANVAS_SIZE_THRESHOLD],
-        ...[endPos[0] + CACHE_CANVAS_SIZE_THRESHOLD, endPos[1] + CACHE_CANVAS_SIZE_THRESHOLD],
-        {
-            roughness: 2,
-            ...normalizedOptions,
-        }
-    );
+    const tempStartPos: Point = [
+        startPos[0] + CACHE_CANVAS_SIZE_THRESHOLD,
+        startPos[1] + CACHE_CANVAS_SIZE_THRESHOLD,
+    ];
+    const tempEndPos: Point = [
+        endPos[0] + CACHE_CANVAS_SIZE_THRESHOLD,
+        endPos[1] + CACHE_CANVAS_SIZE_THRESHOLD,
+    ];
+    const roughElement = generator.line(...tempStartPos, ...tempEndPos, {
+        roughness: 2,
+        ...normalizedOptions,
+    });
     const cacheCanvas = document.createElement("canvas");
     // we have to add some threshold because roughjs rects have some offset
     cacheCanvas.width = endX - x + CACHE_CANVAS_SIZE_THRESHOLD * 4;
