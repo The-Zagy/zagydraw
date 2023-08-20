@@ -23,11 +23,11 @@ class TextAction {
         textAreaWrapper: HTMLDivElement | null,
         textArea: HTMLTextAreaElement | null
     ) {
-        const { cursorFn } = useStore.getState();
+        const { cursorFn, zoomLevel } = useStore.getState();
         if (!textAreaWrapper || !textArea || cursorFn !== CursorFn.Text) return;
 
-        textAreaWrapper.style.left = `${this.lastMouseDownPosition[0]}px`;
-        textAreaWrapper.style.top = `${this.lastMouseDownPosition[1]}px`;
+        textAreaWrapper.style.left = `${this.lastMouseDownPosition[0] * zoomLevel}px`;
+        textAreaWrapper.style.top = `${this.lastMouseDownPosition[1] * zoomLevel}px`;
         textArea.focus();
     }
     public static inProgress(...args: Parameters<typeof TextAction._inProgress>): Command {

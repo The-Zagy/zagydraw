@@ -1,4 +1,3 @@
-import { RoughGenerator } from "roughjs/bin/generator";
 import { randomSeed } from "roughjs/bin/math";
 import {
     ZagyCanvasElement,
@@ -7,7 +6,6 @@ import {
     ZagyCanvasRectElement,
 } from "types/general";
 import { isElementVisible } from "utils";
-import { regenerateCacheElement } from "utils/canvas/generateElement";
 import { create } from "zustand";
 
 type ConfigState = Omit<GlobalElementOptions, "seed"> & {
@@ -136,7 +134,7 @@ export const useStore = create<
     },
     setZoomLevel: (newZoomLevel) => {
         // zoom on the cursor
-        set(({ position }) => {
+        set(() => {
             return {
                 zoomLevel: newZoomLevel,
             };

@@ -14,7 +14,7 @@ import SingleSelectAction from "actions/singleSelect";
 import MultiSelectAction from "actions/multiselect";
 import TextAction from "actions/createText";
 import MoveElementAction from "actions/moveElement";
-import { normalizePos } from "utils";
+// import { normalizePos } from "utils";
 import { regenerateCacheElement } from "utils/canvas/generateElement";
 import { RoughGenerator } from "roughjs/bin/generator";
 
@@ -39,7 +39,7 @@ function ZagyDraw() {
     const stroke = useStore((state) => state.stroke);
     const opacity = useStore((state) => state.opacity);
     const zoomLevel = useStore((state) => state.zoomLevel);
-    const getPosition = useStore((state) => state.getPosition);
+    // const getPosition = useStore((state) => state.getPosition);
     const width = useStore((state) => state.width);
     const height = useStore((state) => state.height);
     const cursorFn = useStore((state) => state.cursorFn);
@@ -352,7 +352,7 @@ function ZagyDraw() {
                     data-replicated-value={currentText}
                     style={{
                         color: stroke,
-                        fontSize: fontSize + "px",
+                        fontSize: fontSize * zoomLevel + "px",
                         opacity,
                     }}>
                     <textarea
