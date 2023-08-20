@@ -14,6 +14,8 @@ import {
     isLine,
     isRect,
     isHanddrawn,
+    ZagyCanvasImageElement,
+    ImageOptions,
 } from "types/general";
 import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
@@ -322,6 +324,30 @@ const generateTextElement = (
     };
 };
 
+function generateImageElement(
+    blob: Blob,
+    startPos: [number, number],
+    endX = -1,
+    endY = -1,
+    options: Partial<ImageOptions & { id: string }> = {}
+): ZagyCanvasImageElement {
+    // TODO hand drawn options is the same as image options so i use it, but it's better to create a separate function so they won't be coupled together
+    const normalizedOptions = normalizeHanddrawnOptions(options);
+
+    return {
+        id: options.id || nanoid(),
+        shape: "image",
+        x: startPos[0],
+        y: startPos[1],
+        endX,
+        endY,
+        image: URL.createObjectURL(blob),
+        options: {
+            ...normalizedOptions,
+        },
+    };
+}
+
 const constructHandDrawnElementPath2D = (paths: Point[], options: HanddrawnOptions) => {
     const stroke = getStroke(paths, {
         size: options.strokeWidth + 2,
@@ -423,4 +449,5 @@ export {
     generateCachedHandDrawnElement,
     generateCacheLineElement,
     regenerateCacheElement,
+    generateImageElement,
 };

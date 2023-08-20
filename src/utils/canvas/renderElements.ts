@@ -11,6 +11,8 @@ import {
     isHanddrawn,
     ZagyCanvasRectElement,
     ZagyCanvasLineElement,
+    ZagyCanvasImageElement,
+    isImage,
 } from "types/general";
 
 import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
@@ -85,6 +87,31 @@ const renderFreeDrawElement = (
     ctx.restore();
 };
 
+function renderImageElement(
+    el: ZagyCanvasImageElement,
+    ctx: CanvasRenderingContext2D,
+    zoom: number
+) {
+    console.log("in final render");
+    ctx.save();
+    const img = new Image();
+    img.onload = () => {
+        // Draw the image onto the canvas
+        if (el.endX === -1) {
+            el.endX = el.x + (img.width <= 500 ? img.width : 500);
+        }
+        if (el.endY === -1) {
+            el.endY = el.y + (img.height <= 500 ? img.height : 500);
+        }
+
+        console.log("🪵 [renderElements.ts:102] ~ token ~ \x1b[0;32mel\x1b[0m = ", el);
+        ctx.drawImage(img, el.x, el.y, el.endX - el.x, el.endY - el.y);
+    };
+    img.src = el.image;
+    ctx.restore();
+    return;
+}
+
 // todo this function needs to take any element as argument and call different draw function for different elements
 function renderElements<T extends ZagyCanvasElement>(
     elements: T[],
@@ -93,6 +120,7 @@ function renderElements<T extends ZagyCanvasElement>(
     zoom: number
 ) {
     elements.forEach((el) => {
+        console.log("🪵 [renderElements.ts:123] ~ token ~ \x1b[0;32mel\x1b[0m = ", el);
         ctx.save();
         let opacity: number;
         if (el.willDelete) {
@@ -106,6 +134,8 @@ function renderElements<T extends ZagyCanvasElement>(
             renderTextElement(el, ctx);
         } else if (isHanddrawn(el)) {
             renderFreeDrawElement(el, ctx, zoom);
+        } else if (isImage(el)) {
+            renderImageElement(el, ctx, zoom);
         }
         ctx.restore();
     });

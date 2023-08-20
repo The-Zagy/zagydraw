@@ -17,6 +17,7 @@ import MoveElementAction from "actions/moveElement";
 // import { normalizePos } from "utils";
 import { regenerateCacheElement } from "utils/canvas/generateElement";
 import { RoughGenerator } from "roughjs/bin/generator";
+import { ActionImportElements } from "actions/importElements";
 
 const { setZoomLevel, setDimensions, setIsMouseDown, setElements } = useStore.getState();
 
@@ -163,6 +164,11 @@ function ZagyDraw() {
 
     useGlobalEvent("wheel", handleScroll);
     useGlobalEvent("resize", handleResize);
+    useGlobalEvent("paste", (event) => {
+        event.preventDefault();
+        if (!event.clipboardData) return;
+        commandManager.executeCommand(new ActionImportElements(event.clipboardData));
+    });
 
     useEvent("pointerdown", selectSingleElement, canvas.current);
     useMultiPhaseEvent(

@@ -102,7 +102,11 @@ export function getHitElement(
     mousePos = [mousePos[0] - pos.x, mousePos[1] - pos.y];
 
     for (let i = 0; i < elements.length; i++) {
-        if (elements[i].shape === "rectangle" || elements[i].shape === "text") {
+        if (
+            elements[i].shape === "rectangle" ||
+            elements[i].shape === "text" ||
+            elements[i].shape === "image"
+        ) {
             const { x, y, endX, endY } = elements[i] as ZagyCanvasRectElement;
             if (pointInRectangle([x, y], [endX, y], [endX, endY], [x, endY], mousePos)) {
                 return elements[i];
@@ -162,7 +166,8 @@ export function getBoundingRect(...elements: ZagyCanvasElement[]) {
             element.shape === "rectangle" ||
             element.shape === "line" ||
             element.shape === "text" ||
-            element.shape === "handdrawn"
+            element.shape === "handdrawn" ||
+            element.shape === "image"
         ) {
             const {
                 x: elementStartX,
@@ -211,7 +216,8 @@ export const isElementVisible = (
         element.shape === "rectangle" ||
         element.shape === "line" ||
         element.shape === "text" ||
-        element.shape === "handdrawn"
+        element.shape === "handdrawn" ||
+        element.shape === "image"
     ) {
         const { x, y, endX, endY } = element as ZagyCanvasRectElement;
         const [rectX, rectY] = rectStart;
