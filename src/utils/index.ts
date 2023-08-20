@@ -100,7 +100,7 @@ export function getHitElement(
 ): null | CanvasState["elements"][number] {
     //todo deal with stacking elements when stacking is implemented
     mousePos = [mousePos[0] - pos.x, mousePos[1] - pos.y];
-    console.log(mousePos);
+
     for (let i = 0; i < elements.length; i++) {
         if (elements[i].shape === "rectangle" || elements[i].shape === "text") {
             const { x, y, endX, endY } = elements[i] as ZagyCanvasRectElement;

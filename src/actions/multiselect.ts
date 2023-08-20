@@ -32,7 +32,6 @@ class MultiSelectAction {
         const { visibleElements, setSelectedElements, multiSelectRect, setMultiSelectRect } =
             useStore.getState();
         if (multiSelectRect !== null) {
-            console.log("multiSelectRect", multiSelectRect);
             const selected = visibleElements.filter((el) => isElementInRect(el, multiSelectRect));
             setSelectedElements(() => selected);
         }
