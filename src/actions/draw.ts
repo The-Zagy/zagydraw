@@ -25,7 +25,8 @@ class DrawAction {
     private static lastMouseDownPosition: Point = [0, 0];
     private static lastMouseUpPosition: Point = [0, 0];
     private static _start(coords: Point) {
-        const { cursorFn, position } = useStore.getState();
+        const { cursorFn, getPosition } = useStore.getState();
+        const position = getPosition();
         const startX = coords[0];
         const startY = coords[1];
         if (cursorFn === CursorFn.Rect) {
@@ -39,7 +40,8 @@ class DrawAction {
         }
     }
     private static _inProgress(coords: Point, canvas: HTMLCanvasElement | null) {
-        const { cursorFn, isMouseDown, position, setPreviewElement } = useStore.getState();
+        const { cursorFn, isMouseDown, getPosition, setPreviewElement } = useStore.getState();
+        const position = getPosition();
         if (isMouseDown && canvas) {
             // if (!roughCanvas.current) return;
             const [x, y] = coords;
@@ -102,7 +104,7 @@ class DrawAction {
             return null;
         return {
             execute: () => {
-                const { cursorFn, setPreviewElement } = useStore.getState();
+                const { cursorFn, setPreviewElement, zoomLevel } = useStore.getState();
                 setPreviewElement(null);
                 let el: ZagyCanvasElement | null = null;
                 if (cursorFn === CursorFn.Line) {
@@ -110,7 +112,7 @@ class DrawAction {
                         this.roughGenerator,
                         this.lastMouseDownPosition,
                         this.lastMouseUpPosition,
-
+                        zoomLevel,
                         { seed: this.currentSeed }
                     );
                     el = line;
@@ -120,7 +122,7 @@ class DrawAction {
                         this.roughGenerator,
                         this.lastMouseDownPosition,
                         this.lastMouseUpPosition,
-
+                        zoomLevel,
                         { seed: this.currentSeed }
                     );
                     if (rect.endX - rect.x < 10 || rect.endY - rect.y < 10) return;
@@ -129,7 +131,8 @@ class DrawAction {
                     this.currentSeed = randomSeed();
                 } else if (cursorFn === CursorFn.FreeDraw) {
                     const handDrawnElement = generateCachedHandDrawnElement(
-                        this.currentlyDrawnFreeHand
+                        this.currentlyDrawnFreeHand,
+                        zoomLevel
                     );
                     el = handDrawnElement;
                     this.currentlyDrawnFreeHand = [];

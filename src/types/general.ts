@@ -53,6 +53,7 @@ interface Position {
 interface CachableElement {
     cache: HTMLCanvasElement;
     cacheCtx: CanvasRenderingContext2D;
+    zoom: number;
 }
 
 interface ZagyCanvasElement extends Partial<CachableElement> {
@@ -119,6 +120,7 @@ function isText(el: ZagyCanvasElement): el is ZagyCanvasTextElement {
 function isHanddrawn(el: ZagyCanvasElement): el is ZagyCanvasHandDrawnElement {
     return el.shape === "handdrawn";
 }
+//function to check if elements extends CachableElement
 
 export type {
     ZagyCanvasElement,

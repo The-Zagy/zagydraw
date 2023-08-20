@@ -9,12 +9,14 @@ class MultiSelectAction {
     private static lastMouseDownPosition: Point | null = [0, 0];
     private static roughGenerator = new RoughGenerator();
     private static _start(coords: Point) {
-        const { position } = useStore.getState();
+        const { getPosition } = useStore.getState();
+        const position = getPosition();
         const norm = normalizePos(position, coords);
         this.lastMouseDownPosition = norm;
     }
     private static _inProgress(coords: Point, canvas: HTMLCanvasElement | null) {
-        const { isMouseDown, position, setMultiSelectRect } = useStore.getState();
+        const { isMouseDown, getPosition, setMultiSelectRect } = useStore.getState();
+        const position = getPosition();
         if (isMouseDown && canvas) {
             const norm = normalizePos(position, coords);
             this.lastMouseUpPosition = norm;

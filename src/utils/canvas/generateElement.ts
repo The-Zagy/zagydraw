@@ -10,6 +10,10 @@ import {
     ZagyCanvasHandDrawnElement,
     HanddrawnOptions,
     FontTypeOptions,
+    ZagyCanvasElement,
+    isLine,
+    isRect,
+    isHanddrawn,
 } from "types/general";
 import { nanoid } from "nanoid";
 import getStroke from "perfect-freehand";
@@ -89,6 +93,7 @@ const generateCacheRectElement = (
     generator: RoughGenerator,
     startPos: Point,
     endPos: Point,
+    zoom: number,
     options: Partial<RectOptions & { id: string }>
 ): ZagyCanvasRectElement => {
     const { x, y, endX, endY } = normalizeRectCoords(startPos, endPos);
@@ -108,8 +113,12 @@ const generateCacheRectElement = (
     // we have to add some threshold because roughjs rects have some offset
     cacheCanvas.width = endX - x + CACHE_CANVAS_SIZE_THRESHOLD * 4;
     cacheCanvas.height = endY - y + CACHE_CANVAS_SIZE_THRESHOLD * 4;
+    // we need to account for zooming
+    cacheCanvas.width *= zoom;
+    cacheCanvas.height *= zoom;
     const cacheCtx = cacheCanvas.getContext("2d");
     if (!cacheCtx) throw new Error("cacheCtx is null");
+    cacheCtx.scale(zoom, zoom);
     rough.canvas(cacheCanvas).draw(roughElement);
     return {
         roughElement,
@@ -118,6 +127,7 @@ const generateCacheRectElement = (
         },
         cache: cacheCanvas,
         cacheCtx,
+        zoom,
         id: options.id !== undefined ? options.id : nanoid(),
         x,
         y,
@@ -199,17 +209,20 @@ const generateCacheLineElement = (
     generator: RoughGenerator,
     startPos: Point,
     endPos: Point,
+    zoom: number,
     options: Partial<LineOptions & { id: string }>
 ): ZagyCanvasLineElement => {
     const { minX: x, minY: y, maxX: endX, maxY: endY } = getGlobalMinMax([startPos, endPos]);
     const normalizedOptions = normalizeRectOptions(options);
-
-    startPos = [
+    const tempStartPos: Point = [
         startPos[0] + CACHE_CANVAS_SIZE_THRESHOLD,
         startPos[1] + CACHE_CANVAS_SIZE_THRESHOLD,
     ];
-    endPos = [endPos[0] + CACHE_CANVAS_SIZE_THRESHOLD, endPos[1] + CACHE_CANVAS_SIZE_THRESHOLD];
-    const roughElement = generator.line(...startPos, ...endPos, {
+    const tempEndPos: Point = [
+        endPos[0] + CACHE_CANVAS_SIZE_THRESHOLD,
+        endPos[1] + CACHE_CANVAS_SIZE_THRESHOLD,
+    ];
+    const roughElement = generator.line(...tempStartPos, ...tempEndPos, {
         roughness: 2,
         ...normalizedOptions,
     });
@@ -217,11 +230,14 @@ const generateCacheLineElement = (
     // we have to add some threshold because roughjs rects have some offset
     cacheCanvas.width = endX - x + CACHE_CANVAS_SIZE_THRESHOLD * 4;
     cacheCanvas.height = endY - y + CACHE_CANVAS_SIZE_THRESHOLD * 4;
+    // we need to account for zooming
+    cacheCanvas.width *= zoom;
+    cacheCanvas.height *= zoom;
     const cacheCtx = cacheCanvas.getContext("2d");
     if (!cacheCtx) throw new Error("cacheCtx is null");
+    cacheCtx.scale(zoom, zoom);
     cacheCtx.translate(-x, -y);
     rough.canvas(cacheCanvas).draw(roughElement);
-
     return {
         roughElement,
         options: {
@@ -229,7 +245,7 @@ const generateCacheLineElement = (
         },
         cache: cacheCanvas,
         cacheCtx,
-
+        zoom,
         id: options.id !== undefined ? options.id : nanoid(),
         x,
         y,
@@ -347,15 +363,20 @@ export const generateHandDrawnElement = (
 };
 const generateCachedHandDrawnElement = (
     paths: Point[],
+    zoom: number,
     options: Partial<HanddrawnOptions> = {}
 ) => {
     const normalizedOptions = normalizeHanddrawnOptions(options);
     const el = generateHandDrawnElement(paths, options);
     const cacheCanvas = document.createElement("canvas");
-    cacheCanvas.width = el.endX - el.x + 20;
-    cacheCanvas.height = el.endY - el.y + 20;
+    cacheCanvas.width = el.endX - el.x + CACHE_CANVAS_SIZE_THRESHOLD;
+    cacheCanvas.height = el.endY - el.y + CACHE_CANVAS_SIZE_THRESHOLD;
+    // we need to account for zooming
+    cacheCanvas.width *= zoom;
+    cacheCanvas.height *= zoom;
     const cacheCtx = cacheCanvas.getContext("2d");
     if (!cacheCtx) throw new Error("cacheCtx is null");
+    cacheCtx.scale(zoom, zoom);
     cacheCtx.translate(
         -el.x + CACHE_CANVAS_SIZE_THRESHOLD / 2,
         -el.y + CACHE_CANVAS_SIZE_THRESHOLD / 2
@@ -366,7 +387,30 @@ const generateCachedHandDrawnElement = (
         ...el,
         cache: cacheCanvas,
         cacheCtx,
+        zoom,
     };
+};
+
+const regenerateCacheElement = (
+    el: ZagyCanvasElement,
+    newZoom: number,
+    generator: RoughGenerator
+): ZagyCanvasElement => {
+    if (isRect(el)) {
+        return generateCacheRectElement(
+            generator,
+            [el.x, el.y],
+            [el.endX, el.endY],
+            newZoom,
+            el.options
+        );
+    } else if (isLine(el)) {
+        return generateCacheLineElement(generator, el.point1, el.point2, newZoom, el.options);
+    } else if (isHanddrawn(el)) {
+        return generateCachedHandDrawnElement(el.paths, newZoom, el.options);
+    } else {
+        return el;
+    }
 };
 
 export {
@@ -378,4 +422,5 @@ export {
     generateTextElement,
     generateCachedHandDrawnElement,
     generateCacheLineElement,
+    regenerateCacheElement,
 };

@@ -14,10 +14,23 @@ import SingleSelectAction from "actions/singleSelect";
 import MultiSelectAction from "actions/multiselect";
 import TextAction from "actions/createText";
 import MoveElementAction from "actions/moveElement";
-const { setZoomLevel, setDimensions, setIsMouseDown } = useStore.getState();
+// import { normalizePos } from "utils";
+import { regenerateCacheElement } from "utils/canvas/generateElement";
+import { RoughGenerator } from "roughjs/bin/generator";
 
-const MAX_ZOOM = 96;
-const MIN_ZOOM = 24;
+const { setZoomLevel, setDimensions, setIsMouseDown, setElements } = useStore.getState();
+
+// const debouncedRegenerateCacheElements = debounce(
+//     100,
+//     (elements: readonly ZagyCanvasElement[], clampedZoom: number) => {
+//         setElements((elements) =>
+//             elements.map((e) => regenerateCacheElement(e, clampedZoom, roughGenerator))
+//         );
+//     }
+// );
+const roughGenerator = new RoughGenerator();
+const MAX_ZOOM = 5;
+const MIN_ZOOM = 0.1;
 
 function ZagyDraw() {
     const position = useStore((state) => state.position);
@@ -26,6 +39,7 @@ function ZagyDraw() {
     const stroke = useStore((state) => state.stroke);
     const opacity = useStore((state) => state.opacity);
     const zoomLevel = useStore((state) => state.zoomLevel);
+    // const getPosition = useStore((state) => state.getPosition);
     const width = useStore((state) => state.width);
     const height = useStore((state) => state.height);
     const cursorFn = useStore((state) => state.cursorFn);
@@ -43,15 +57,16 @@ function ZagyDraw() {
     const canvasElements = useStore((state) => state.elements);
 
     const handleZoom = (zoomType: "in" | "out") => {
-        if (zoomType === "in") {
-            const currentZoom = zoomLevel + 12;
-            if (currentZoom > MAX_ZOOM) return;
-            setZoomLevel(currentZoom);
+        const zoomFactor = zoomType === "in" ? 1.1 : 0.9;
+        const currentZoom = +(zoomLevel * zoomFactor).toFixed(1);
+        const clampedZoom = Math.min(Math.max(currentZoom, MIN_ZOOM), MAX_ZOOM);
+        if (clampedZoom === zoomLevel) {
             return;
         }
-        const currentZoom = zoomLevel - 12;
-        if (currentZoom <= MIN_ZOOM) return;
-        setZoomLevel(currentZoom);
+        setZoomLevel(clampedZoom);
+        setElements((elements) =>
+            elements.map((e) => regenerateCacheElement(e, clampedZoom, roughGenerator))
+        );
     };
     const canvas = useRef<HTMLCanvasElement>(null);
     const roughCanvas = useRef<RoughCanvas | null>(null);
@@ -139,7 +154,10 @@ function ZagyDraw() {
 
     const selectSingleElement = (e: PointerEvent) => {
         commandManager.executeCommand(
-            SingleSelectAction.inProgress([e.clientX, e.clientY], canvas.current)
+            SingleSelectAction.inProgress(
+                [e.clientX / zoomLevel, e.clientY / zoomLevel],
+                canvas.current
+            )
         );
     };
 
@@ -174,7 +192,9 @@ function ZagyDraw() {
             {
                 event: "pointerdown",
                 callback: (e) => {
-                    commandManager.executeCommand(DrawAction.start([e.clientX, e.clientY]));
+                    commandManager.executeCommand(
+                        DrawAction.start([e.clientX / zoomLevel, e.clientY / zoomLevel])
+                    );
                 },
                 options: true,
             },
@@ -182,7 +202,10 @@ function ZagyDraw() {
                 event: "pointermove",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        DrawAction.inProgress([e.clientX, e.clientY], canvas.current)
+                        DrawAction.inProgress(
+                            [e.clientX / zoomLevel, e.clientY / zoomLevel],
+                            canvas.current
+                        )
                     );
                 },
             },
@@ -201,7 +224,9 @@ function ZagyDraw() {
             {
                 event: "pointerdown",
                 callback: (e) => {
-                    commandManager.executeCommand(MultiSelectAction.start([e.clientX, e.clientY]));
+                    commandManager.executeCommand(
+                        MultiSelectAction.start([e.clientX / zoomLevel, e.clientY / zoomLevel])
+                    );
                 },
                 options: true,
             },
@@ -209,7 +234,10 @@ function ZagyDraw() {
                 event: "pointermove",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        MultiSelectAction.inProgress([e.clientX, e.clientY], canvas.current)
+                        MultiSelectAction.inProgress(
+                            [e.clientX / zoomLevel, e.clientY / zoomLevel],
+                            canvas.current
+                        )
                     );
                 },
             },
@@ -229,7 +257,10 @@ function ZagyDraw() {
                 event: "pointermove",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        DeleteAction.inProgress([e.clientX, e.clientY], canvas.current)
+                        DeleteAction.inProgress(
+                            [e.clientX / zoomLevel, e.clientY / zoomLevel],
+                            canvas.current
+                        )
                     );
                 },
             },
@@ -248,7 +279,9 @@ function ZagyDraw() {
             {
                 event: "pointerdown",
                 callback: (e) => {
-                    commandManager.executeCommand(TextAction.start([e.clientX, e.clientY]));
+                    commandManager.executeCommand(
+                        TextAction.start([e.clientX / zoomLevel, e.clientY / zoomLevel])
+                    );
                 },
                 options: true,
             },
@@ -270,7 +303,10 @@ function ZagyDraw() {
                 event: "pointerdown",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        MoveElementAction.start([e.clientX, e.clientY], canvas.current)
+                        MoveElementAction.start(
+                            [e.clientX / zoomLevel, e.clientY / zoomLevel],
+                            canvas.current
+                        )
                     );
                 },
                 options: true,
@@ -279,7 +315,10 @@ function ZagyDraw() {
                 event: "pointermove",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        MoveElementAction.inProgress([e.clientX, e.clientY], canvas.current)
+                        MoveElementAction.inProgress(
+                            [e.clientX / zoomLevel, e.clientY / zoomLevel],
+                            canvas.current
+                        )
                     );
                 },
                 options: true,
@@ -313,7 +352,7 @@ function ZagyDraw() {
                     data-replicated-value={currentText}
                     style={{
                         color: stroke,
-                        fontSize: fontSize + "px",
+                        fontSize: fontSize * zoomLevel + "px",
                         opacity,
                     }}>
                     <textarea
@@ -341,10 +380,32 @@ function ZagyDraw() {
                 onPointerUp={handlePointerUp}
                 data-testid="canvas"
             />
-            {/* <div className="fixed bottom-4 right-4 text-lg text-white">
-                <pre>{JSON.stringify(position)}</pre>
-                <pre>{JSON.stringify(normalizePos(position, mouseCoords.current))}</pre>
-            </div> */}
+            <div className="absolute bottom-2 left-2 text-white">
+                {Number.parseInt(String(zoomLevel * 100))}%
+            </div>
+            <div className="fixed bottom-4 right-4 text-lg text-white">
+                {/* <pre>{JSON.stringify(position)}</pre>
+                <pre>{JSON.stringify(getPosition())}</pre>
+                <pre>
+                    {JSON.stringify(
+                        normalizePos(position, [mouseCoords.current[0], mouseCoords.current[1]])
+                    )}
+                </pre>
+                <pre>
+                    {JSON.stringify(
+                        normalizePos(getPosition(), [
+                            mouseCoords.current[0] / zoomLevel,
+                            mouseCoords.current[1] / zoomLevel,
+                        ])
+                    )}
+                </pre>
+                <pre>
+                    {JSON.stringify([
+                        mouseCoords.current[0] / zoomLevel,
+                        mouseCoords.current[1] / zoomLevel,
+                    ])}
+                </pre> */}
+            </div>
         </>
     );
 }

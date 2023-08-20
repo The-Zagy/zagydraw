@@ -148,9 +148,10 @@ const {
 export default function ToolbarLeft() {
     const [font, fontSize] = useStore((state) => [state.font, state.fontSize]);
     const selectedElements = useStore((state) => state.selectedElements);
-    const [isMobile, toolbarElementConfigOpen] = useStore((state) => [
+    const [isMobile, toolbarElementConfigOpen, zoom] = useStore((state) => [
         state.isMobile,
         state.isToolbarElementConfigOpen,
+        state.zoomLevel,
     ]);
 
     const ctx = useMemo(() => {
@@ -196,7 +197,7 @@ export default function ToolbarLeft() {
         selectedElements.forEach((el) => {
             if (isRect(el)) {
                 els.push(
-                    generateCacheRectElement(gen, [el.x, el.y], [el.endX, el.endY], {
+                    generateCacheRectElement(gen, [el.x, el.y], [el.endX, el.endY], zoom, {
                         ...el.options,
                         [k]: value,
                         id: el.id,
@@ -204,7 +205,7 @@ export default function ToolbarLeft() {
                 );
             } else if (isLine(el)) {
                 els.push(
-                    generateCacheLineElement(gen, [el.x, el.y], [el.endX, el.endY], {
+                    generateCacheLineElement(gen, [el.x, el.y], [el.endX, el.endY], zoom, {
                         ...el.options,
                         id: el.id,
                         [k]: value,
@@ -218,7 +219,9 @@ export default function ToolbarLeft() {
                     })
                 );
             } else if (isHanddrawn(el)) {
-                els.push(generateCachedHandDrawnElement(el.paths, { ...el.options, [k]: value }));
+                els.push(
+                    generateCachedHandDrawnElement(el.paths, zoom, { ...el.options, [k]: value })
+                );
             }
         });
         // change global config to new options

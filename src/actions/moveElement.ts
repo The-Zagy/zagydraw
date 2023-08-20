@@ -13,7 +13,8 @@ class MoveElementAction {
     private static isDragging = false;
     private static _start(pointerCoords: Point, ctx: CanvasRenderingContext2D) {
         this.lastMouseDownPosition = pointerCoords;
-        const { position, visibleElements } = useStore.getState();
+        const { getPosition, visibleElements } = useStore.getState();
+        const position = getPosition();
         const hitElement = getHitElement(visibleElements, ctx, pointerCoords, position);
         this.hitElement = hitElement;
         if (!hitElement) return;
@@ -39,7 +40,8 @@ class MoveElementAction {
         const { setCursorFn, isMouseDown } = useStore.getState();
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        const { position, setElements } = useStore.getState();
+        const { getPosition, setElements } = useStore.getState();
+        const position = getPosition();
         if (!this.isDragging) {
             if (this.hitElement !== null) {
                 setCursorFn(CursorFn.Move);
