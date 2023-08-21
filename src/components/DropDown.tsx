@@ -1,5 +1,6 @@
 import { Image, Trash2, Github, Keyboard, Menu } from "lucide-react";
 
+import { ModeToggle } from "./mode-toggle";
 import { commandManager } from "@/actions/commandManager";
 import { ActionClearCanvas } from "@/actions/resetCanvas";
 
@@ -36,10 +37,9 @@ function ResetCanvasAlert() {
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete your account and
-                        remove your data from our servers.
+                        This will delete all content from the canvas
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -69,10 +69,10 @@ export function DropDown() {
                          * check @url https://github.com/radix-ui/primitives/issues/1836
                          * to solve open modal in menu
                          */}
-                        <DropdownMenuItem>
+                        {/* <DropdownMenuItem>
                             <Image className="mr-2 h-4 w-4" />
                             <span>Export Image</span>
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                         <ResetCanvasAlert />
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
@@ -85,12 +85,14 @@ export function DropDown() {
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
-                        <a
-                            className={buttonVariants({ variant: "link" })}
-                            href="https://github.com/The-Zagy/zagydraw">
+                        <a className="flex" href="https://github.com/The-Zagy/zagydraw">
                             <Github className="mr-2 h-4 w-4" />
                             <span>GitHub</span>
                         </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                        <ModeToggle />
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
