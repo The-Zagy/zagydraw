@@ -3,6 +3,8 @@ import rough from "roughjs";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import clsx from "clsx";
 import { RoughGenerator } from "roughjs/bin/generator";
+import { Minus, Plus } from "lucide-react";
+import { Button } from "./ui/button";
 import { useCursor, useEvent, useGlobalEvent, useMultiPhaseEvent, useRenderScene } from "@/hooks";
 import { commandManager } from "@/actions/commandManager";
 
@@ -380,8 +382,33 @@ function ZagyDraw() {
                 onPointerUp={handlePointerUp}
                 data-testid="canvas"
             />
-            <div className="absolute bottom-2 left-2 text-white">
-                {Number.parseInt(String(zoomLevel * 100))}%
+            <div className="absolute bottom-2 left-2 flex">
+                <Button
+                    size={"icon"}
+                    variant={"outline"}
+                    className="rounded-r-none"
+                    onClick={() => {
+                        // TODO make setZoom take callback
+                        setZoomLevel(zoomLevel - 0.1);
+                    }}>
+                    <Minus />
+                </Button>
+                <Button
+                    variant={"outline"}
+                    onClick={() => setZoomLevel(1)}
+                    className="rounded-none border-x border-x-gray-500">
+                    {Number.parseInt(String(zoomLevel * 100))}%
+                </Button>
+                <Button
+                    size={"icon"}
+                    variant={"outline"}
+                    className="rounded-l-none"
+                    onClick={() => {
+                        // TODO make setZoom take callback
+                        setZoomLevel(zoomLevel + 0.1);
+                    }}>
+                    <Plus />
+                </Button>
             </div>
             <div className="fixed bottom-4 right-4 text-lg text-white">
                 {/* <pre>{JSON.stringify(position)}</pre>
