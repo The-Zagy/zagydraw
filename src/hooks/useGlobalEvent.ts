@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import isClient from "utils/isClient";
+import isClient from "@/utils/isClient";
 
 export function useGlobalEvent<K extends keyof WindowEventMap>(
     event: K,

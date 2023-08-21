@@ -1,9 +1,9 @@
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import App from "components/App";
-import { useStore } from "store";
-import { clickCursor, pointerDown, pointerUp } from "tests/testUtils";
-import { CursorFn, FontSize, FontTypeOptions, ZagyCanvasTextElement } from "types/general";
+import App from "@/components/App";
+import { useStore } from "@/store";
+import { clickCursor, pointerDown, pointerUp } from "@/tests/testUtils";
+import { CursorFn, FontSize, FontTypeOptions, ZagyCanvasTextElement } from "@/types/general";
 
 const initialStoreState = useStore.getState();
 describe("text", () => {

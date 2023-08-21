@@ -1,6 +1,6 @@
-import { commandManager } from "actions/commandManager";
-import useKeyboardShortcut from "hooks/useShortcut";
 import { MdUndo } from "react-icons/md";
+import { commandManager } from "@/actions/commandManager";
+import useKeyboardShortcut from "@/hooks/useShortcut";
 export default function Undo() {
     useKeyboardShortcut(
         {

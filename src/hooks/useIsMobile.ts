@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
-import { useStore } from "store";
 import { useGlobalEvent } from "./useGlobalEvent";
+import { useStore } from "@/store";
 const { setIsMobile } = useStore.getState();
 const useIsMobile = () => {
     const isMobileCallback = useCallback(() => {

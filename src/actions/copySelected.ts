@@ -1,5 +1,5 @@
-import { useStore } from "store/index";
 import { Command } from "./types";
+import { useStore } from "@/store/index";
 
 export class ActionCopySelected extends Command {
     public async execute() {

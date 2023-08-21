@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import renderScene from "utils/canvas/renderScene";
+import renderScene from "@/utils/canvas/renderScene";
 type Nullable<T> = { [P in keyof T]: T[P] | null };
 type Params = Nullable<Parameters<typeof renderScene>>;
 //useRenderScne params are the same as renderScene params

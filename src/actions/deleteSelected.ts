@@ -1,6 +1,6 @@
-import { ZagyCanvasElement } from "types/general";
-import { useStore } from "store/index";
 import { UndoableCommand } from "./types";
+import { ZagyCanvasElement } from "@/types/general";
+import { useStore } from "@/store/index";
 
 export class ActionDeleteSelected extends UndoableCommand {
     #selectedElements!: ZagyCanvasElement[];

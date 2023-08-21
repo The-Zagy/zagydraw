@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import App from "components/App";
-import { useStore } from "store";
-import { pointerDown, pointerUp } from "tests/testUtils";
+import App from "@/components/App";
+import { useStore } from "@/store";
+import { pointerDown, pointerUp } from "@/tests/testUtils";
 
 const initialStoreState = useStore.getState();
 describe("misc", () => {

@@ -2,21 +2,21 @@ import { PointerEventHandler, useEffect, useLayoutEffect, useRef } from "react";
 import rough from "roughjs";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import clsx from "clsx";
-import { commandManager } from "actions/commandManager";
-import { useCursor, useEvent, useGlobalEvent, useMultiPhaseEvent, useRenderScene } from "hooks";
-
-import { useStore } from "store";
-
-import DeleteAction from "actions/delete";
-import DrawAction from "actions/draw";
-import DragAction from "actions/drag";
-import SingleSelectAction from "actions/singleSelect";
-import MultiSelectAction from "actions/multiselect";
-import TextAction from "actions/createText";
-import MoveElementAction from "actions/moveElement";
-// import { normalizePos } from "utils";
-import { regenerateCacheElement } from "utils/canvas/generateElement";
 import { RoughGenerator } from "roughjs/bin/generator";
+import { useCursor, useEvent, useGlobalEvent, useMultiPhaseEvent, useRenderScene } from "@/hooks";
+import { commandManager } from "@/actions/commandManager";
+
+import { useStore } from "@/store";
+
+import DeleteAction from "@/actions/delete";
+import DrawAction from "@/actions/draw";
+import DragAction from "@/actions/drag";
+import SingleSelectAction from "@/actions/singleSelect";
+import MultiSelectAction from "@/actions/multiselect";
+import TextAction from "@/actions/createText";
+import MoveElementAction from "@/actions/moveElement";
+// import { normalizePos } from "utils";
+import { regenerateCacheElement } from "@/utils/canvas/generateElement";
 
 const { setZoomLevel, setDimensions, setIsMouseDown, setElements } = useStore.getState();
 

@@ -1,8 +1,8 @@
-import { useStore } from "store";
-import { CursorFn, ZagyCanvasElement, isHanddrawn, isLine } from "types/general";
-import { Point, getHitElement, normalizeToGrid } from "utils";
-import { constructHandDrawnElementPath2D } from "utils/canvas/generateElement";
 import { Command, UndoableCommand } from "./types";
+import { constructHandDrawnElementPath2D } from "@/utils/canvas/generateElement";
+import { useStore } from "@/store";
+import { CursorFn, ZagyCanvasElement, isHanddrawn, isLine } from "@/types/general";
+import { Point, getHitElement, normalizeToGrid } from "@/utils";
 
 class MoveElementAction {
     private static hitElement: ZagyCanvasElement | null = null;
