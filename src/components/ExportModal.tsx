@@ -29,8 +29,7 @@ export function ExportModal() {
             onShortcut: () => setIsOpen(true),
         },
         "ControlLeft",
-        // TODO shortcut don't work when there's "shift" in it
-        "Shift",
+        "ShiftLeft",
         "e"
     );
 
