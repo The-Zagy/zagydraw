@@ -92,8 +92,8 @@ const InputWithIcon: React.FC<Props> = (props) => {
                                 rounded-none rounded-r-lg border
                                 border-gray-300 bg-transparent p-2.5
                                 text-gray-900 outline-none  
-                                focus:border-blue-500 focus:border-l-gray-900 dark:border-gray-900 dark:bg-transparent
-                                dark:placeholder:text-gray-400
+                                focus:border-blue-500 focus:border-l-gray-900 dark:border-gray-900 dark:bg-transparent dark:placeholder:text-gray-400 dark:focus:border-blue-500
+                                dark:focus:border-l-gray-900
                                 "
                 />
             </div>
