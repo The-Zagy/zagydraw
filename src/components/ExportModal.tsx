@@ -27,6 +27,7 @@ export function ExportModal() {
     useKeyboardShortcut(
         {
             onShortcut: () => setIsOpen(true),
+            orderMatters: true,
         },
         "ControlLeft",
         "ShiftLeft",
