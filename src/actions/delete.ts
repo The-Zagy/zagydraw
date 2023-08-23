@@ -1,8 +1,8 @@
-import { ZagyCanvasElement } from "types/general";
-import { useStore } from "store/index";
-import { CursorFn } from "types/general";
-import { Point, getHitElement } from "utils";
 import { Command, UndoableCommand } from "./types";
+import { ZagyCanvasElement } from "@/types/general";
+import { useStore } from "@/store/index";
+import { CursorFn } from "@/types/general";
+import { Point, getHitElement } from "@/utils";
 
 class DeleteAction {
     private static willDelete = false;

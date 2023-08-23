@@ -1,6 +1,8 @@
 export type Point = [x: number, y: number];
 
-import type { CanvasState } from "store";
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+import type { CanvasState } from "@/store";
 import {
     ZagyCanvasElement,
     ZagyCanvasHandDrawnElement,
@@ -11,8 +13,11 @@ import {
     isLine,
     isText,
     isHanddrawn,
-} from "types/general";
+} from "@/types/general";
 
+export function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs));
+}
 export function classNames(...classes: unknown[]): string {
     return classes.filter(Boolean).join(" ");
 }

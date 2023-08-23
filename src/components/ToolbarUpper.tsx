@@ -3,9 +3,9 @@ import { BsSquare, BsSquareFill, BsPencil, BsPencilFill } from "react-icons/bs";
 import { RiCursorLine, RiCursorFill, RiText } from "react-icons/ri";
 import { CiEraser } from "react-icons/ci";
 import { MdOutlineHorizontalRule, MdOutlineBackHand, MdBackHand } from "react-icons/md";
-import { CursorFn } from "types/general";
-import { useStore } from "store";
-import useKeyboardShortcut from "hooks/useShortcut";
+import { CursorFn } from "@/types/general";
+import { useStore } from "@/store";
+import useKeyboardShortcut from "@/hooks/useShortcut";
 const { setCursorFn } = useStore.getState();
 export default function ToolbarUpper() {
     const cursorFn = useStore((state) => state.cursorFn);

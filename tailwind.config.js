@@ -1,12 +1,29 @@
 import TailwindScrollbar from "tailwind-scrollbar";
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    content: ["./src/**/*.{js,ts,jsx,tsx}"],
-
+    darkMode: ["class"],
+    content: [
+        "./pages/**/*.{ts,tsx}",
+        "./components/**/*.{ts,tsx}",
+        "./app/**/*.{ts,tsx}",
+        "./src/**/*.{ts,tsx}",
+    ],
     theme: {
+        container: {
+            center: true,
+            padding: "2rem",
+            screens: {
+                "2xl": "1400px",
+            },
+        },
         extend: {
             colors: {
+                border: "hsl(var(--border))",
+                input: "hsl(var(--input))",
+                ring: "hsl(var(--ring))",
                 background: {
+                    default: "hsl(var(--background))",
                     400: "#af7ac5",
                     500: "#9b59b6",
                     600: "#884ea0",
@@ -14,7 +31,10 @@ module.exports = {
                     800: "#633974",
                     900: "#512e5f",
                 },
+                foreground: "hsl(var(--foreground))",
                 primary: {
+                    DEFAULT: "hsl(var(--primary))",
+                    foreground: "hsl(var(--primary-foreground))",
                     50: "#f4f4f4",
                     100: "#e8e8e8",
                     200: "#c6c6c6",
@@ -37,6 +57,40 @@ module.exports = {
                     700: "#1f0d21",
                     800: "#190a1a",
                     900: "#140816",
+                },
+                secondary: {
+                    DEFAULT: "hsl(var(--secondary))",
+                    foreground: "hsl(var(--secondary-foreground))",
+                    50: "#fef2ff",
+                    100: "#fde6ff",
+                    200: "#fbbfff",
+                    300: "#f899ff",
+                    400: "#f34dff",
+                    500: "#ee00ff",
+                    600: "#d600e6",
+                    700: "#b300bf",
+                    800: "#8f0099",
+                    900: "#75007d",
+                },
+                destructive: {
+                    DEFAULT: "hsl(var(--destructive))",
+                    foreground: "hsl(var(--destructive-foreground))",
+                },
+                muted: {
+                    DEFAULT: "hsl(var(--muted))",
+                    foreground: "hsl(var(--muted-foreground))",
+                },
+                accent: {
+                    DEFAULT: "hsl(var(--accent))",
+                    foreground: "hsl(var(--accent-foreground))",
+                },
+                popover: {
+                    DEFAULT: "hsl(var(--popover))",
+                    foreground: "hsl(var(--popover-foreground))",
+                },
+                card: {
+                    DEFAULT: "hsl(var(--card))",
+                    foreground: "hsl(var(--card-foreground))",
                 },
                 gray: {
                     50: "#fafafa",
@@ -62,18 +116,6 @@ module.exports = {
                     800: "#7a0099",
                     900: "#64007d",
                 },
-                secondary: {
-                    50: "#fef2ff",
-                    100: "#fde6ff",
-                    200: "#fbbfff",
-                    300: "#f899ff",
-                    400: "#f34dff",
-                    500: "#ee00ff",
-                    600: "#d600e6",
-                    700: "#b300bf",
-                    800: "#8f0099",
-                    900: "#75007d",
-                },
                 text: {
                     500: "#ffffff",
                     600: "#e6e6e6",
@@ -82,7 +124,26 @@ module.exports = {
                     900: "#7d7d7d",
                 },
             },
+            borderRadius: {
+                lg: "var(--radius)",
+                md: "calc(var(--radius) - 2px)",
+                sm: "calc(var(--radius) - 4px)",
+            },
+            keyframes: {
+                "accordion-down": {
+                    from: { height: 0 },
+                    to: { height: "var(--radix-accordion-content-height)" },
+                },
+                "accordion-up": {
+                    from: { height: "var(--radix-accordion-content-height)" },
+                    to: { height: 0 },
+                },
+            },
+            animation: {
+                "accordion-down": "accordion-down 0.2s ease-out",
+                "accordion-up": "accordion-up 0.2s ease-out",
+            },
         },
     },
-    plugins: [TailwindScrollbar({ nocompatible: true })],
+    plugins: [TailwindScrollbar({ nocompatible: true }), require("tailwindcss-animate")],
 };

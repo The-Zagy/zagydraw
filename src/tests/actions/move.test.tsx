@@ -1,9 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import App from "components/App";
-import { useStore } from "store";
-import { Point } from "utils";
 import { act } from "@testing-library/react";
-import { CursorFn } from "types/general";
 import {
     clickCursor,
     clickUndo,
@@ -12,6 +8,10 @@ import {
     pointerMove,
     pointerUp,
 } from "../testUtils";
+import { CursorFn } from "@/types/general";
+import App from "@/components/App";
+import { useStore } from "@/store";
+import { Point } from "@/utils";
 
 const initialStoreState = useStore.getState();
 describe("move elements", () => {

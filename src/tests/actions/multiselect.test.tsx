@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
-import App from "components/App";
 import { act } from "@testing-library/react";
-import { useStore } from "store";
-import { clickCursor, createElement, pointerDown, pointerMove, pointerUp } from "tests/testUtils";
-import { CursorFn } from "types/general";
-import { Point } from "utils";
+import { clickCursor, createElement, pointerDown, pointerMove, pointerUp } from "@/tests/testUtils";
+import App from "@/components/App";
+import { useStore } from "@/store";
+import { CursorFn } from "@/types/general";
+import { Point } from "@/utils";
 
 const initialStoreState = useStore.getState();
 describe("multi selection", () => {

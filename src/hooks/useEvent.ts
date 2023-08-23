@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import isClient from "utils/isClient";
+import isClient from "@/utils/isClient";
 
 export function useEvent<K extends keyof HTMLElementEventMap>(
     event: K,

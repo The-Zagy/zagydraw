@@ -1,13 +1,6 @@
 import { RoughGenerator } from "roughjs/bin/generator";
 import { randomSeed } from "roughjs/bin/math";
-import { useStore } from "store";
-import {
-    CursorFn,
-    ZagyCanvasElement,
-    ZagyCanvasLineElement,
-    ZagyCanvasRectElement,
-} from "types/general";
-import { Point, normalizeToGrid } from "utils";
+import { UndoableCommand } from "./types";
 import {
     generateCacheLineElement,
     generateCacheRectElement,
@@ -15,8 +8,15 @@ import {
     generateHandDrawnElement,
     generateLineElement,
     generateRectElement,
-} from "utils/canvas/generateElement";
-import { UndoableCommand } from "./types";
+} from "@/utils/canvas/generateElement";
+import { useStore } from "@/store";
+import {
+    CursorFn,
+    ZagyCanvasElement,
+    ZagyCanvasLineElement,
+    ZagyCanvasRectElement,
+} from "@/types/general";
+import { Point, normalizeToGrid } from "@/utils";
 
 class DrawAction {
     private static roughGenerator = new RoughGenerator();

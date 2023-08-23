@@ -1,7 +1,7 @@
-import { useStore } from "store";
-import { CursorFn } from "types/general";
-import { Point } from "utils";
 import { Command } from "./types";
+import { useStore } from "@/store";
+import { CursorFn } from "@/types/general";
+import { Point } from "@/utils";
 
 class DragAction {
     private static lastMouseDownPosition: Point = [0, 0];

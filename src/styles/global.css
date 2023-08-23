@@ -4,14 +4,13 @@
 
 @font-face {
     font-family: "FiraCode";
-    src: url("../assets/fonts/FiraCode-VariableFont_wght.ttf")
-        format("truetype");
+    src: url("../assets/fonts/FiraCode-VariableFont_wght.ttf") format("truetype");
 }
 @font-face {
     font-family: "HandWritten";
     src: url("../assets/fonts/GochiHand-Regular.ttf") format("truetype");
 }
- 
+
 @font-face {
     font-family: "Minecraft";
     src: url("../assets/fonts/PressStart2P-Regular.ttf") format("truetype");
@@ -30,11 +29,11 @@
 }
 
 .grow-wrap {
-    /* easy way to plop the elements on top of each other and have them both sized based on the tallest one's height */
+    /*easy way to plop the elements on top of each other and have them both sized based on the tallest one's height*/
     display: grid;
 }
 .grow-wrap::after {
-    /* Note the weird space! Needed to preventy jumpy behavior */
+    /*Note the weird space! Needed to preventy jumpy behavior*/
     content: attr(data-replicated-value) " ";
 
     /* This is how textarea text behaves */
@@ -44,7 +43,7 @@
     visibility: hidden;
 }
 .grow-wrap > textarea {
-    /* You could leave this, but after a user resizes, then it ruins the auto sizing */
+    /*You could leave this, but after a user resizes, then it ruins the auto sizing*/
     resize: none;
 
     /* Firefox shows scrollbar on growth, you can hide like this. */
@@ -52,10 +51,94 @@
 }
 .grow-wrap > textarea,
 .grow-wrap::after {
-    /* Identical styling required!! */
+    /*Identical styling required!!*/
     padding: 0;
     font: inherit;
 
     /* Place on top of each other */
     grid-area: 1 / 1 / 2 / 2;
+}
+@layer base {
+    :root {
+        --background: 0 0% 100%;
+        --foreground: 20 14.3% 4.1%;
+
+        --card: 0 0% 100%;
+        --card-foreground: 20 14.3% 4.1%;
+
+        --popover: 0 0% 100%;
+        --popover-foreground: 20 14.3% 4.1%;
+
+        --primary: 24 9.8% 10%;
+        --primary-foreground: 60 9.1% 97.8%;
+
+        --secondary: 60 4.8% 95.9%;
+        --secondary-foreground: 24 9.8% 10%;
+
+        --muted: 60 4.8% 95.9%;
+        --muted-foreground: 25 5.3% 44.7%;
+
+        --accent: 60 4.8% 95.9%;
+        --accent-foreground: 24 9.8% 10%;
+
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 60 9.1% 97.8%;
+
+        --border: 20 5.9% 90%;
+        --input: 20 5.9% 90%;
+        --ring: 20 14.3% 4.1%;
+
+        --radius: 0.5rem;
+    }
+
+    .dark {
+        --background: 20 14.3% 4.1%;
+        --foreground: 60 9.1% 97.8%;
+
+        --card: 20 14.3% 4.1%;
+        --card-foreground: 60 9.1% 97.8%;
+
+        --popover: 20 14.3% 4.1%;
+        --popover-foreground: 60 9.1% 97.8%;
+
+        --primary: 60 9.1% 97.8%;
+        --primary-foreground: 24 9.8% 10%;
+
+        --secondary: 12 6.5% 15.1%;
+        --secondary-foreground: 60 9.1% 97.8%;
+
+        --muted: 12 6.5% 15.1%;
+        --muted-foreground: 24 5.4% 63.9%;
+
+        --accent: 12 6.5% 15.1%;
+        --accent-foreground: 60 9.1% 97.8%;
+
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 60 9.1% 97.8%;
+
+        --border: 12 6.5% 15.1%;
+        --input: 12 6.5% 15.1%;
+        --ring: 24 5.7% 82.9%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background-default text-foreground;
+    }
+}
+
+@layer utilities {
+    .bg-checkerboard {
+        background-image: linear-gradient(45deg, rgba(50, 50, 50, 0.1) 25%, transparent 25%),
+            linear-gradient(-45deg, rgba(50, 50, 50, 0.1) 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, rgba(50, 50, 50, 0.1) 75%),
+            linear-gradient(-45deg, transparent 75%, rgba(50, 50, 50, 0.1) 75%);
+
+        background-size: 20px 20px;
+        background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
 }

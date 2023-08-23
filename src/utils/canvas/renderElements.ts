@@ -13,9 +13,9 @@ import {
     ZagyCanvasLineElement,
     ZagyCanvasImageElement,
     isImage,
-} from "types/general";
+} from "@/types/general";
 
-import { CACHE_CANVAS_SIZE_THRESHOLD } from "constants/index";
+import { CACHE_CANVAS_SIZE_THRESHOLD } from "@/constants/index";
 
 /**
  * draw any element that extend RoughDrawable, and apply the shared options

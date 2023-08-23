@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { CursorFn, ZagyCanvasElement } from "types/general";
+import { CursorFn, ZagyCanvasElement } from "@/types/general";
 
 /**
  * hook that set cursor shape according to its current function

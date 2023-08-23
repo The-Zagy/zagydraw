@@ -6,7 +6,9 @@ import { TbLetterL, TbLetterM, TbLetterS, TbLetterX } from "react-icons/tb";
 import { SiMinetest } from "react-icons/si";
 import { AiOutlineDash, AiOutlineLine } from "react-icons/ai";
 import { FaCode, FaMinus, FaSignature, FaSquare } from "react-icons/fa";
-import { useStore } from "store/index";
+import clsx from "clsx";
+import { CommonConfigOptions, getElementsUnionConfig, isEqualArray } from "@/utils";
+import { useStore } from "@/store/index";
 import {
     FillStyleOptions,
     FontSize,
@@ -18,19 +20,17 @@ import {
     isLine,
     isRect,
     isText,
-} from "types/general";
-import { CommonConfigOptions, getElementsUnionConfig, isEqualArray } from "utils";
+} from "@/types/general";
 import {
     generateCacheLineElement,
     generateCacheRectElement,
     generateCachedHandDrawnElement,
     generateTextElement,
-} from "utils/canvas/generateElement";
-import { commandManager } from "actions/commandManager";
-import { ActionDeleteSelected } from "actions";
-import { ActionCopySelected } from "actions/copySelected";
+} from "@/utils/canvas/generateElement";
+import { commandManager } from "@/actions/commandManager";
+import { ActionDeleteSelected } from "@/actions";
+import { ActionCopySelected } from "@/actions/copySelected";
 //import { BsTextCenter, BsTextLeft, BsTextRight } from "react-icons/bs";
-import clsx from "clsx";
 
 const gen = rough.generator();
 
@@ -92,8 +92,8 @@ const InputWithIcon: React.FC<Props> = (props) => {
                                 rounded-none rounded-r-lg border
                                 border-gray-300 bg-transparent p-2.5
                                 text-gray-900 outline-none  
-                                focus:border-blue-500 focus:border-l-gray-900 dark:border-gray-900 dark:bg-transparent
-                                dark:placeholder:text-gray-400
+                                focus:border-blue-500 focus:border-l-gray-900 dark:border-gray-900 dark:bg-transparent dark:placeholder:text-gray-400 dark:focus:border-blue-500
+                                dark:focus:border-l-gray-900
                                 "
                 />
             </div>
