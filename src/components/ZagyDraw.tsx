@@ -388,8 +388,7 @@ function ZagyDraw() {
                     variant={"outline"}
                     className="rounded-r-none"
                     onClick={() => {
-                        // TODO make setZoom take callback
-                        setZoomLevel(zoomLevel - 0.1);
+                        handleZoom("out");
                     }}>
                     <Minus />
                 </Button>
@@ -404,8 +403,7 @@ function ZagyDraw() {
                     variant={"outline"}
                     className="rounded-l-none"
                     onClick={() => {
-                        // TODO make setZoom take callback
-                        setZoomLevel(zoomLevel + 0.1);
+                        handleZoom("in");
                     }}>
                     <Plus />
                 </Button>
