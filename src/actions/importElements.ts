@@ -1,7 +1,7 @@
-import { useStore } from "store/index";
-import { generateImageElement } from "utils/canvas/generateElement";
-import { normalizeToGrid } from "utils";
 import { UndoableCommand } from "./types";
+import { useStore } from "@/store/index";
+import { generateImageElement } from "@/utils/canvas/generateElement";
+import { normalizeToGrid } from "@/utils";
 
 export class ActionImportElements extends UndoableCommand {
     #importedIds: Set<string>;
@@ -21,9 +21,12 @@ export class ActionImportElements extends UndoableCommand {
                 const blob = item.getAsFile();
                 if (!blob) return;
                 const norm = normalizeToGrid(position, [30, 40]);
-                const el = generateImageElement(blob, norm, norm[0] + 100, norm[1] + 100);
-                this.#importedIds.add(el.id);
-                setElements((prev) => [...prev, el]);
+                console.log(`norm image ${norm}`);
+                generateImageElement(blob, norm).then((el) => {
+                    console.log(`image el ${el}`);
+                    this.#importedIds.add(el.id);
+                    setElements((prev) => [...prev, el]);
+                });
             }
         }
         return;

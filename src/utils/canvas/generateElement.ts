@@ -323,28 +323,51 @@ const generateTextElement = (
     };
 };
 
-function generateImageElement(
+async function loadImage(data: string) {
+    const img = new Image();
+    const promise = new Promise<HTMLImageElement>((resolve) => {
+        img.onload = () => {
+            resolve(img);
+        };
+    });
+    img.src = data;
+    return promise;
+}
+
+async function generateImageElement(
     blob: Blob,
     startPos: [number, number],
-    endX = -1,
-    endY = -1,
     options: Partial<ImageOptions & { id: string }> = {}
-): ZagyCanvasImageElement {
+): Promise<ZagyCanvasImageElement> {
     // TODO hand drawn options is the same as image options so i use it, but it's better to create a separate function so they won't be coupled together
     const normalizedOptions = normalizeHanddrawnOptions(options);
-
-    return {
+    const data = URL.createObjectURL(blob);
+    const img = await loadImage(data);
+    const el: ZagyCanvasImageElement = {
         id: options.id || nanoid(),
         shape: "image",
         x: startPos[0],
         y: startPos[1],
-        endX,
-        endY,
-        image: URL.createObjectURL(blob),
+        endX: startPos[0] + img.width,
+        endY: startPos[1] + img.height,
+        image: data,
+        imgRef: img,
         options: {
             ...normalizedOptions,
         },
     };
+
+    // max width/height to the imported image
+    if (img.width > 1000) {
+        el.endX = el.x + 1000;
+        // el.imgRef.width = 500;
+    }
+
+    if (img.height > 1000) {
+        el.endY = el.y + 1000;
+        // el.imgRef.height = 500;
+    }
+    return el;
 }
 
 const constructHandDrawnElementPath2D = (paths: Point[], options: HanddrawnOptions) => {

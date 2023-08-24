@@ -95,6 +95,7 @@ interface ZagyCanvasImageElement extends ZagyCanvasElement {
      * A string containing an object URL that can be used to reference the contents of the specified source object(URL.createObjectURL)
      */
     image: string;
+    imgRef: HTMLImageElement;
 }
 
 interface ZagyCanvasHandDrawnElement extends ZagyCanvasElement, Partial<CachableElement> {

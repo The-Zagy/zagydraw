@@ -92,22 +92,19 @@ function renderImageElement(
     ctx: CanvasRenderingContext2D,
     zoom: number
 ) {
-    console.log("in final render");
     ctx.save();
-    const img = new Image();
-    img.onload = () => {
-        // Draw the image onto the canvas
-        if (el.endX === -1) {
-            el.endX = el.x + (img.width <= 500 ? img.width : 500);
-        }
-        if (el.endY === -1) {
-            el.endY = el.y + (img.height <= 500 ? img.height : 500);
-        }
-
-        console.log("🪵 [renderElements.ts:102] ~ token ~ \x1b[0;32mel\x1b[0m = ", el);
-        ctx.drawImage(img, el.x, el.y, el.endX - el.x, el.endY - el.y);
-    };
-    img.src = el.image;
+    ctx.scale(1 / zoom, 1 / zoom);
+    ctx.drawImage(
+        el.imgRef,
+        0,
+        0,
+        el.imgRef.width,
+        el.imgRef.height,
+        (el.x - CACHE_CANVAS_SIZE_THRESHOLD) * zoom,
+        (el.y - CACHE_CANVAS_SIZE_THRESHOLD) * zoom,
+        el.endX - el.x,
+        el.endY - el.y
+    );
     ctx.restore();
     return;
 }
