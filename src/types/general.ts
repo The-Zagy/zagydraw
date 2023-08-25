@@ -114,6 +114,10 @@ enum CursorFn {
     Text,
     Erase,
     Move,
+    "Ew-resize",
+    "Ns-resize",
+    "Nesw-resize",
+    "Nwse-resize",
 }
 
 function isRect(el: ZagyCanvasElement): el is ZagyCanvasRectElement {

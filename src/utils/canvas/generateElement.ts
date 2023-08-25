@@ -363,8 +363,8 @@ async function generateImageElement(
         // el.imgRef.width = 500;
     }
 
-    if (img.height > 1000) {
-        el.endY = el.y + 1000;
+    if (img.height > 500) {
+        el.endY = el.y + 500;
         // el.imgRef.height = 500;
     }
     return el;

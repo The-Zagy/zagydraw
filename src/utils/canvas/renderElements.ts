@@ -117,7 +117,6 @@ function renderElements<T extends ZagyCanvasElement>(
     zoom: number
 ) {
     elements.forEach((el) => {
-        console.log("🪵 [renderElements.ts:123] ~ token ~ \x1b[0;32mel\x1b[0m = ", el);
         ctx.save();
         let opacity: number;
         if (el.willDelete) {

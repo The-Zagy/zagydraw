@@ -52,7 +52,7 @@ export function normalizeToGrid(
 
     return [Math.floor(columnPos - pos.x), Math.floor(rowPosition - pos.y)];
 }
-const distance = (p1: Point, p2: Point) => {
+export const distance = (p1: Point, p2: Point) => {
     return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2));
 };
 
