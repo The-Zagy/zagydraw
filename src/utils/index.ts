@@ -198,7 +198,8 @@ export const isElementInRect = (element: ZagyCanvasElement, rect: ZagyCanvasRect
         element.shape === "rectangle" ||
         element.shape === "line" ||
         element.shape === "text" ||
-        element.shape === "handdrawn"
+        element.shape === "handdrawn" ||
+        element.shape === "image"
     ) {
         const { x, y, endX, endY } = element as ZagyCanvasRectElement;
 
