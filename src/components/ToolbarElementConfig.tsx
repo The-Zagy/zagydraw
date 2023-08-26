@@ -30,6 +30,7 @@ import {
 import { commandManager } from "@/actions/commandManager";
 import { ActionDeleteSelected } from "@/actions";
 import { ActionCopySelected } from "@/actions/copySelected";
+import useKeyboardShortcut from "@/hooks/useShortcut";
 //import { BsTextCenter, BsTextLeft, BsTextRight } from "react-icons/bs";
 
 const gen = rough.generator();
@@ -91,7 +92,7 @@ const InputWithIcon: React.FC<Props> = (props) => {
                                 block w-full min-w-0 flex-1
                                 rounded-none rounded-r-lg border
                                 border-gray-300 bg-transparent p-2.5
-                                text-gray-900 outline-none  
+                                text-gray-900 outline-none
                                 focus:border-blue-500 focus:border-l-gray-900 dark:border-gray-900 dark:bg-transparent dark:placeholder:text-gray-400 dark:focus:border-blue-500
                                 dark:focus:border-l-gray-900
                                 "
@@ -166,6 +167,13 @@ export default function ToolbarLeft() {
         ctx.font = `${fontSize}px ` + FontTypeOptions[font];
         ctx.textBaseline = "top";
     }, [ctx, font, fontSize]);
+
+    useKeyboardShortcut(
+        {
+            onShortcut: () => commandManager.executeCommand(new ActionDeleteSelected()),
+        },
+        "Delete"
+    );
 
     const commonConf = useMemo(() => {
         if (selectedElements.length === 0) return null;
