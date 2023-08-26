@@ -31,6 +31,7 @@ async function createElement(
         handdrawn: CursorFn.FreeDraw,
         line: CursorFn.Line,
         text: CursorFn.Text,
+        image: CursorFn.Default,
     };
     await clickCursor(cursorTestId[elementType]);
     fireEvent.pointerDown(

@@ -21,7 +21,8 @@ import MoveElementAction from "@/actions/moveElement";
 // import { normalizePos } from "utils";
 import { regenerateCacheElement } from "@/utils/canvas/generateElement";
 import { CursorFn } from "@/types/general";
-import { distance, getHitElement } from "@/utils";
+// import { distance, getHitElement } from "@/utils";
+import { getHitElement } from "@/utils";
 
 const { setZoomLevel, setDimensions, setIsMouseDown, setElements, setCursorFn } =
     useStore.getState();
@@ -192,26 +193,28 @@ function ZagyDraw() {
                 position
             );
             if (el) {
+                setCursorFn(CursorFn.Move);
+                // TODO: move this code whereever we will handle resize/rotate
                 // test mouse position to all corners
                 // top left
-                if (distance([event.clientX, event.clientY], [el.x, el.y]) < 5) {
-                    setCursorFn(CursorFn["Nwse-resize"]);
-                }
-                // top right
-                else if (distance([event.clientX, event.clientY], [el.endX, el.y]) < 5) {
-                    setCursorFn(CursorFn["Nesw-resize"]);
-                }
-                // bottom right
-                else if (distance([event.clientX, event.clientY], [el.endX, el.endY]) < 5) {
-                    setCursorFn(CursorFn["Nwse-resize"]);
-                }
-                // bottom left
-                else if (distance([event.clientX, event.clientY], [el.x, el.endY]) < 5) {
-                    setCursorFn(CursorFn["Nesw-resize"]);
-                } else {
-                    // default is point inside the element
-                    setCursorFn(CursorFn.Move);
-                }
+                // if (distance([event.clientX, event.clientY], [el.x, el.y]) < 5) {
+                //     setCursorFn(CursorFn["Nwse-resize"]);
+                // }
+                // // top right
+                // else if (distance([event.clientX, event.clientY], [el.endX, el.y]) < 5) {
+                //     setCursorFn(CursorFn["Nesw-resize"]);
+                // }
+                // // bottom right
+                // else if (distance([event.clientX, event.clientY], [el.endX, el.endY]) < 5) {
+                //     setCursorFn(CursorFn["Nwse-resize"]);
+                // }
+                // // bottom left
+                // else if (distance([event.clientX, event.clientY], [el.x, el.endY]) < 5) {
+                //     setCursorFn(CursorFn["Nesw-resize"]);
+                // } else {
+                //     // default is point inside the element
+                //     setCursorFn(CursorFn.Move);
+                // }
             } else {
                 setCursorFn(CursorFn.Default);
             }

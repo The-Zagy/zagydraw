@@ -216,8 +216,6 @@ export const isElementVisible = (
     height: number,
     zoom: number
 ) => {
-    // TODO, this just temp solution for image size starts with -1
-    if (element.shape === "image" && element.endX === -1) return true;
     //the check not needed currently but maybe other shapes will be added in the future
     if (
         element.shape === "rectangle" ||
