@@ -54,14 +54,6 @@ jobs:
                   environment: preview
                   log-url: ${{ steps.upload_artifacts.outputs.PREVIEW_LINK}}
 
-            - name: Comment PR
-              if: success()
-              uses: thollander/actions-comment-pull-request@v2
-              with:
-                  message: |
-                      'check the preview deployment on\n%s\n' "$PREVIEW_LINK"
-                  reactions: eyes, rocket
-
             - name: Update deployment status (success)
               if: success()
               uses: chrnorm/deployment-status@v2
@@ -70,6 +62,15 @@ jobs:
                   environment-url: ${{ steps.deployment.outputs.environment_url }}
                   deployment-id: ${{ steps.deployment.outputs.deployment_id }}
                   state: "success"
+
+            - name: Comment PR
+              if: success()
+              uses: thollander/actions-comment-pull-request@v2
+              with:
+                  GITHUB_TOKEN: "${{ github.token }}"
+                  message: |
+                      'check the preview deployment on\n%s\n' "$PREVIEW_LINK"
+                  reactions: eyes, rocket
 
             - name: Update deployment status (failure)
               if: failure()
