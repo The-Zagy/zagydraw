@@ -11,6 +11,7 @@ jobs:
         runs-on: ubuntu-latest
         permissions:
             deployments: write
+            pull-requests: write
 
         steps:
             - uses: actions/checkout@v3
@@ -48,6 +49,15 @@ jobs:
                   token: "${{ github.token }}"
                   environment-url: ${{ steps.upload_artifacts.outputs.PREVIEW_LINK}}
                   environment: preview
+                  log-url: ${{ steps.upload_artifacts.outputs.PREVIEW_LINK}}
+
+            - name: Comment PR
+              if: success()
+              uses: thollander/actions-comment-pull-request@v2
+              with:
+                  message: |
+                      'check the preview deployment on\n%s\n' "$PREVIEW_LINK"
+                  reactions: eyes, rocket
 
             - name: Update deployment status (success)
               if: success()
