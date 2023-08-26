@@ -9,6 +9,9 @@ on:
 jobs:
     Deploy-Preview:
         runs-on: ubuntu-latest
+        permissions:
+            deployments: write
+
         steps:
             - uses: actions/checkout@v3
             - uses: pnpm/action-setup@v2
@@ -38,6 +41,10 @@ jobs:
               run: |
                   PREVIEW_LINK_TEMP=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | tail -n 1 | grep -o 'https://.*')
                     echo "PREVIEW_LINK=$PREVIEW_LINK_TEMP" >> "$GITHUB_ENV"
+            - uses: chrnorm/deployment-action@v2
             - name: CREATE GH DEPLOYMENT
-              run: |
-                  printf '%s\n' "$PREVIEW_LINK"
+              id: deployment
+              with:
+                  token: "${{ github.token }}"
+                  environment-url: "$PREVIEW_LINK"
+                  environment: preview
