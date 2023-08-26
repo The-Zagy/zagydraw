@@ -42,7 +42,7 @@ jobs:
                   PREVIEW_LINK_TEMP=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | tail -n 1 | grep -o 'https://.*')
                     echo "PREVIEW_LINK=$PREVIEW_LINK_TEMP" >> "$GITHUB_ENV"
             - uses: chrnorm/deployment-action@v2
-            - name: CREATE GH DEPLOYMENT
+              name: CREATE GH DEPLOYMENT
               id: deployment
               with:
                   token: "${{ github.token }}"
