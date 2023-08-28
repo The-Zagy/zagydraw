@@ -94,17 +94,27 @@ function renderImageElement(
 ) {
     ctx.save();
     ctx.scale(1 / zoom, 1 / zoom);
-    ctx.drawImage(
-        el.imgRef,
-        0,
-        0,
-        el.imgRef.width,
-        el.imgRef.height,
-        (el.x - CACHE_CANVAS_SIZE_THRESHOLD) * zoom,
-        (el.y - CACHE_CANVAS_SIZE_THRESHOLD) * zoom,
-        el.endX - el.x,
-        el.endY - el.y
-    );
+    // draw placeholder while loading the image, when the image is loaded will trigger rerender with new element that is not promise
+    if (el.imgRef instanceof Promise) {
+        console.log("iam in the promise branch");
+        //dashed white line, with four small squares around the corners
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(el.x, el.y, 100, 100);
+    } else {
+        ctx.drawImage(
+            el.imgRef,
+            0,
+            0,
+            el.imgRef.width,
+            el.imgRef.height,
+            el.x * zoom,
+            el.y * zoom,
+            el.endX - el.x,
+            el.endY - el.y
+        );
+    }
     ctx.restore();
     return;
 }

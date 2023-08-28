@@ -26,6 +26,7 @@ import {
     getGlobalMinMax,
     getSvgPathFromStroke,
     normalizeRectCoords,
+    sleep,
 } from "@/utils";
 import { useStore } from "@/store";
 import { CACHE_CANVAS_SIZE_THRESHOLD } from "@/constants/index";
@@ -323,7 +324,11 @@ const generateTextElement = (
     };
 };
 
-async function loadImage(data: string) {
+/**
+ * create new image instance append it to ZagyImageElement
+ * filter the store from the element with placeholder image, and append the new one with the loaded image
+ */
+async function loadImage(data: string, id: string) {
     const img = new Image();
     const promise = new Promise<HTMLImageElement>((resolve) => {
         img.onload = () => {
@@ -331,42 +336,46 @@ async function loadImage(data: string) {
         };
     });
     img.src = data;
-    return promise;
+    const loadedImage = await promise;
+    await sleep(5000);
+    const { setElements, elements } = useStore.getState();
+    const oldEl = elements.find((el) => el.id === id);
+    if (!oldEl) return;
+    setElements((prev) => [
+        ...prev.filter((el) => el.id !== id),
+        {
+            ...(oldEl as ZagyCanvasImageElement),
+            endX: oldEl.x + loadedImage.width,
+            endY: oldEl.y + loadedImage.height,
+            imgRef: loadedImage,
+        } satisfies ZagyCanvasImageElement,
+    ]);
 }
 
-async function generateImageElement(
+function generateImageElement(
     blob: Blob,
     startPos: [number, number],
     options: Partial<ImageOptions & { id: string }> = {}
-): Promise<ZagyCanvasImageElement> {
+): ZagyCanvasImageElement {
     // TODO hand drawn options is the same as image options so i use it, but it's better to create a separate function so they won't be coupled together
     const normalizedOptions = normalizeHanddrawnOptions(options);
     const data = URL.createObjectURL(blob);
-    const img = await loadImage(data);
+    const id = options.id || nanoid();
     const el: ZagyCanvasImageElement = {
-        id: options.id || nanoid(),
+        id,
         shape: "image",
+        // at the start the w and h is zero and will be updated within the loadImage promise
         x: startPos[0],
         y: startPos[1],
-        endX: startPos[0] + img.width,
-        endY: startPos[1] + img.height,
+        endX: startPos[0],
+        endY: startPos[1],
         image: data,
-        imgRef: img,
+        imgRef: loadImage(data, id),
         options: {
             ...normalizedOptions,
         },
     };
 
-    // max width/height to the imported image
-    if (img.width > 1000) {
-        el.endX = el.x + 1000;
-        // el.imgRef.width = 500;
-    }
-
-    if (img.height > 500) {
-        el.endY = el.y + 500;
-        // el.imgRef.height = 500;
-    }
     return el;
 }
 

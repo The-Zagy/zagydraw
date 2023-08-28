@@ -358,3 +358,9 @@ export function getElementsUnionConfig<T extends ZagyCanvasElement = ZagyCanvasE
     }
     return res;
 }
+
+export async function sleep(ms: number) {
+    return new Promise<void>((resolve) => {
+        setTimeout(() => resolve(), ms);
+    });
+}
