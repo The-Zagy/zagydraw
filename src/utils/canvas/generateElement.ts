@@ -328,21 +328,31 @@ const generateTextElement = (
     };
 };
 
+function CreateDataUrl(file: Blob) {
+    return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            resolve(reader.result as string);
+            // Logs data:<type>;base64,wL2dvYWwgbW9yZ...
+        };
+        reader.readAsDataURL(file);
+    });
+}
 /**
  * create new image instance append it to ZagyImageElement
  * filter the store from the element with placeholder image, and append the new one with the loaded image
  */
-async function loadImage(data: string, id: string) {
+async function loadImage(file: Blob, id: string) {
+    const dataUrl = await CreateDataUrl(file);
     const img = new Image();
     const promise = new Promise<HTMLImageElement>((resolve) => {
         img.onload = () => {
             resolve(img);
         };
     });
-    img.src = data;
+
+    img.src = dataUrl;
     const loadedImage = await promise;
-    // TODO, delete this only for testing the preview
-    await sleep(5000);
     const { setElements, elements } = useStore.getState();
     // this suppose to prevent adding loaded image to the store after the user delete the preview
     const oldEl = elements.find((el) => el.id === id);
@@ -353,6 +363,7 @@ async function loadImage(data: string, id: string) {
             ...(oldEl as ZagyCanvasImageElement),
             endX: oldEl.x + loadedImage.width,
             endY: oldEl.y + loadedImage.height,
+            image: dataUrl,
             imgRef: loadedImage,
         } satisfies ZagyCanvasImageElement,
     ]);
@@ -365,7 +376,6 @@ function generateImageElement(
 ): ZagyCanvasImageElement {
     // TODO hand drawn options is the same as image options so i use it, but it's better to create a separate function so they won't be coupled together
     const normalizedOptions = normalizeHanddrawnOptions(options);
-    const data = URL.createObjectURL(blob);
     const id = options.id || nanoid();
     const el: ZagyCanvasImageElement = {
         id,
@@ -375,8 +385,8 @@ function generateImageElement(
         y: startPos[1],
         endX: startPos[0] + PREVIEW_IMAGE_WIDTH,
         endY: startPos[1] + PREVIEW_IMAGE_HEIGHT,
-        image: data,
-        imgRef: loadImage(data, id),
+        image: null,
+        imgRef: loadImage(blob, id),
         options: {
             ...normalizedOptions,
         },

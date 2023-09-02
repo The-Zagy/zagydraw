@@ -94,7 +94,7 @@ interface ZagyCanvasImageElement extends ZagyCanvasElement {
     /**
      * A string containing an object URL that can be used to reference the contents of the specified source object(URL.createObjectURL)
      */
-    image: string;
+    image: string | null;
     // TODO: change to use the cache prop already defined om ZagyElement
     imgRef: Promise<void> | HTMLImageElement;
 }
@@ -142,6 +142,16 @@ function isImage(el: ZagyCanvasElement): el is ZagyCanvasImageElement {
     return el.shape === "image";
 }
 
+type CleanedElement<T extends ZagyCanvasElement> = Omit<
+    T,
+    "cache" | "cacheCtx" | "zoom" | "willDelete" | "roughElement" | "imgRef"
+>;
+
+type ZagyPortableT = {
+    name: "ZagyPortableContent";
+    elements: CleanedElement<ZagyCanvasElement>[];
+};
+
 //function to check if elements extends CachableElement
 
 export type {
@@ -164,5 +174,7 @@ export type {
     HanddrawnOptions,
     ZagyCanvasImageElement,
     ImageOptions,
+    CleanedElement,
+    ZagyPortableT,
 };
 export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn, isImage };

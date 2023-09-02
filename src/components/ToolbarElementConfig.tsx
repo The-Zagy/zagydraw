@@ -29,7 +29,7 @@ import {
 } from "@/utils/canvas/generateElement";
 import { commandManager } from "@/actions/commandManager";
 import { ActionDeleteSelected } from "@/actions";
-import { ActionCopySelected } from "@/actions/copySelected";
+import { ActionExportScene, DestOpts } from "@/actions/copySelected";
 import useKeyboardShortcut from "@/hooks/useShortcut";
 //import { BsTextCenter, BsTextLeft, BsTextRight } from "react-icons/bs";
 
@@ -174,6 +174,14 @@ export default function ToolbarLeft() {
         },
         "Delete"
     );
+    useKeyboardShortcut(
+        {
+            onShortcut: () =>
+                commandManager.executeCommand(new ActionExportScene(DestOpts.CLIPBOARD, true)),
+        },
+        "ControlLeft",
+        "c"
+    );
 
     const commonConf = useMemo(() => {
         if (selectedElements.length === 0) return null;
@@ -186,7 +194,7 @@ export default function ToolbarLeft() {
 
     const handleCopyOnClick: React.MouseEventHandler<HTMLButtonElement> = async () => {
         try {
-            commandManager.executeCommand(new ActionCopySelected());
+            commandManager.executeCommand(new ActionExportScene(DestOpts.CLIPBOARD, true));
         } catch (e) {
             //todo
         }
