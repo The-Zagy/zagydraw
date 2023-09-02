@@ -15,7 +15,11 @@ import {
     isImage,
 } from "@/types/general";
 
-import { CACHE_CANVAS_SIZE_THRESHOLD } from "@/constants/index";
+import {
+    CACHE_CANVAS_SIZE_THRESHOLD,
+    PREVIEW_IMAGE_HEIGHT,
+    PREVIEW_IMAGE_WIDTH,
+} from "@/constants/index";
 
 /**
  * draw any element that extend RoughDrawable, and apply the shared options
@@ -96,12 +100,10 @@ function renderImageElement(
     ctx.scale(1 / zoom, 1 / zoom);
     // draw placeholder while loading the image, when the image is loaded will trigger rerender with new element that is not promise
     if (el.imgRef instanceof Promise) {
-        console.log("iam in the promise branch");
-        //dashed white line, with four small squares around the corners
         ctx.setLineDash([5, 5]);
         ctx.strokeStyle = "red";
         ctx.lineWidth = 1;
-        ctx.strokeRect(el.x, el.y, 100, 100);
+        ctx.strokeRect(el.x, el.y, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT);
     } else {
         ctx.drawImage(
             el.imgRef,

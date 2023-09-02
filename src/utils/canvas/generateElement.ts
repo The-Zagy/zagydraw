@@ -29,7 +29,11 @@ import {
     sleep,
 } from "@/utils";
 import { useStore } from "@/store";
-import { CACHE_CANVAS_SIZE_THRESHOLD } from "@/constants/index";
+import {
+    CACHE_CANVAS_SIZE_THRESHOLD,
+    PREVIEW_IMAGE_HEIGHT,
+    PREVIEW_IMAGE_WIDTH,
+} from "@/constants/index";
 
 const { getElementConfigState: getConfigState } = useStore.getState();
 function normalizeHanddrawnOptions(options: Partial<HanddrawnOptions>): HanddrawnOptions {
@@ -337,8 +341,10 @@ async function loadImage(data: string, id: string) {
     });
     img.src = data;
     const loadedImage = await promise;
+    // TODO, delete this only for testing the preview
     await sleep(5000);
     const { setElements, elements } = useStore.getState();
+    // this suppose to prevent adding loaded image to the store after the user delete the preview
     const oldEl = elements.find((el) => el.id === id);
     if (!oldEl) return;
     setElements((prev) => [
@@ -364,11 +370,11 @@ function generateImageElement(
     const el: ZagyCanvasImageElement = {
         id,
         shape: "image",
-        // at the start the w and h is zero and will be updated within the loadImage promise
+        // at the start the w and h is the preview image w and h and will be updated within the loadImage promise
         x: startPos[0],
         y: startPos[1],
-        endX: startPos[0],
-        endY: startPos[1],
+        endX: startPos[0] + PREVIEW_IMAGE_WIDTH,
+        endY: startPos[1] + PREVIEW_IMAGE_HEIGHT,
         image: data,
         imgRef: loadImage(data, id),
         options: {

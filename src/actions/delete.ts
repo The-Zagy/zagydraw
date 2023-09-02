@@ -1,5 +1,5 @@
 import { Command, UndoableCommand } from "./types";
-import { ZagyCanvasElement } from "@/types/general";
+import { ZagyCanvasElement, ZagyCanvasImageElement } from "@/types/general";
 import { useStore } from "@/store/index";
 import { CursorFn } from "@/types/general";
 import { Point, getHitElement } from "@/utils";
@@ -36,7 +36,14 @@ class DeleteAction {
         if (!this.willDelete) return null;
         const { elements } = useStore.getState();
         const deletedElements: ZagyCanvasElement[] = elements
-            .filter((val) => val.willDelete)
+            .filter(
+                (val) =>
+                    val.willDelete &&
+                    !(
+                        val.shape === "image" &&
+                        (val as ZagyCanvasImageElement).imgRef instanceof Promise
+                    )
+            )
             .map((val) => ({ ...val, willDelete: false }));
         if (deletedElements.length === 0) return null;
         return {
