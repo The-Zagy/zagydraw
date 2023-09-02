@@ -63,15 +63,6 @@ jobs:
                   deployment-id: ${{ steps.deployment.outputs.deployment_id }}
                   state: "success"
 
-            - name: Comment PR
-              if: success()
-              uses: thollander/actions-comment-pull-request@v2
-              with:
-                  GITHUB_TOKEN: "${{ github.token }}"
-                  message: |
-                      'check the preview deployment on\n%s\n' "$PREVIEW_LINK"
-                  reactions: eyes, rocket
-
             - name: Update deployment status (failure)
               if: failure()
               uses: chrnorm/deployment-status@v2
