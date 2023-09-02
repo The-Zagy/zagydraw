@@ -7,12 +7,12 @@ on:
         branches-ignore:
             - main
 
+permissions:
+    deployments: write
+    pull-requests: write
 jobs:
     Deploy-Preview:
         runs-on: ubuntu-latest
-        permissions:
-            deployments: write
-            pull-requests: write
 
         steps:
             - uses: actions/checkout@v3
