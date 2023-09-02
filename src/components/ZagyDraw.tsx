@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { RoughGenerator } from "roughjs/bin/generator";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "./ui/button";
+import { ActionImportElements } from "@/actions/importElements";
 import { useCursor, useEvent, useGlobalEvent, useMultiPhaseEvent, useRenderScene } from "@/hooks";
 import { commandManager } from "@/actions/commandManager";
 
@@ -19,8 +20,12 @@ import TextAction from "@/actions/createText";
 import MoveElementAction from "@/actions/moveElement";
 // import { normalizePos } from "utils";
 import { regenerateCacheElement } from "@/utils/canvas/generateElement";
+import { CursorFn } from "@/types/general";
+// import { distance, getHitElement } from "@/utils";
+import { getHitElement } from "@/utils";
 
-const { setZoomLevel, setDimensions, setIsMouseDown, setElements } = useStore.getState();
+const { setZoomLevel, setDimensions, setIsMouseDown, setElements, setCursorFn } =
+    useStore.getState();
 
 // const debouncedRegenerateCacheElements = debounce(
 //     100,
@@ -165,8 +170,56 @@ function ZagyDraw() {
 
     useGlobalEvent("wheel", handleScroll);
     useGlobalEvent("resize", handleResize);
+    useGlobalEvent("paste", (event) => {
+        event.preventDefault();
+        if (!event.clipboardData) return;
+        commandManager.executeCommand(
+            new ActionImportElements(event.clipboardData, [
+                mouseCoords.current[0] / zoomLevel,
+                mouseCoords.current[1] / zoomLevel,
+            ])
+        );
+    });
 
     useEvent("pointerdown", selectSingleElement, canvas.current);
+
+    // show mouse curosr as move when hovering above element in default mode
+    // TODO is this the right place to do this?
+    useGlobalEvent("pointermove", (event) => {
+        // TODO, this is used to get the mouse coords while pasting elements into the canvas, so we need to check is this good way to do it or we need to set this in global state
+        mouseCoords.current = [event.clientX, event.clientY];
+        if (cursorFn !== CursorFn.Default) return;
+        if (!canvas.current) return;
+        const ctx = canvas.current.getContext("2d");
+        if (!ctx) return;
+        const el = getHitElement(visibleElements, ctx, [event.clientX, event.clientY], position);
+        if (el) {
+            setCursorFn(CursorFn.Move);
+            // TODO: move this code whereever we will handle resize/rotate
+            // test mouse position to all corners
+            // top left
+            // if (distance([event.clientX, event.clientY], [el.x, el.y]) < 5) {
+            //     setCursorFn(CursorFn["Nwse-resize"]);
+            // }
+            // // top right
+            // else if (distance([event.clientX, event.clientY], [el.endX, el.y]) < 5) {
+            //     setCursorFn(CursorFn["Nesw-resize"]);
+            // }
+            // // bottom right
+            // else if (distance([event.clientX, event.clientY], [el.endX, el.endY]) < 5) {
+            //     setCursorFn(CursorFn["Nwse-resize"]);
+            // }
+            // // bottom left
+            // else if (distance([event.clientX, event.clientY], [el.x, el.endY]) < 5) {
+            //     setCursorFn(CursorFn["Nesw-resize"]);
+            // } else {
+            //     // default is point inside the element
+            //     setCursorFn(CursorFn.Move);
+            // }
+        } else {
+            setCursorFn(CursorFn.Default);
+        }
+    });
     useMultiPhaseEvent(
         "dragIntoCanvas",
         [

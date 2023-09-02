@@ -17,6 +17,8 @@ import {
     isLine,
     isRect,
     isHanddrawn,
+    ZagyCanvasImageElement,
+    ImageOptions,
 } from "@/types/general";
 import {
     Point,
@@ -24,9 +26,14 @@ import {
     getGlobalMinMax,
     getSvgPathFromStroke,
     normalizeRectCoords,
+    sleep,
 } from "@/utils";
 import { useStore } from "@/store";
-import { CACHE_CANVAS_SIZE_THRESHOLD } from "@/constants/index";
+import {
+    CACHE_CANVAS_SIZE_THRESHOLD,
+    PREVIEW_IMAGE_HEIGHT,
+    PREVIEW_IMAGE_WIDTH,
+} from "@/constants/index";
 
 const { getElementConfigState: getConfigState } = useStore.getState();
 function normalizeHanddrawnOptions(options: Partial<HanddrawnOptions>): HanddrawnOptions {
@@ -321,6 +328,63 @@ const generateTextElement = (
     };
 };
 
+/**
+ * create new image instance append it to ZagyImageElement
+ * filter the store from the element with placeholder image, and append the new one with the loaded image
+ */
+async function loadImage(data: string, id: string) {
+    const img = new Image();
+    const promise = new Promise<HTMLImageElement>((resolve) => {
+        img.onload = () => {
+            resolve(img);
+        };
+    });
+    img.src = data;
+    const loadedImage = await promise;
+    // TODO, delete this only for testing the preview
+    await sleep(5000);
+    const { setElements, elements } = useStore.getState();
+    // this suppose to prevent adding loaded image to the store after the user delete the preview
+    const oldEl = elements.find((el) => el.id === id);
+    if (!oldEl) return;
+    setElements((prev) => [
+        ...prev.filter((el) => el.id !== id),
+        {
+            ...(oldEl as ZagyCanvasImageElement),
+            endX: oldEl.x + loadedImage.width,
+            endY: oldEl.y + loadedImage.height,
+            imgRef: loadedImage,
+        } satisfies ZagyCanvasImageElement,
+    ]);
+}
+
+function generateImageElement(
+    blob: Blob,
+    startPos: [number, number],
+    options: Partial<ImageOptions & { id: string }> = {}
+): ZagyCanvasImageElement {
+    // TODO hand drawn options is the same as image options so i use it, but it's better to create a separate function so they won't be coupled together
+    const normalizedOptions = normalizeHanddrawnOptions(options);
+    const data = URL.createObjectURL(blob);
+    const id = options.id || nanoid();
+    const el: ZagyCanvasImageElement = {
+        id,
+        shape: "image",
+        // at the start the w and h is the preview image w and h and will be updated within the loadImage promise
+        x: startPos[0],
+        y: startPos[1],
+        endX: startPos[0] + PREVIEW_IMAGE_WIDTH,
+        endY: startPos[1] + PREVIEW_IMAGE_HEIGHT,
+        image: data,
+        imgRef: loadImage(data, id),
+        options: {
+            ...normalizedOptions,
+        },
+    };
+
+    return el;
+}
+
 const constructHandDrawnElementPath2D = (paths: Point[], options: HanddrawnOptions) => {
     const stroke = getStroke(paths, {
         size: options.strokeWidth + 2,
@@ -422,4 +486,5 @@ export {
     generateCachedHandDrawnElement,
     generateCacheLineElement,
     regenerateCacheElement,
+    generateImageElement,
 };

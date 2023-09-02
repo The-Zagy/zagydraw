@@ -52,7 +52,7 @@ export function normalizeToGrid(
 
     return [Math.floor(columnPos - pos.x), Math.floor(rowPosition - pos.y)];
 }
-const distance = (p1: Point, p2: Point) => {
+export const distance = (p1: Point, p2: Point) => {
     return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2));
 };
 
@@ -107,7 +107,11 @@ export function getHitElement(
     mousePos = [mousePos[0] - pos.x, mousePos[1] - pos.y];
 
     for (let i = 0; i < elements.length; i++) {
-        if (elements[i].shape === "rectangle" || elements[i].shape === "text") {
+        if (
+            elements[i].shape === "rectangle" ||
+            elements[i].shape === "text" ||
+            elements[i].shape === "image"
+        ) {
             const { x, y, endX, endY } = elements[i] as ZagyCanvasRectElement;
             if (pointInRectangle([x, y], [endX, y], [endX, endY], [x, endY], mousePos)) {
                 return elements[i];
@@ -167,7 +171,8 @@ export function getBoundingRect(...elements: ZagyCanvasElement[]) {
             element.shape === "rectangle" ||
             element.shape === "line" ||
             element.shape === "text" ||
-            element.shape === "handdrawn"
+            element.shape === "handdrawn" ||
+            element.shape === "image"
         ) {
             const {
                 x: elementStartX,
@@ -193,7 +198,8 @@ export const isElementInRect = (element: ZagyCanvasElement, rect: ZagyCanvasRect
         element.shape === "rectangle" ||
         element.shape === "line" ||
         element.shape === "text" ||
-        element.shape === "handdrawn"
+        element.shape === "handdrawn" ||
+        element.shape === "image"
     ) {
         const { x, y, endX, endY } = element as ZagyCanvasRectElement;
 
@@ -216,7 +222,8 @@ export const isElementVisible = (
         element.shape === "rectangle" ||
         element.shape === "line" ||
         element.shape === "text" ||
-        element.shape === "handdrawn"
+        element.shape === "handdrawn" ||
+        element.shape === "image"
     ) {
         const { x, y, endX, endY } = element as ZagyCanvasRectElement;
         const [rectX, rectY] = rectStart;
@@ -302,6 +309,7 @@ export function getElementsUnionConfig<T extends ZagyCanvasElement = ZagyCanvasE
         line: false,
         text: false,
         handdrawn: false,
+        image: false,
     };
     const keysCount = Object.keys(elementTypesSoFar).length;
     let count = 0;
@@ -349,4 +357,10 @@ export function getElementsUnionConfig<T extends ZagyCanvasElement = ZagyCanvasE
         }
     }
     return res;
+}
+
+export async function sleep(ms: number) {
+    return new Promise<void>((resolve) => {
+        setTimeout(() => resolve(), ms);
+    });
 }

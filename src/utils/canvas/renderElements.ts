@@ -11,9 +11,15 @@ import {
     isHanddrawn,
     ZagyCanvasRectElement,
     ZagyCanvasLineElement,
+    ZagyCanvasImageElement,
+    isImage,
 } from "@/types/general";
 
-import { CACHE_CANVAS_SIZE_THRESHOLD } from "@/constants/index";
+import {
+    CACHE_CANVAS_SIZE_THRESHOLD,
+    PREVIEW_IMAGE_HEIGHT,
+    PREVIEW_IMAGE_WIDTH,
+} from "@/constants/index";
 
 /**
  * draw any element that extend RoughDrawable, and apply the shared options
@@ -85,6 +91,36 @@ const renderFreeDrawElement = (
     ctx.restore();
 };
 
+function renderImageElement(
+    el: ZagyCanvasImageElement,
+    ctx: CanvasRenderingContext2D,
+    zoom: number
+) {
+    ctx.save();
+    ctx.scale(1 / zoom, 1 / zoom);
+    // draw placeholder while loading the image, when the image is loaded will trigger rerender with new element that is not promise
+    if (el.imgRef instanceof Promise) {
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(el.x, el.y, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT);
+    } else {
+        ctx.drawImage(
+            el.imgRef,
+            0,
+            0,
+            el.imgRef.width,
+            el.imgRef.height,
+            el.x * zoom,
+            el.y * zoom,
+            el.endX - el.x,
+            el.endY - el.y
+        );
+    }
+    ctx.restore();
+    return;
+}
+
 // todo this function needs to take any element as argument and call different draw function for different elements
 function renderElements<T extends ZagyCanvasElement>(
     elements: T[],
@@ -106,6 +142,8 @@ function renderElements<T extends ZagyCanvasElement>(
             renderTextElement(el, ctx);
         } else if (isHanddrawn(el)) {
             renderFreeDrawElement(el, ctx, zoom);
+        } else if (isImage(el)) {
+            renderImageElement(el, ctx, zoom);
         }
         ctx.restore();
     });

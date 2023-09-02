@@ -39,6 +39,19 @@ export function useCursor(
             case CursorFn.Erase:
                 document.body.style.cursor = "crosshair";
                 break;
+            // TODO, enable with implementing resize
+            // case CursorFn["Ew-resize"]:
+            //     document.body.style.cursor = "ew-resize";
+            //     break;
+            // case CursorFn["Ns-resize"]:
+            //     document.body.style.cursor = "ns-resize";
+            //     break;
+            // case CursorFn["Nesw-resize"]:
+            //     document.body.style.cursor = "nesw-resize";
+            //     break;
+            // case CursorFn["Nwse-resize"]:
+            //     document.body.style.cursor = "nwse-resize";
+            //     break;
             default:
                 return;
         }

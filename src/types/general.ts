@@ -1,7 +1,7 @@
 import { Drawable } from "roughjs/bin/core";
 
 type Point = [number, number];
-type ElementTypes = "rectangle" | "line" | "text" | "handdrawn";
+type ElementTypes = "rectangle" | "line" | "text" | "handdrawn" | "image";
 
 const FontTypeOptions = {
     code: "FiraCode",
@@ -43,6 +43,8 @@ interface TextOptions extends SharedOptions {
 }
 
 type HanddrawnOptions = SharedOptions;
+
+type ImageOptions = SharedOptions;
 
 type GlobalElementOptions = TextOptions & RectOptions & LineOptions;
 
@@ -87,6 +89,16 @@ interface ZagyCanvasTextElement extends ZagyCanvasElement {
     options: TextOptions;
 }
 
+interface ZagyCanvasImageElement extends ZagyCanvasElement {
+    shape: "image";
+    /**
+     * A string containing an object URL that can be used to reference the contents of the specified source object(URL.createObjectURL)
+     */
+    image: string;
+    // TODO: change to use the cache prop already defined om ZagyElement
+    imgRef: Promise<void> | HTMLImageElement;
+}
+
 interface ZagyCanvasHandDrawnElement extends ZagyCanvasElement, Partial<CachableElement> {
     shape: "handdrawn";
     path2D: Path2D;
@@ -103,6 +115,11 @@ enum CursorFn {
     Text,
     Erase,
     Move,
+    // TODO, enable when implementing the resize
+    // "Ew-resize",
+    // "Ns-resize",
+    // "Nesw-resize",
+    // "Nwse-resize",
 }
 
 function isRect(el: ZagyCanvasElement): el is ZagyCanvasRectElement {
@@ -120,6 +137,11 @@ function isText(el: ZagyCanvasElement): el is ZagyCanvasTextElement {
 function isHanddrawn(el: ZagyCanvasElement): el is ZagyCanvasHandDrawnElement {
     return el.shape === "handdrawn";
 }
+
+function isImage(el: ZagyCanvasElement): el is ZagyCanvasImageElement {
+    return el.shape === "image";
+}
+
 //function to check if elements extends CachableElement
 
 export type {
@@ -140,5 +162,7 @@ export type {
     FillStyleOptions,
     CachableElement,
     HanddrawnOptions,
+    ZagyCanvasImageElement,
+    ImageOptions,
 };
-export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn };
+export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn, isImage };
