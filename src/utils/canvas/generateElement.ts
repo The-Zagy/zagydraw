@@ -26,7 +26,6 @@ import {
     getGlobalMinMax,
     getSvgPathFromStroke,
     normalizeRectCoords,
-    sleep,
 } from "@/utils";
 import { useStore } from "@/store";
 import {
@@ -341,8 +340,6 @@ async function loadImage(data: string, id: string) {
     });
     img.src = data;
     const loadedImage = await promise;
-    // TODO, delete this only for testing the preview
-    await sleep(5000);
     const { setElements, elements } = useStore.getState();
     // this suppose to prevent adding loaded image to the store after the user delete the preview
     const oldEl = elements.find((el) => el.id === id);
