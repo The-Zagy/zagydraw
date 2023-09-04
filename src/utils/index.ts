@@ -179,7 +179,7 @@ export function getBoundingRect(...elements: ZagyCanvasElement[]) {
                 y: elementStartY,
                 endX: elementEndX,
                 endY: elementEndY,
-            } = element as ZagyCanvasRectElement;
+            } = element;
             x = Math.min(x, elementStartX);
             y = Math.min(y, elementStartY);
             endX = Math.max(endX, elementEndX);

@@ -26,7 +26,6 @@ import {
     getGlobalMinMax,
     getSvgPathFromStroke,
     normalizeRectCoords,
-    sleep,
 } from "@/utils";
 import { useStore } from "@/store";
 import {

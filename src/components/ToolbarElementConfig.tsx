@@ -29,7 +29,7 @@ import {
 } from "@/utils/canvas/generateElement";
 import { commandManager } from "@/actions/commandManager";
 import { ActionDeleteSelected } from "@/actions";
-import { ActionExportScene, DestOpts } from "@/actions/copySelected";
+import { ActionExportScene, DestOpts } from "@/actions/ExportScene";
 import useKeyboardShortcut from "@/hooks/useShortcut";
 //import { BsTextCenter, BsTextLeft, BsTextRight } from "react-icons/bs";
 

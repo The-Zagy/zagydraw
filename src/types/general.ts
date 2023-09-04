@@ -148,10 +148,22 @@ type CleanedElement<T extends ZagyCanvasElement> = Omit<
 >;
 
 type ZagyPortableT = {
-    name: "ZagyPortableContent";
+    type: "ZagyPortableContent";
     elements: CleanedElement<ZagyCanvasElement>[];
 };
 
+// mockup structure type guard
+function isZagyPortable(test: unknown): asserts test is ZagyPortableT {
+    if (
+        typeof test === "object" &&
+        test !== null &&
+        "type" in test &&
+        test.type === "ZagyPortableContent" &&
+        "elements" in test
+    )
+        return;
+    throw new Error("notZagyPortable");
+}
 //function to check if elements extends CachableElement
 
 export type {
@@ -177,4 +189,4 @@ export type {
     CleanedElement,
     ZagyPortableT,
 };
-export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn, isImage };
+export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn, isImage, isZagyPortable };
