@@ -31,6 +31,7 @@ import { commandManager } from "@/actions/commandManager";
 import { ActionDeleteSelected } from "@/actions";
 import { ActionExportScene, DestOpts } from "@/actions/ExportScene";
 import useKeyboardShortcut from "@/hooks/useShortcut";
+import { SHORTCUTS } from "@/constants";
 //import { BsTextCenter, BsTextLeft, BsTextRight } from "react-icons/bs";
 
 const gen = rough.generator();
@@ -180,8 +181,7 @@ export default function ToolbarLeft() {
                 commandManager.executeCommand(new ActionExportScene(DestOpts.CLIPBOARD, true)),
             orderMatters: true,
         },
-        "ControlLeft",
-        "c",
+        ...SHORTCUTS["editor"]["copy"]["keys"],
     );
     useKeyboardShortcut(
         {

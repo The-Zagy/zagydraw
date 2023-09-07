@@ -1,5 +1,5 @@
 import { Image } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BsDownload } from "react-icons/bs";
 import { FiCopy } from "react-icons/fi";
 // import { Switch } from "./form/switch";

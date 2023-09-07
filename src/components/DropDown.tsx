@@ -34,6 +34,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { ActionExportScene, DestOpts } from "@/actions/ExportScene";
+import { SHORTCUTS } from "@/constants";
 
 function ResetCanvasAlert() {
     return (
@@ -176,6 +177,41 @@ function OpenSceneDialog() {
     );
 }
 
+function ShortCutsModal() {
+    return (
+        <Dialog>
+            {/*FIX: open dialog/alert dialog inside dropdown or context menu
+  @url https://github.com/radix-ui/primitives/issues/1836#issuecomment-1674338372
+  */}
+            <DialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Keyboard className="mr-2 h-4 w-4" />
+                    <span>Keyboard shortcuts</span>
+                    <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
+                </DropdownMenuItem>
+            </DialogTrigger>
+            <DialogContent className="h-full w-full cursor-auto overflow-y-auto md:h-4/6 md:w-3/4">
+                <DialogHeader>
+                    <DialogTitle>Keyboard Shortcuts</DialogTitle>
+                </DialogHeader>
+                {Object.keys(SHORTCUTS).map((group) => (
+                    <>
+                        <h1 className="text-4xl" key={group}>
+                            {group}
+                        </h1>
+                        {Object.keys(SHORTCUTS[group]).map((key) => (
+                            <p>
+                                {SHORTCUTS[group][key]["description"]}
+                                {" : "}
+                                <span>{SHORTCUTS[group][key]["keys"].join(" + ")}</span>
+                            </p>
+                        ))}
+                    </>
+                ))}
+            </DialogContent>
+        </Dialog>
+    );
+}
 export function DropDown() {
     return (
         <div className="fixed left-2 top-2">
@@ -201,11 +237,7 @@ export function DropDown() {
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                        <DropdownMenuItem>
-                            <Keyboard className="mr-2 h-4 w-4" />
-                            <span>Keyboard shortcuts</span>
-                            <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
-                        </DropdownMenuItem>
+                        <ShortCutsModal />
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
