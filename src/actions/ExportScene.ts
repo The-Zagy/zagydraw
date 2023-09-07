@@ -107,7 +107,25 @@ export class ActionExportScene extends Command {
             if (this.dest === DestOpts.CLIPBOARD) {
                 await navigator.clipboard.writeText(JSON.stringify(portable));
             } else if (this.dest === DestOpts.JSON) {
-                throw new Error("EXPORT SCENE: TODO export as json file");
+                // Create a Blob from the JSON string
+                const blob = new Blob([JSON.stringify(portable)], { type: "application/zagydraw" });
+                // Create a Blob URL
+                const blobUrl = URL.createObjectURL(blob);
+
+                // Create an <a> element
+                const downloadLink = document.createElement("a");
+
+                // Set the href attribute to the Blob URL
+                downloadLink.href = blobUrl;
+
+                // Set the download attribute to specify the filename
+                downloadLink.download = "zagy.zagydraw";
+
+                // Trigger a click event to open the file save dialog
+                downloadLink.click();
+
+                // Clean up by revoking the Blob URL
+                URL.revokeObjectURL(blobUrl);
             }
         } catch (e) {
             console.log("🪵 [copySelected.ts:15] ~ token ~ \x1b[0;32me\x1b[0m = ", e);
