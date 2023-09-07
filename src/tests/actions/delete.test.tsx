@@ -40,7 +40,7 @@ describe("delete elements with cursor", () => {
             "line",
             canvas,
             [elementStartPos[0] + offset, elementStartPos[0] + offset],
-            [elementEndPos[0] + offset, elementEndPos[0] + offset]
+            [elementEndPos[0] + offset, elementEndPos[0] + offset],
         );
         //todo add text element when its bounding rect is fixed
         await clickCursor(CursorFn.Erase);

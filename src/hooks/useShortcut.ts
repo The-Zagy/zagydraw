@@ -87,11 +87,11 @@ export default function useKeyboardShortcut(
 ) {
     const shortcutCombinationSet = useMemo(
         () => new Set<KeyCodes>(_shortcutCombination.map((key) => keysToCodes[key])),
-        [_shortcutCombination]
+        [_shortcutCombination],
     );
     const shortcutCombinationSorted = useMemo(
         () => _shortcutCombination.map((key) => keysToCodes[key]),
-        [_shortcutCombination]
+        [_shortcutCombination],
     );
     const pressedKeysSet = useRef(new Set<KeyCodes>());
     const pressedKeysSorted = useRef<KeyCodes[]>([]);

@@ -144,7 +144,7 @@ function isImage(el: ZagyCanvasElement): el is ZagyCanvasImageElement {
 
 type CleanedElement<T extends ZagyCanvasElement> = Omit<
     T,
-    "cache" | "cacheCtx" | "zoom" | "willDelete" | "roughElement" | "imgRef"
+    "cache" | "cacheCtx" | "zoom" | "willDelete" | "roughElement" | "imgRef" | "path2D"
 >;
 
 type ZagyPortableT = {

@@ -31,7 +31,7 @@ export function renderRoughElement(
     el: ZagyCanvasRectElement | ZagyCanvasLineElement,
     ctx: CanvasRenderingContext2D,
     roughCanvas: RoughCanvas,
-    zoom: number
+    zoom: number,
 ) {
     if (el.cache) {
         ctx.save();
@@ -45,7 +45,7 @@ export function renderRoughElement(
             (el.x - CACHE_CANVAS_SIZE_THRESHOLD) * zoom,
             (el.y - CACHE_CANVAS_SIZE_THRESHOLD) * zoom,
             el.cache.width,
-            el.cache.height
+            el.cache.height,
         );
         ctx.restore();
     } else {
@@ -57,6 +57,7 @@ function renderTextElement(el: ZagyCanvasTextElement, ctx: CanvasRenderingContex
     ctx.save();
 
     ctx.font = `${el.options.fontSize}px ` + FontTypeOptions[el.options.font];
+    console.log("re", `${el.options.fontSize}px ` + FontTypeOptions[el.options.font]);
     ctx.fillStyle = el.options.stroke;
     ctx.textBaseline = "top";
     el.text.forEach((val, i) => ctx.fillText(val, el.x, el.y + i * el.options.fontSize));
@@ -66,7 +67,7 @@ function renderTextElement(el: ZagyCanvasTextElement, ctx: CanvasRenderingContex
 const renderFreeDrawElement = (
     el: ZagyCanvasHandDrawnElement,
     ctx: CanvasRenderingContext2D,
-    zoom: number
+    zoom: number,
 ) => {
     ctx.save();
     ctx.fillStyle = "white";
@@ -81,7 +82,7 @@ const renderFreeDrawElement = (
             (el.x - CACHE_CANVAS_SIZE_THRESHOLD / 2) * zoom,
             (el.y - CACHE_CANVAS_SIZE_THRESHOLD / 2) * zoom,
             el.cache.width,
-            el.cache.height
+            el.cache.height,
         );
         ctx.restore();
         return;
@@ -94,7 +95,7 @@ const renderFreeDrawElement = (
 function renderImageElement(
     el: ZagyCanvasImageElement,
     ctx: CanvasRenderingContext2D,
-    zoom: number
+    zoom: number,
 ) {
     ctx.save();
     ctx.scale(1 / zoom, 1 / zoom);
@@ -114,7 +115,7 @@ function renderImageElement(
             el.x * zoom,
             el.y * zoom,
             el.endX - el.x,
-            el.endY - el.y
+            el.endY - el.y,
         );
     }
     ctx.restore();
@@ -126,7 +127,7 @@ function renderElements<T extends ZagyCanvasElement>(
     elements: T[],
     roughCanvas: RoughCanvas,
     ctx: CanvasRenderingContext2D,
-    zoom: number
+    zoom: number,
 ) {
     elements.forEach((el) => {
         ctx.save();

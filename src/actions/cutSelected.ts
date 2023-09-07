@@ -1,5 +1,5 @@
 import { ActionDeleteSelected } from "./deleteSelected";
-import { ActionExportScene, DestOpts } from "./copySelected";
+import { ActionExportScene, DestOpts } from "./ExportScene";
 import { UndoableCommand } from "./types";
 
 export class ActionCutSelected extends UndoableCommand {

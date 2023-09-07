@@ -96,6 +96,8 @@ class MoveElementAction {
             this.oldPositionEnd[0] - this.position.x,
             this.oldPositionEnd[1] - this.position.y,
         ];
+        // prevent adding move to the history stack if the element only got selected but not moved
+        if (!this.isDragging) return null;
         this.isDragging = false;
         if (el === null) return null;
         return {

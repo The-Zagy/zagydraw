@@ -9,7 +9,7 @@ function drawGrid(
     zoom = 1,
     color = "#282828",
     cellSide = CELL_SIZE,
-    lineWidth = 1.3
+    lineWidth = 1.3,
 ) {
     cellSide *= zoom;
     const xStart = Math.floor(y) % cellSide;

@@ -71,7 +71,7 @@ const generateRectElement = (
     generator: RoughGenerator,
     startPos: Point,
     endPos: Point,
-    options: Partial<RectOptions & { id: string }>
+    options: Partial<RectOptions & { id: string }>,
 ): ZagyCanvasRectElement => {
     const { x, y, endX, endY } = normalizeRectCoords(startPos, endPos);
     const normalizedOptions = normalizeRectOptions(options);
@@ -99,7 +99,7 @@ const generateCacheRectElement = (
     startPos: Point,
     endPos: Point,
     zoom: number,
-    options: Partial<RectOptions & { id: string }>
+    options: Partial<RectOptions & { id: string }>,
 ): ZagyCanvasRectElement => {
     const { x, y, endX, endY } = normalizeRectCoords(startPos, endPos);
 
@@ -112,7 +112,7 @@ const generateCacheRectElement = (
         {
             roughness: 2,
             ...normalizedOptions,
-        }
+        },
     );
     const cacheCanvas = document.createElement("canvas");
     // we have to add some threshold because roughjs rects have some offset
@@ -145,7 +145,7 @@ const generateCacheRectElement = (
 const generateSelectRectElement = (
     generator: RoughGenerator,
     startPos: Point,
-    endPos: Point
+    endPos: Point,
 ): ZagyCanvasRectElement => {
     const { x, y, endX, endY } = getCorrectCoordOrder(startPos, endPos);
     const normalizedOptions: RectOptions = {
@@ -162,7 +162,7 @@ const generateSelectRectElement = (
         startPos[1],
         endPos[0] - startPos[0],
         endPos[1] - startPos[1],
-        { ...normalizedOptions, roughness: 0 }
+        { ...normalizedOptions, roughness: 0 },
     );
     return {
         roughElement,
@@ -185,7 +185,7 @@ const generateLineElement = (
     generator: RoughGenerator,
     startPos: Point,
     endPos: Point,
-    options: Partial<LineOptions & { id: string }> = {}
+    options: Partial<LineOptions & { id: string }> = {},
 ): ZagyCanvasLineElement => {
     const { x, y, endX, endY } = getCorrectCoordOrder(startPos, endPos);
     // todo create normalize line options
@@ -215,7 +215,7 @@ const generateCacheLineElement = (
     startPos: Point,
     endPos: Point,
     zoom: number,
-    options: Partial<LineOptions & { id: string }>
+    options: Partial<LineOptions & { id: string }>,
 ): ZagyCanvasLineElement => {
     const { minX: x, minY: y, maxX: endX, maxY: endY } = getGlobalMinMax([startPos, endPos]);
     const normalizedOptions = normalizeRectOptions(options);
@@ -269,7 +269,7 @@ function textElementHelper(
     text: string,
     startPos: Point,
     fontSize: number,
-    font: TextOptions["font"]
+    font: TextOptions["font"],
 ): { text: string[]; startPos: Point; endPos: Point } {
     const lines = text.split("\n");
     // text element width is the largest line width
@@ -301,7 +301,7 @@ const generateTextElement = (
     ctx: CanvasRenderingContext2D,
     text: string,
     startPos: [number, number],
-    options: Partial<TextOptions & { id: string }> = {}
+    options: Partial<TextOptions & { id: string }> = {},
 ): ZagyCanvasTextElement => {
     const normalizedOptions = normalizeTextOptions(options);
     const norm = textElementHelper(
@@ -309,7 +309,7 @@ const generateTextElement = (
         text,
         startPos,
         normalizedOptions.fontSize,
-        normalizedOptions.font
+        normalizedOptions.font,
     );
     const { x, y, endX, endY } = getCorrectCoordOrder(startPos, [norm.endPos[0], norm.endPos[1]]);
     return {
@@ -371,7 +371,7 @@ async function loadImage(file: Blob, id: string) {
 function generateImageElement(
     blob: Blob,
     startPos: [number, number],
-    options: Partial<ImageOptions & { id: string }> = {}
+    options: Partial<ImageOptions & { id: string }> = {},
 ): ZagyCanvasImageElement {
     // TODO hand drawn options is the same as image options so i use it, but it's better to create a separate function so they won't be coupled together
     const normalizedOptions = normalizeHanddrawnOptions(options);
@@ -397,7 +397,7 @@ function generateImageElement(
 const constructHandDrawnElementPath2D = (paths: Point[], options: HanddrawnOptions) => {
     const stroke = getStroke(paths, {
         size: options.strokeWidth + 2,
-        smoothing: 2,
+        smoothing: 1.5,
         thinning: 0,
         streamline: 0,
         easing: (t) => t,
@@ -416,7 +416,7 @@ const constructHandDrawnElementPath2D = (paths: Point[], options: HanddrawnOptio
 };
 export const generateHandDrawnElement = (
     paths: Point[],
-    options: Partial<HanddrawnOptions> = {}
+    options: Partial<HanddrawnOptions> = {},
 ): ZagyCanvasHandDrawnElement => {
     const normalizedOptions = normalizeHanddrawnOptions(options);
     const path2D = constructHandDrawnElementPath2D(paths, normalizedOptions);
@@ -436,7 +436,7 @@ export const generateHandDrawnElement = (
 const generateCachedHandDrawnElement = (
     paths: Point[],
     zoom: number,
-    options: Partial<HanddrawnOptions> = {}
+    options: Partial<HanddrawnOptions> = {},
 ) => {
     const normalizedOptions = normalizeHanddrawnOptions(options);
     const el = generateHandDrawnElement(paths, options);
@@ -451,7 +451,7 @@ const generateCachedHandDrawnElement = (
     cacheCtx.scale(zoom, zoom);
     cacheCtx.translate(
         -el.x + CACHE_CANVAS_SIZE_THRESHOLD / 2,
-        -el.y + CACHE_CANVAS_SIZE_THRESHOLD / 2
+        -el.y + CACHE_CANVAS_SIZE_THRESHOLD / 2,
     );
     cacheCtx.fillStyle = normalizedOptions.stroke;
     cacheCtx.fill(el.path2D);
@@ -466,7 +466,7 @@ const generateCachedHandDrawnElement = (
 const regenerateCacheElement = (
     el: ZagyCanvasElement,
     newZoom: number,
-    generator: RoughGenerator
+    generator: RoughGenerator,
 ): ZagyCanvasElement => {
     if (isRect(el)) {
         return generateCacheRectElement(
@@ -474,7 +474,7 @@ const regenerateCacheElement = (
             [el.x, el.y],
             [el.endX, el.endY],
             newZoom,
-            el.options
+            el.options,
         );
     } else if (isLine(el)) {
         return generateCacheLineElement(generator, el.point1, el.point2, newZoom, el.options);

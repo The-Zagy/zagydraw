@@ -4,7 +4,7 @@ import isClient from "@/utils/isClient";
 export function useGlobalEvent<K extends keyof WindowEventMap>(
     event: K,
     callback: (event: WindowEventMap[K]) => void,
-    options?: AddEventListenerOptions
+    options?: AddEventListenerOptions,
 ) {
     useEffect(() => {
         if (!isClient) {

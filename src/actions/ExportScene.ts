@@ -15,7 +15,6 @@ import { isText } from "@/types/general";
 import { ZagyCanvasTextElement } from "@/types/general";
 import { isHanddrawn } from "@/types/general";
 import { ZagyCanvasHandDrawnElement } from "@/types/general";
-import { getBoundingRect } from "@/utils";
 
 export const DestOpts = {
     CLIPBOARD: 0,
@@ -78,7 +77,6 @@ export class ActionExportScene extends Command {
             return {
                 ...baseTemp,
                 shape: el.shape,
-                path2D: el.path2D,
                 paths: el.paths,
                 options: el.options,
             } satisfies CleanedElement<ZagyCanvasHandDrawnElement> as unknown as CleanedElement<T>;
@@ -98,14 +96,13 @@ export class ActionExportScene extends Command {
             // choose which items to clean up
             if (this.onlySelected) {
                 selectedElements.forEach((el) =>
-                    portable.elements.push(ActionExportScene.cleanupItem(el))
+                    portable.elements.push(ActionExportScene.cleanupItem(el)),
                 );
             } else {
                 elements.forEach((el) => portable.elements.push(ActionExportScene.cleanupItem(el)));
             }
             // don't copy dump text into the user clipboard if there's no data to copy
             if (portable.elements.length === 0) return;
-            console.log("copied bounding rect", getBoundingRect(...portable.elements));
             // choose export mechanism
             if (this.dest === DestOpts.CLIPBOARD) {
                 await navigator.clipboard.writeText(JSON.stringify(portable));

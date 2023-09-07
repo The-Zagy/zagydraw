@@ -8,7 +8,7 @@ import { CanvasState } from "@/store";
 function renderScene(
     roughCanvas: RoughCanvas,
     ctx: CanvasRenderingContext2D,
-    canvasState: CanvasState
+    canvasState: CanvasState,
 ) {
     ctx.clearRect(0, 0, canvasState.width, canvasState.height);
     ctx.fillStyle = "dark";
@@ -20,7 +20,7 @@ function renderScene(
         canvasState.width,
         canvasState.height,
         ctx,
-        canvasState.zoomLevel
+        canvasState.zoomLevel,
     );
     ctx.save();
     ctx.translate(canvasState.position.x, canvasState.position.y);

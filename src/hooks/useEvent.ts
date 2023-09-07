@@ -5,7 +5,7 @@ export function useEvent<K extends keyof HTMLElementEventMap>(
     event: K,
     callback: (event: HTMLElementEventMap[K]) => void,
     element: HTMLElement | null,
-    options?: AddEventListenerOptions | boolean
+    options?: AddEventListenerOptions | boolean,
 ) {
     useEffect(() => {
         if (!isClient || !element) {

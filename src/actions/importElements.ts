@@ -2,10 +2,10 @@ import { RoughGenerator } from "roughjs/bin/generator";
 import { UndoableCommand } from "./types";
 import { useStore } from "@/store/index";
 import {
-    generateHandDrawnElement,
+    generateCacheLineElement,
+    generateCacheRectElement,
+    generateCachedHandDrawnElement,
     generateImageElement,
-    generateLineElement,
-    generateRectElement,
     generateTextElement,
 } from "@/utils/canvas/generateElement";
 import { Point, getBoundingRect, normalizeToGrid } from "@/utils";
@@ -26,7 +26,7 @@ export class ActionImportElements extends UndoableCommand {
     constructor(
         private dataTransfer: DataTransfer,
         private mouseCoords: Point,
-        private canvas: HTMLCanvasElement
+        private canvas: HTMLCanvasElement,
     ) {
         super();
         this.#importedIds = new Set();
@@ -40,19 +40,36 @@ export class ActionImportElements extends UndoableCommand {
      * create new bounding rect on the current mouse position, then calc each element new position, element x = newBounding.x + (oldBounding.x - el.x);
      */
     private updateElementsCoords(els: ZagyPortableT["elements"]): void {
+        const { getPosition } = useStore.getState();
+        const newBoundingStart = normalizeToGrid(getPosition(), this.mouseCoords);
         const oldBounding = getBoundingRect(...els);
-        console.log("old bounding rect", oldBounding);
         for (const el of els) {
-            el.x = this.mouseCoords[0] + (el.x - oldBounding[0][0]);
-            el.y = this.mouseCoords[1] + (el.y - oldBounding[0][1]);
-            el.endX = this.mouseCoords[0] + (el.endX - oldBounding[1][0]);
-            el.endY = this.mouseCoords[1] + (el.endY - oldBounding[1][1]);
-            console.log(el);
+            const xDiff = el.endX - el.x;
+            const yDiff = el.endY - el.y;
+            el.x = newBoundingStart[0] + (el.x - oldBounding[0][0]);
+            el.y = newBoundingStart[1] + (el.y - oldBounding[0][1]);
+            el.endX = el.x + xDiff;
+            el.endY = el.y + yDiff;
+            if (isLine(el)) {
+                el.point1 = [
+                    newBoundingStart[0] + (el.point1[0] - oldBounding[0][0]),
+                    newBoundingStart[1] + (el.point1[1] - oldBounding[0][1]),
+                ];
+                el.point2 = [
+                    newBoundingStart[0] + (el.point2[0] - oldBounding[0][0]),
+                    newBoundingStart[1] + (el.point2[1] - oldBounding[0][1]),
+                ];
+            } else if (isHanddrawn(el)) {
+                el.paths = el.paths.map((path) => [
+                    newBoundingStart[0] + (path[0] - oldBounding[0][0]),
+                    newBoundingStart[1] + (path[1] - oldBounding[0][1]),
+                ]);
+            }
         }
     }
 
     public execute() {
-        const { setElements, getPosition } = useStore.getState();
+        const { setElements, getPosition, zoomLevel } = useStore.getState();
         for (const item of this.dataTransfer.items) {
             // if the content is text then we need to check to its structure if we can create ZagyElement from it or not, if not fallback to normal text
             // ignore any files that is not image
@@ -77,30 +94,28 @@ export class ActionImportElements extends UndoableCommand {
                         // we need to keep same structure and order of the copied elements relative to the bounding rect that they were copied from
                         // to do so i will create bounding rect between pasted elements to know each point difference from the original bounding rect
                         // create new bounding rect on the current mouse position, then calc each element new position, element x = newBounding.x + (oldBounding.x - el.x);
-                        console.log("found elements", typeof items, items);
-                        const oldBounding = getBoundingRect(...items.elements);
-                        console.log("old bounding rect", oldBounding);
                         this.updateElementsCoords(items.elements);
-                        console.log("after update", items.elements);
                         const elsToPush: ZagyCanvasElement[] = [];
                         for (const el of items.elements) {
                             if (isRect(el)) {
                                 elsToPush.push(
-                                    generateRectElement(
+                                    generateCacheRectElement(
                                         roughGenerator,
                                         [el.x, el.y],
                                         [el.endX, el.endY],
-                                        el.options
-                                    )
+                                        zoomLevel,
+                                        el.options,
+                                    ),
                                 );
                             } else if (isLine(el)) {
                                 elsToPush.push(
-                                    generateLineElement(
+                                    generateCacheLineElement(
                                         roughGenerator,
-                                        [el.x, el.y],
-                                        [el.endX, el.endY],
-                                        el.options
-                                    )
+                                        el.point1,
+                                        el.point2,
+                                        zoomLevel,
+                                        el.options,
+                                    ),
                                 );
                             } else if (isText(el)) {
                                 elsToPush.push(
@@ -108,22 +123,26 @@ export class ActionImportElements extends UndoableCommand {
                                         ctx,
                                         el.text.join("\n"),
                                         [el.x, el.y],
-                                        el.options
-                                    )
+                                        el.options,
+                                    ),
                                 );
                             } else if (isHanddrawn(el)) {
-                                elsToPush.push(generateHandDrawnElement(el.paths, el.options));
+                                elsToPush.push(
+                                    generateCachedHandDrawnElement(el.paths, zoomLevel, el.options),
+                                );
                             } else if (isImage(el)) {
                                 // generateImageElement();
                             }
                         }
 
+                        // append elements to be deleted from the history stack
+                        elsToPush.forEach((el) => this.#importedIds.add(el.id));
                         setElements((prev) => [...prev, ...elsToPush]);
                     } catch {
-                        console.log("will create text element from", pasted);
                         const ctx = this.canvas.getContext("2d");
                         if (!ctx) return;
                         const textEl = generateTextElement(ctx, pasted, this.mouseCoords);
+                        console.log(textEl);
                         setElements((prev) => [...prev, textEl]);
                     }
                 });

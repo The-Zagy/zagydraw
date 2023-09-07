@@ -23,7 +23,7 @@ class MultiSelectAction {
             const rect: ZagyCanvasRectElement = generateSelectRectElement(
                 this.roughGenerator,
                 this.lastMouseDownPosition!,
-                this.lastMouseUpPosition
+                this.lastMouseUpPosition,
             );
             setMultiSelectRect(rect);
         }
