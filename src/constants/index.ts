@@ -103,6 +103,9 @@ export const SHORTCUTS = {
         text: { description: "create text", keys: ["6"] },
         erase: { description: "erase", keys: ["7"] },
     },
+    scene: {
+        open: { description: "open from file", keys: ["ControlLeft", "o"] },
+    },
 } as const satisfies {
     [g: string]: { [k: string]: { description: string; keys: readonly [Keys, ...Keys[]] } };
 };

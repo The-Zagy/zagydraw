@@ -1,5 +1,6 @@
 import { Trash2, Github, Keyboard, Menu, Save, File, AlertTriangle } from "lucide-react";
 
+import { useState } from "react";
 import { ModeToggle } from "./mode-toggle";
 import { commandManager } from "@/actions/commandManager";
 import { ActionClearCanvas } from "@/actions/resetCanvas";
@@ -35,6 +36,8 @@ import {
 } from "@/components/ui/dialog";
 import { ActionExportScene, DestOpts } from "@/actions/ExportScene";
 import { SHORTCUTS } from "@/constants";
+import { ActionOpenScene } from "@/actions/openScene";
+import useKeyboardShortcut from "@/hooks/useShortcut";
 
 function ResetCanvasAlert() {
     return (
@@ -117,8 +120,24 @@ function SaveToDialog() {
 }
 
 function OpenSceneDialog() {
+    const [isOpen, setIsOpen] = useState(false);
+    useKeyboardShortcut(
+        {
+            onShortcut: (e) => {
+                e.preventDefault();
+                setIsOpen(true);
+            },
+            orderMatters: true,
+        },
+        ...SHORTCUTS["scene"]["open"].keys,
+    );
+
     return (
-        <Dialog>
+        <Dialog
+            open={isOpen}
+            onOpenChange={(open) => {
+                setIsOpen(open);
+            }}>
             {/*FIX: open dialog/alert dialog inside dropdown or context menu
   @url https://github.com/radix-ui/primitives/issues/1836#issuecomment-1674338372
   */}
@@ -133,7 +152,7 @@ function OpenSceneDialog() {
                     <DialogTitle>Load From File</DialogTitle>
                 </DialogHeader>
                 <div className="flex h-full w-full flex-wrap justify-center gap-5 overflow-y-auto">
-                    <div className="flex w-full flex-col gap-3 bg-yellow-100 md:flex-row">
+                    <div className="flex w-full flex-col items-center justify-center gap-3 bg-yellow-100 md:flex-row">
                         <p className="flex h-fit w-fit items-center justify-center rounded-full border-2 bg-yellow-400 text-4xl text-black">
                             <AlertTriangle />
                         </p>
@@ -142,7 +161,13 @@ function OpenSceneDialog() {
                             <span className="font-bold">replace your existing content.</span>
                             You can back up your drawing first using one of the options below.
                         </p>
-                        <Button variant="default" className="w-content bg-yellow-400 text-black">
+                        <Button
+                            onClick={() => {
+                                commandManager.executeCommand(new ActionOpenScene());
+                                setIsOpen(false);
+                            }}
+                            variant="default"
+                            className="w-content bg-yellow-400 text-black">
                             Load From File
                         </Button>
                     </div>
@@ -195,18 +220,18 @@ function ShortCutsModal() {
                     <DialogTitle>Keyboard Shortcuts</DialogTitle>
                 </DialogHeader>
                 {Object.keys(SHORTCUTS).map((group) => (
-                    <>
+                    <div key={group}>
                         <h1 className="text-4xl" key={group}>
                             {group}
                         </h1>
-                        {Object.keys(SHORTCUTS[group]).map((key) => (
-                            <p>
+                        {Object.keys(SHORTCUTS[group as keyof typeof SHORTCUTS]).map((key) => (
+                            <p key={key}>
                                 {SHORTCUTS[group][key]["description"]}
                                 {" : "}
                                 <span>{SHORTCUTS[group][key]["keys"].join(" + ")}</span>
                             </p>
                         ))}
-                    </>
+                    </div>
                 ))}
             </DialogContent>
         </Dialog>

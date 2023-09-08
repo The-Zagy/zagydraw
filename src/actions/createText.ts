@@ -73,7 +73,7 @@ class TextAction {
                 if (ctx === null) return;
                 const { currentText, position } = useStore.getState();
                 const normalizedPosition = normalizePos(position, this.lastMouseDownPosition);
-                element = generateTextElement(ctx, currentText, normalizedPosition, {});
+                element = generateTextElement(currentText, normalizedPosition, {});
 
                 const { setCurrentText, setIsWriting } = useStore.getState();
                 this.isAlreadyElement = false;

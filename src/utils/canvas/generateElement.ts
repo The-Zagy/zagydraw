@@ -265,12 +265,14 @@ const generateCacheLineElement = (
  * return text as lines, and calc text element position(width/height) from text string
  */
 function textElementHelper(
-    ctx: CanvasRenderingContext2D,
     text: string,
     startPos: Point,
     fontSize: number,
     font: TextOptions["font"],
 ): { text: string[]; startPos: Point; endPos: Point } {
+    const tempCanvas = document.createElement("canvas");
+    const ctx = tempCanvas.getContext("2d");
+    if (!ctx) throw new Error("GENERATE TEXT: must have ctx to be able to create new text");
     const lines = text.split("\n");
     // text element width is the largest line width
     let largestLineIndex = 0;
@@ -298,14 +300,12 @@ function textElementHelper(
 }
 
 const generateTextElement = (
-    ctx: CanvasRenderingContext2D,
     text: string,
     startPos: [number, number],
     options: Partial<TextOptions & { id: string }> = {},
 ): ZagyCanvasTextElement => {
     const normalizedOptions = normalizeTextOptions(options);
     const norm = textElementHelper(
-        ctx,
         text,
         startPos,
         normalizedOptions.fontSize,

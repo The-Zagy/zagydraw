@@ -239,7 +239,7 @@ export default function ToolbarLeft() {
                 );
             } else if (isText(el)) {
                 els.push(
-                    generateTextElement(ctx, el.text.join("\n"), [el.x, el.y], {
+                    generateTextElement(el.text.join("\n"), [el.x, el.y], {
                         ...el.options,
                         [k]: value,
                     }),

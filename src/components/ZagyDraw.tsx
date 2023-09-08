@@ -175,11 +175,10 @@ function ZagyDraw() {
         if (!event.clipboardData) return;
         if (!canvas.current) return;
         commandManager.executeCommand(
-            new ActionImportElements(
-                event.clipboardData,
-                [mouseCoords.current[0] / zoomLevel, mouseCoords.current[1] / zoomLevel],
-                canvas.current,
-            ),
+            new ActionImportElements(event.clipboardData, [
+                mouseCoords.current[0] / zoomLevel,
+                mouseCoords.current[1] / zoomLevel,
+            ]),
         );
     });
 

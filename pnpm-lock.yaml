@@ -29,6 +29,9 @@ dependencies:
   '@types/throttle-debounce':
     specifier: ^5.0.0
     version: 5.0.0
+  browser-fs-access:
+    specifier: ^0.34.1
+    version: 0.34.1
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -2990,6 +2993,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       fill-range: 7.0.1
+
+  /browser-fs-access@0.34.1:
+    resolution: {integrity: sha512-HPaRf2yimp8kWSuWJXc8Mi78dPbDzfduA+Gyq14H4jlMvd6XNfIRm36Y2yRLaa4x0gwcGuepj4zf14oiTlxrxQ==}
+    dev: false
 
   /browserslist@4.21.5:
     resolution: {integrity: sha512-tUkiguQGW7S3IhB7N+c2MV/HZPSCPAAiYBZXLsBhFB/PCy6ZKKsZrmBayHV9fdGV/ARIfJ14NkxKzRDjvp7L6w==}

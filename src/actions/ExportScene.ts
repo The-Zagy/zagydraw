@@ -1,3 +1,4 @@
+import { fileSave } from "browser-fs-access";
 import { Command } from "./types";
 import {
     type ZagyCanvasElement,
@@ -11,9 +12,8 @@ import {
     ZagyPortableT,
 } from "@/types/general";
 import { useStore } from "@/store/index";
-import { isText } from "@/types/general";
+import { isText, isHanddrawn } from "@/types/general";
 import { ZagyCanvasTextElement } from "@/types/general";
-import { isHanddrawn } from "@/types/general";
 import { ZagyCanvasHandDrawnElement } from "@/types/general";
 
 export const DestOpts = {
@@ -103,29 +103,18 @@ export class ActionExportScene extends Command {
             }
             // don't copy dump text into the user clipboard if there's no data to copy
             if (portable.elements.length === 0) return;
+
             // choose export mechanism
             if (this.dest === DestOpts.CLIPBOARD) {
                 await navigator.clipboard.writeText(JSON.stringify(portable));
             } else if (this.dest === DestOpts.JSON) {
-                // Create a Blob from the JSON string
                 const blob = new Blob([JSON.stringify(portable)], { type: "application/zagydraw" });
-                // Create a Blob URL
-                const blobUrl = URL.createObjectURL(blob);
-
-                // Create an <a> element
-                const downloadLink = document.createElement("a");
-
-                // Set the href attribute to the Blob URL
-                downloadLink.href = blobUrl;
-
-                // Set the download attribute to specify the filename
-                downloadLink.download = "zagy.zagydraw";
-
-                // Trigger a click event to open the file save dialog
-                downloadLink.click();
-
-                // Clean up by revoking the Blob URL
-                URL.revokeObjectURL(blobUrl);
+                await fileSave(blob, {
+                    fileName: "zagy.zagydraw",
+                    description: "Zagy Portable",
+                    extensions: [".zagydraw"],
+                    id: "zagydraw",
+                });
             }
         } catch (e) {
             console.log("🪵 [copySelected.ts:15] ~ token ~ \x1b[0;32me\x1b[0m = ", e);

@@ -57,7 +57,6 @@ function renderTextElement(el: ZagyCanvasTextElement, ctx: CanvasRenderingContex
     ctx.save();
 
     ctx.font = `${el.options.fontSize}px ` + FontTypeOptions[el.options.font];
-    console.log("re", `${el.options.fontSize}px ` + FontTypeOptions[el.options.font]);
     ctx.fillStyle = el.options.stroke;
     ctx.textBaseline = "top";
     el.text.forEach((val, i) => ctx.fillText(val, el.x, el.y + i * el.options.fontSize));

@@ -23,11 +23,7 @@ import {
 export class ActionImportElements extends UndoableCommand {
     #importedIds: Set<string>;
 
-    constructor(
-        private dataTransfer: DataTransfer,
-        private mouseCoords: Point,
-        private canvas: HTMLCanvasElement,
-    ) {
+    constructor(private dataTransfer: DataTransfer, private mouseCoords: Point) {
         super();
         this.#importedIds = new Set();
     }
@@ -89,8 +85,6 @@ export class ActionImportElements extends UndoableCommand {
                         const items = JSON.parse(pasted);
                         isZagyPortable(items);
                         const roughGenerator = new RoughGenerator();
-                        const ctx = this.canvas.getContext("2d");
-                        if (!ctx) return;
                         // we need to keep same structure and order of the copied elements relative to the bounding rect that they were copied from
                         // to do so i will create bounding rect between pasted elements to know each point difference from the original bounding rect
                         // create new bounding rect on the current mouse position, then calc each element new position, element x = newBounding.x + (oldBounding.x - el.x);
@@ -120,7 +114,6 @@ export class ActionImportElements extends UndoableCommand {
                             } else if (isText(el)) {
                                 elsToPush.push(
                                     generateTextElement(
-                                        ctx,
                                         el.text.join("\n"),
                                         [el.x, el.y],
                                         el.options,
@@ -139,10 +132,7 @@ export class ActionImportElements extends UndoableCommand {
                         elsToPush.forEach((el) => this.#importedIds.add(el.id));
                         setElements((prev) => [...prev, ...elsToPush]);
                     } catch {
-                        const ctx = this.canvas.getContext("2d");
-                        if (!ctx) return;
-                        const textEl = generateTextElement(ctx, pasted, this.mouseCoords);
-                        console.log(textEl);
+                        const textEl = generateTextElement(pasted, this.mouseCoords);
                         setElements((prev) => [...prev, textEl]);
                     }
                 });
