@@ -72,7 +72,7 @@ function ZagyDraw() {
         }
         setZoomLevel(clampedZoom);
         setElements((elements) =>
-            elements.map((e) => regenerateCacheElement(e, clampedZoom, roughGenerator))
+            elements.map((e) => regenerateCacheElement(e, clampedZoom, roughGenerator)),
         );
     };
     const canvas = useRef<HTMLCanvasElement>(null);
@@ -163,8 +163,8 @@ function ZagyDraw() {
         commandManager.executeCommand(
             SingleSelectAction.inProgress(
                 [e.clientX / zoomLevel, e.clientY / zoomLevel],
-                canvas.current
-            )
+                canvas.current,
+            ),
         );
     };
 
@@ -173,11 +173,12 @@ function ZagyDraw() {
     useGlobalEvent("paste", (event) => {
         event.preventDefault();
         if (!event.clipboardData) return;
+        if (!canvas.current) return;
         commandManager.executeCommand(
             new ActionImportElements(event.clipboardData, [
                 mouseCoords.current[0] / zoomLevel,
                 mouseCoords.current[1] / zoomLevel,
-            ])
+            ]),
         );
     });
 
@@ -234,12 +235,12 @@ function ZagyDraw() {
                 event: "pointermove",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        DragAction.inProgress([e.clientX, e.clientY], canvas.current)
+                        DragAction.inProgress([e.clientX, e.clientY], canvas.current),
                     );
                 },
             },
         ],
-        canvas.current
+        canvas.current,
     );
     useMultiPhaseEvent(
         "drawElement",
@@ -248,7 +249,7 @@ function ZagyDraw() {
                 event: "pointerdown",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        DrawAction.start([e.clientX / zoomLevel, e.clientY / zoomLevel])
+                        DrawAction.start([e.clientX / zoomLevel, e.clientY / zoomLevel]),
                     );
                 },
                 options: true,
@@ -259,8 +260,8 @@ function ZagyDraw() {
                     commandManager.executeCommand(
                         DrawAction.inProgress(
                             [e.clientX / zoomLevel, e.clientY / zoomLevel],
-                            canvas.current
-                        )
+                            canvas.current,
+                        ),
                     );
                 },
             },
@@ -271,7 +272,7 @@ function ZagyDraw() {
                 },
             },
         ],
-        canvas.current
+        canvas.current,
     );
     useMultiPhaseEvent(
         "MultiSelect",
@@ -280,7 +281,7 @@ function ZagyDraw() {
                 event: "pointerdown",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        MultiSelectAction.start([e.clientX / zoomLevel, e.clientY / zoomLevel])
+                        MultiSelectAction.start([e.clientX / zoomLevel, e.clientY / zoomLevel]),
                     );
                 },
                 options: true,
@@ -291,8 +292,8 @@ function ZagyDraw() {
                     commandManager.executeCommand(
                         MultiSelectAction.inProgress(
                             [e.clientX / zoomLevel, e.clientY / zoomLevel],
-                            canvas.current
-                        )
+                            canvas.current,
+                        ),
                     );
                 },
             },
@@ -303,7 +304,7 @@ function ZagyDraw() {
                 },
             },
         ],
-        canvas.current
+        canvas.current,
     );
     useMultiPhaseEvent(
         "delete",
@@ -314,8 +315,8 @@ function ZagyDraw() {
                     commandManager.executeCommand(
                         DeleteAction.inProgress(
                             [e.clientX / zoomLevel, e.clientY / zoomLevel],
-                            canvas.current
-                        )
+                            canvas.current,
+                        ),
                     );
                 },
             },
@@ -326,7 +327,7 @@ function ZagyDraw() {
                 },
             },
         ],
-        canvas.current
+        canvas.current,
     );
     useMultiPhaseEvent(
         "createText",
@@ -335,7 +336,7 @@ function ZagyDraw() {
                 event: "pointerdown",
                 callback: (e) => {
                     commandManager.executeCommand(
-                        TextAction.start([e.clientX / zoomLevel, e.clientY / zoomLevel])
+                        TextAction.start([e.clientX / zoomLevel, e.clientY / zoomLevel]),
                     );
                 },
                 options: true,
@@ -344,12 +345,12 @@ function ZagyDraw() {
                 event: "pointerup",
                 callback: () => {
                     commandManager.executeCommand(
-                        TextAction.inProgress(textAreaWrapper.current, textareaInput.current)
+                        TextAction.inProgress(textAreaWrapper.current, textareaInput.current),
                     );
                 },
             },
         ],
-        canvas.current
+        canvas.current,
     );
     useMultiPhaseEvent(
         "moveElement",
@@ -360,8 +361,8 @@ function ZagyDraw() {
                     commandManager.executeCommand(
                         MoveElementAction.start(
                             [e.clientX / zoomLevel, e.clientY / zoomLevel],
-                            canvas.current
-                        )
+                            canvas.current,
+                        ),
                     );
                 },
                 options: true,
@@ -372,8 +373,8 @@ function ZagyDraw() {
                     commandManager.executeCommand(
                         MoveElementAction.inProgress(
                             [e.clientX / zoomLevel, e.clientY / zoomLevel],
-                            canvas.current
-                        )
+                            canvas.current,
+                        ),
                     );
                 },
                 options: true,
@@ -385,7 +386,7 @@ function ZagyDraw() {
                 },
             },
         ],
-        canvas.current
+        canvas.current,
     );
     return (
         <>
@@ -401,7 +402,7 @@ function ZagyDraw() {
                             "font-minecraft ": font === "minecraft",
                         },
                         " m-0  p-0  leading-none outline-none",
-                        "grow-wrap pointer-events-none fixed bg-transparent"
+                        "grow-wrap pointer-events-none fixed bg-transparent",
                     )}
                     //for wrapping text
                     data-replicated-value={currentText}
@@ -420,7 +421,7 @@ function ZagyDraw() {
                         onKeyUp={(e) => {
                             if (e.key === "Escape") {
                                 commandManager.executeCommand(
-                                    TextAction.end(canvas.current, textareaInput.current)
+                                    TextAction.end(canvas.current, textareaInput.current),
                                 );
                             }
                         }}

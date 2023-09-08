@@ -23,6 +23,7 @@
         "@radix-ui/react-switch": "^1.0.3",
         "@testing-library/user-event": "^14.4.3",
         "@types/throttle-debounce": "^5.0.0",
+        "browser-fs-access": "^0.34.1",
         "class-variance-authority": "^0.7.0",
         "clsx": "^1.2.1",
         "lucide-react": "^0.268.0",

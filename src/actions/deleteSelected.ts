@@ -14,7 +14,7 @@ export class ActionDeleteSelected extends UndoableCommand {
                 !(
                     itm.shape === "image" &&
                     (itm as ZagyCanvasImageElement).imgRef instanceof Promise
-                )
+                ),
         );
         // remove any elements that exist on selected elements array
         // create hash of ids for easy check while filtring the elements

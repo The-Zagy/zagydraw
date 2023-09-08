@@ -18,7 +18,7 @@ class DeleteAction {
         if (el !== null) {
             this.willDelete = true;
             setElements((prev) =>
-                prev.map((val) => (val.id === el.id ? { ...val, willDelete: true } : val))
+                prev.map((val) => (val.id === el.id ? { ...val, willDelete: true } : val)),
             );
         }
     }
@@ -42,7 +42,7 @@ class DeleteAction {
                     !(
                         val.shape === "image" &&
                         (val as ZagyCanvasImageElement).imgRef instanceof Promise
-                    )
+                    ),
             )
             .map((val) => ({ ...val, willDelete: false }));
         if (deletedElements.length === 0) return null;

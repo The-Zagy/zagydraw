@@ -9,7 +9,7 @@ import { CursorFn, ZagyCanvasElement } from "@/types/general";
 export function useCursor(
     cursorFn: CursorFn,
     isMouseDown: boolean,
-    currentlyHoveredElement: ZagyCanvasElement | null
+    currentlyHoveredElement: ZagyCanvasElement | null,
 ) {
     useEffect(() => {
         switch (cursorFn) {

@@ -21,7 +21,7 @@ class TextAction {
     }
     private static _inProgress(
         textAreaWrapper: HTMLDivElement | null,
-        textArea: HTMLTextAreaElement | null
+        textArea: HTMLTextAreaElement | null,
     ) {
         const { cursorFn, zoomLevel } = useStore.getState();
         if (!textAreaWrapper || !textArea || cursorFn !== CursorFn.Text) return;
@@ -58,7 +58,7 @@ class TextAction {
 
     public static end(
         canvas: HTMLCanvasElement | null,
-        textArea: HTMLTextAreaElement | null
+        textArea: HTMLTextAreaElement | null,
     ): UndoableCommand | null {
         let element: ZagyCanvasElement | null = null;
         const { cursorFn } = useStore.getState();
@@ -73,7 +73,7 @@ class TextAction {
                 if (ctx === null) return;
                 const { currentText, position } = useStore.getState();
                 const normalizedPosition = normalizePos(position, this.lastMouseDownPosition);
-                element = generateTextElement(ctx, currentText, normalizedPosition, {});
+                element = generateTextElement(currentText, normalizedPosition, {});
 
                 const { setCurrentText, setIsWriting } = useStore.getState();
                 this.isAlreadyElement = false;

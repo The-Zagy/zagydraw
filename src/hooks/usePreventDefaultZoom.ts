@@ -8,6 +8,6 @@ export function usePreventDefaultZoom() {
                 e.preventDefault();
             }
         },
-        { passive: false }
+        { passive: false },
     );
 }

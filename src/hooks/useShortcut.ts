@@ -1,80 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
+import { keysToCodes, Keys, KeyCodes } from "@/constants/index";
 
-const keysToCodes = {
-    Enter: "Enter",
-    Escape: "Escape",
-    ArrowUp: "ArrowUp",
-    ArrowDown: "ArrowDown",
-    ArrowLeft: "ArrowLeft",
-    ArrowRight: "ArrowRight",
-    Tab: "Tab",
-    Home: "Home",
-    End: "End",
-    PageUp: "PageUp",
-    PageDown: "PageDown",
-    Backspace: "Backspace",
-    Delete: "Delete",
-    Space: "Space",
-    ShiftLeft: "ShiftLeft",
-    ShiftRight: "ShiftRight",
-    ControlLeft: "ControlLeft",
-    ControlRight: "ControlRight",
-    AltLeft: "AltLeft",
-    AltRight: "AltRight",
-    Meta: "Meta",
-    a: "KeyA",
-    b: "KeyB",
-    c: "KeyC",
-    d: "KeyD",
-    e: "KeyE",
-    f: "KeyF",
-    g: "KeyG",
-    h: "KeyH",
-    i: "KeyI",
-    j: "KeyJ",
-    k: "KeyK",
-    l: "KeyL",
-    m: "KeyM",
-    n: "KeyN",
-    o: "KeyO",
-    p: "KeyP",
-    q: "KeyQ",
-    r: "KeyR",
-    s: "KeyS",
-    t: "KeyT",
-    u: "KeyU",
-    v: "KeyV",
-    w: "KeyW",
-    x: "KeyX",
-    y: "KeyY",
-    z: "KeyZ",
-    "0": "Digit0",
-    "1": "Digit1",
-    "2": "Digit2",
-    "3": "Digit3",
-    "4": "Digit4",
-    "5": "Digit5",
-    "6": "Digit6",
-    "7": "Digit7",
-    "8": "Digit8",
-    "9": "Digit9",
-    "`": "Backquote",
-    NumpadSubtract: "NumpadSubtract",
-    "-": "Minus",
-    "=": "Equal",
-    "[": "BracketLeft",
-    "]": "BracketRight",
-    "\\": "Backslash",
-    "'": "Quote",
-    ",": "Comma",
-    ".": "Period",
-    "/": "Slash",
-    ";": "Semicolon",
-    NumpadMultiply: "NumpadMultiply",
-    NumpadAdd: "NumpadAdd",
-} as const;
-type Keys = keyof typeof keysToCodes;
-type KeyCodes = (typeof keysToCodes)[keyof typeof keysToCodes];
 export default function useKeyboardShortcut(
     options: {
         element?: HTMLElement | Window;
@@ -87,11 +13,11 @@ export default function useKeyboardShortcut(
 ) {
     const shortcutCombinationSet = useMemo(
         () => new Set<KeyCodes>(_shortcutCombination.map((key) => keysToCodes[key])),
-        [_shortcutCombination]
+        [_shortcutCombination],
     );
     const shortcutCombinationSorted = useMemo(
         () => _shortcutCombination.map((key) => keysToCodes[key]),
-        [_shortcutCombination]
+        [_shortcutCombination],
     );
     const pressedKeysSet = useRef(new Set<KeyCodes>());
     const pressedKeysSorted = useRef<KeyCodes[]>([]);

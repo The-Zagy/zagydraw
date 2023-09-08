@@ -1,5 +1,5 @@
 import { Image } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BsDownload } from "react-icons/bs";
 import { FiCopy } from "react-icons/fi";
 // import { Switch } from "./form/switch";
@@ -31,7 +31,7 @@ export function ExportModal() {
         },
         "ControlLeft",
         "ShiftLeft",
-        "e"
+        "e",
     );
 
     useEffect(() => {
@@ -102,7 +102,7 @@ export function ExportModal() {
                         <Button
                             onClick={() =>
                                 commandManager.executeCommand(
-                                    new ActionExportScene(ExportTypes.PNG)
+                                    new ActionExportScene(ExportTypes.PNG),
                                 )
                             }
                             className="bg-background-800 m-auto flex w-fit justify-between gap-4 rounded-lg p-4 text-white">
@@ -124,7 +124,7 @@ export function ExportModal() {
                         <Button
                             onClick={() =>
                                 commandManager.executeCommand(
-                                    new ActionExportScene(ExportTypes.COPY)
+                                    new ActionExportScene(ExportTypes.COPY),
                                 )
                             }
                             className="bg-background-800 m-auto flex w-fit justify-between gap-4 rounded-lg p-4 text-white">

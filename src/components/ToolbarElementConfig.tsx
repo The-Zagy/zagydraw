@@ -29,8 +29,9 @@ import {
 } from "@/utils/canvas/generateElement";
 import { commandManager } from "@/actions/commandManager";
 import { ActionDeleteSelected } from "@/actions";
-import { ActionCopySelected } from "@/actions/copySelected";
+import { ActionExportScene, DestOpts } from "@/actions/ExportScene";
 import useKeyboardShortcut from "@/hooks/useShortcut";
+import { SHORTCUTS } from "@/constants";
 //import { BsTextCenter, BsTextLeft, BsTextRight } from "react-icons/bs";
 
 const gen = rough.generator();
@@ -66,7 +67,7 @@ const InputWithIcon: React.FC<Props> = (props) => {
                     className={clsx(
                         "inline-flex items-center rounded-l-md  border-r-0 px-3 text-gray-900  dark:bg-transparent dark:text-gray-400",
                         { "border border-blue-500 ": isFocus },
-                        { "border border-gray-300 dark:border-gray-900 ": !isFocus }
+                        { "border border-gray-300 dark:border-gray-900 ": !isFocus },
                     )}>
                     #
                 </span>
@@ -113,7 +114,7 @@ const RadioButton: React.FC<{
         <div
             className={clsx(
                 "hover:bg-primary-400 h-9  w-9 overflow-hidden rounded-lg border border-gray-900",
-                { "border border-blue-500": props.isChecked }
+                { "border border-blue-500": props.isChecked },
             )}>
             <input
                 id={id}
@@ -172,7 +173,24 @@ export default function ToolbarLeft() {
         {
             onShortcut: () => commandManager.executeCommand(new ActionDeleteSelected()),
         },
-        "Delete"
+        "Delete",
+    );
+    useKeyboardShortcut(
+        {
+            onShortcut: () =>
+                commandManager.executeCommand(new ActionExportScene(DestOpts.CLIPBOARD, true)),
+            orderMatters: true,
+        },
+        ...SHORTCUTS["editor"]["copy"]["keys"],
+    );
+    useKeyboardShortcut(
+        {
+            onShortcut: () =>
+                commandManager.executeCommand(new ActionExportScene(DestOpts.CLIPBOARD, true)),
+            orderMatters: true,
+        },
+        "ControlRight",
+        "c",
     );
 
     const commonConf = useMemo(() => {
@@ -186,14 +204,14 @@ export default function ToolbarLeft() {
 
     const handleCopyOnClick: React.MouseEventHandler<HTMLButtonElement> = async () => {
         try {
-            commandManager.executeCommand(new ActionCopySelected());
+            commandManager.executeCommand(new ActionExportScene(DestOpts.CLIPBOARD, true));
         } catch (e) {
             //todo
         }
     };
     const handleConfigChange = <T extends keyof CommonConfigOptions>(
         k: T,
-        value: GlobalElementOptions[T]
+        value: GlobalElementOptions[T],
     ) => {
         // create hash for check up
         const ids = new Set<string>();
@@ -209,7 +227,7 @@ export default function ToolbarLeft() {
                         ...el.options,
                         [k]: value,
                         id: el.id,
-                    })
+                    }),
                 );
             } else if (isLine(el)) {
                 els.push(
@@ -217,18 +235,18 @@ export default function ToolbarLeft() {
                         ...el.options,
                         id: el.id,
                         [k]: value,
-                    })
+                    }),
                 );
             } else if (isText(el)) {
                 els.push(
-                    generateTextElement(ctx, el.text.join("\n"), [el.x, el.y], {
+                    generateTextElement(el.text.join("\n"), [el.x, el.y], {
                         ...el.options,
                         [k]: value,
-                    })
+                    }),
                 );
             } else if (isHanddrawn(el)) {
                 els.push(
-                    generateCachedHandDrawnElement(el.paths, zoom, { ...el.options, [k]: value })
+                    generateCachedHandDrawnElement(el.paths, zoom, { ...el.options, [k]: value }),
                 );
             }
         });
@@ -472,7 +490,7 @@ export default function ToolbarLeft() {
                                     <RadioButton
                                         isChecked={isEqualArray(
                                             commonConf.strokeLineDash as number[],
-                                            []
+                                            [],
                                         )}
                                         value={1}
                                         name="stroke-style"
@@ -482,7 +500,7 @@ export default function ToolbarLeft() {
                                     <RadioButton
                                         isChecked={isEqualArray(
                                             commonConf.strokeLineDash as number[],
-                                            [10, 10]
+                                            [10, 10],
                                         )}
                                         onChange={handleStrokeLineDash}
                                         name="stroke-style"

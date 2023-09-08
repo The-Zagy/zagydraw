@@ -39,7 +39,7 @@ export function normalizePos(pos: CanvasState["position"], [mousePosX, mousePosY
  */
 export function normalizeToGrid(
     pos: CanvasState["position"],
-    [mousePosX, mousePosY]: Point
+    [mousePosX, mousePosY]: Point,
 ): Point {
     const xStart = Math.floor(pos.y) % 20;
     const yStart = Math.floor(pos.x) % 20;
@@ -101,7 +101,7 @@ export function getHitElement(
     elements: CanvasState["elements"],
     ctx: CanvasRenderingContext2D,
     mousePos: Point,
-    pos: CanvasState["position"]
+    pos: CanvasState["position"],
 ): null | CanvasState["elements"][number] {
     //todo deal with stacking elements when stacking is implemented
     mousePos = [mousePos[0] - pos.x, mousePos[1] - pos.y];
@@ -144,7 +144,7 @@ export function getSvgPathFromStroke(points: number[][], closed = true): string 
     const c = points[2];
 
     let result = `M${a[0].toFixed(2)},${a[1].toFixed(2)} Q${b[0].toFixed(2)},${b[1].toFixed(
-        2
+        2,
     )} ${average(b[0], c[0]).toFixed(2)},${average(b[1], c[1]).toFixed(2)} T`;
 
     for (let i = 2, max = len - 1; i < max; i++) {
@@ -179,7 +179,7 @@ export function getBoundingRect(...elements: ZagyCanvasElement[]) {
                 y: elementStartY,
                 endX: elementEndX,
                 endY: elementEndY,
-            } = element as ZagyCanvasRectElement;
+            } = element;
             x = Math.min(x, elementStartX);
             y = Math.min(y, elementStartY);
             endX = Math.max(endX, elementEndX);
@@ -215,7 +215,7 @@ export const isElementVisible = (
     rectStart: [x: number, y: number],
     width: number,
     height: number,
-    zoom: number
+    zoom: number,
 ) => {
     //the check not needed currently but maybe other shapes will be added in the future
     if (
@@ -299,7 +299,7 @@ export type CommonConfigOptions = {
  *  get union config of many elements
  */
 export function getElementsUnionConfig<T extends ZagyCanvasElement = ZagyCanvasElement>(
-    elements: T[]
+    elements: T[],
 ): CommonConfigOptions {
     if (elements.length === 0) return {};
     const elementTypesSoFar: {

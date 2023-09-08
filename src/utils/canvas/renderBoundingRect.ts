@@ -15,7 +15,7 @@ function drawCircle(ctx: CanvasRenderingContext2D, x: number, y: number) {
 */
 function drawHandles(
     ctx: CanvasRenderingContext2D,
-    rectPos: { x: [number, number]; y: [number, number] }
+    rectPos: { x: [number, number]; y: [number, number] },
 ) {
     // top left
     drawCircle(ctx, rectPos.x[0], rectPos.y[0]);
@@ -40,7 +40,7 @@ function drawHandles(
 
 export default function renderBoundingRect(
     elements: ZagyCanvasElement[],
-    ctx: CanvasRenderingContext2D
+    ctx: CanvasRenderingContext2D,
 ) {
     const rect = getBoundingRect(...elements);
     if (!rect) return;

@@ -1,5 +1,6 @@
-import { Trash2, Github, Keyboard, Menu } from "lucide-react";
+import { Trash2, Github, Keyboard, Menu, Save, File, AlertTriangle } from "lucide-react";
 
+import { useState } from "react";
 import { ModeToggle } from "./mode-toggle";
 import { commandManager } from "@/actions/commandManager";
 import { ActionClearCanvas } from "@/actions/resetCanvas";
@@ -25,6 +26,18 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { ActionExportScene, DestOpts } from "@/actions/ExportScene";
+import { SHORTCUTS } from "@/constants";
+import { ActionOpenScene } from "@/actions/openScene";
+import useKeyboardShortcut from "@/hooks/useShortcut";
 
 function ResetCanvasAlert() {
     return (
@@ -54,6 +67,178 @@ function ResetCanvasAlert() {
     );
 }
 
+function SaveToDialog() {
+    return (
+        <Dialog>
+            {/*FIX: open dialog/alert dialog inside dropdown or context menu
+  @url https://github.com/radix-ui/primitives/issues/1836#issuecomment-1674338372
+  */}
+            <DialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save To
+                </DropdownMenuItem>
+            </DialogTrigger>
+            <DialogContent className="h-full w-full cursor-auto md:h-4/6 md:w-3/4   ">
+                <DialogHeader>
+                    <DialogTitle>Save To</DialogTitle>
+                </DialogHeader>
+                <div className="flex h-full w-full flex-wrap justify-center gap-5 overflow-y-auto">
+                    <div className="flex h-full w-2/5 flex-col items-center gap-5 border p-5">
+                        <div className="h-16 w-fit">
+                            <Save className="rounded-full border-2 p-2 " size={75} />
+                        </div>
+                        <h2 className="text-4xl font-bold">Save To Disk</h2>
+                        <span className="h-20">
+                            Export the scene data to a file from which you can import later.
+                        </span>
+                        <Button
+                            variant={"default"}
+                            onClick={() =>
+                                commandManager.executeCommand(
+                                    new ActionExportScene(DestOpts["JSON"], false),
+                                )
+                            }>
+                            Save to file
+                        </Button>
+                    </div>
+
+                    <div className="flex h-full w-2/5 flex-col items-center gap-5 border p-5">
+                        <div className="h-16 w-fit">
+                            <span className="rounded-full border-2 p-2 text-4xl ">Z+</span>
+                        </div>
+                        <h2 className="text-4xl font-bold">Save To Z+</h2>
+                        <span className="h-20">Save On The Cloud</span>
+                        <Button disabled={true} variant={"default"}>
+                            UNDER CONSTRUCTION
+                        </Button>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+function OpenSceneDialog() {
+    const [isOpen, setIsOpen] = useState(false);
+    useKeyboardShortcut(
+        {
+            onShortcut: (e) => {
+                e.preventDefault();
+                setIsOpen(true);
+            },
+            orderMatters: true,
+        },
+        ...SHORTCUTS["scene"]["open"].keys,
+    );
+
+    return (
+        <Dialog
+            open={isOpen}
+            onOpenChange={(open) => {
+                setIsOpen(open);
+            }}>
+            {/*FIX: open dialog/alert dialog inside dropdown or context menu
+  @url https://github.com/radix-ui/primitives/issues/1836#issuecomment-1674338372
+  */}
+            <DialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <File className="mr-2 h-4 w-4" />
+                    Open
+                </DropdownMenuItem>
+            </DialogTrigger>
+            <DialogContent className="h-full w-full cursor-auto md:h-4/6 md:w-3/4">
+                <DialogHeader>
+                    <DialogTitle>Load From File</DialogTitle>
+                </DialogHeader>
+                <div className="flex h-full w-full flex-wrap justify-center gap-5 overflow-y-auto">
+                    <div className="flex w-full flex-col items-center justify-center gap-3 bg-yellow-100 md:flex-row">
+                        <p className="flex h-fit w-fit items-center justify-center rounded-full border-2 bg-yellow-400 text-4xl text-black">
+                            <AlertTriangle />
+                        </p>
+                        <p className="shrink text-gray-500">
+                            Loading from a file will{" "}
+                            <span className="font-bold">replace your existing content.</span>
+                            You can back up your drawing first using one of the options below.
+                        </p>
+                        <Button
+                            onClick={() => {
+                                commandManager.executeCommand(new ActionOpenScene());
+                                setIsOpen(false);
+                            }}
+                            variant="default"
+                            className="w-content bg-yellow-400 text-black">
+                            Load From File
+                        </Button>
+                    </div>
+
+                    {/* EXPORT OPTIONS  */}
+                    <div className="flex w-2/5 flex-col items-center gap-5 border p-5">
+                        <h2 className="text-4xl font-bold">Save To Disk</h2>
+                        <span className="h-20">
+                            Export the scene data to a file from which you can import later.
+                        </span>
+                        <Button
+                            variant={"default"}
+                            onClick={() =>
+                                commandManager.executeCommand(
+                                    new ActionExportScene(DestOpts["JSON"], false),
+                                )
+                            }>
+                            Save to file
+                        </Button>
+                    </div>
+
+                    <div className="flex  w-2/5 flex-col items-center gap-5 border p-5">
+                        <h2 className="text-4xl font-bold">Save To Z+</h2>
+                        <span className="h-20">Save On The Cloud</span>
+                        <Button disabled={true} variant={"default"}>
+                            UNDER CONSTRUCTION
+                        </Button>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+function ShortCutsModal() {
+    return (
+        <Dialog>
+            {/*FIX: open dialog/alert dialog inside dropdown or context menu
+  @url https://github.com/radix-ui/primitives/issues/1836#issuecomment-1674338372
+  */}
+            <DialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Keyboard className="mr-2 h-4 w-4" />
+                    <span>Keyboard shortcuts</span>
+                    <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
+                </DropdownMenuItem>
+            </DialogTrigger>
+            <DialogContent className="h-full w-full cursor-auto overflow-y-auto md:h-4/6 md:w-3/4">
+                <DialogHeader>
+                    <DialogTitle>Keyboard Shortcuts</DialogTitle>
+                </DialogHeader>
+                {Object.keys(SHORTCUTS).map((group) => (
+                    <div key={group}>
+                        <h1 className="text-4xl" key={group}>
+                            {group}
+                        </h1>
+                        {Object.keys(SHORTCUTS[group as keyof typeof SHORTCUTS]).map((key) => (
+                            <p key={key}>
+                                {/* @ts-ignore*/}
+                                {SHORTCUTS[group][key]["description"]}
+                                {" : "}
+                                {/* @ts-ignore*/}
+                                <span>{SHORTCUTS[group][key]["keys"].join(" + ")}</span>
+                            </p>
+                        ))}
+                    </div>
+                ))}
+            </DialogContent>
+        </Dialog>
+    );
+}
 export function DropDown() {
     return (
         <div className="fixed left-2 top-2">
@@ -73,15 +258,13 @@ export function DropDown() {
                             <Image className="mr-2 h-4 w-4" />
                             <span>Export Image</span>
                         </DropdownMenuItem> */}
+                        <OpenSceneDialog />
+                        <SaveToDialog />
                         <ResetCanvasAlert />
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                        <DropdownMenuItem>
-                            <Keyboard className="mr-2 h-4 w-4" />
-                            <span>Keyboard shortcuts</span>
-                            <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
-                        </DropdownMenuItem>
+                        <ShortCutsModal />
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>

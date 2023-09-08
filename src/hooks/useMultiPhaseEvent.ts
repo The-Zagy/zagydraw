@@ -6,7 +6,7 @@ type MultiPhaseEventConstituent<K extends keyof HTMLElementEventMap> = {
     options?: AddEventListenerOptions | boolean;
 };
 type MultiPhaseEventConstituentCallback<K extends keyof HTMLElementEventMap> = (
-    event: HTMLElementEventMap[K]
+    event: HTMLElementEventMap[K],
 ) => void;
 class MultiphaseEvent<TEventTypes extends readonly (keyof HTMLElementEventMap)[]> {
     name: string;
@@ -14,9 +14,9 @@ class MultiphaseEvent<TEventTypes extends readonly (keyof HTMLElementEventMap)[]
     private callbacks: [
         ...{
             [I in keyof TEventTypes]: (
-                event: HTMLElementEventMap[TEventTypes[I]]
+                event: HTMLElementEventMap[TEventTypes[I]],
             ) => MultiPhaseEventConstituentCallback<TEventTypes[I]>;
-        }
+        },
     ];
 
     element: HTMLElement;
@@ -26,9 +26,9 @@ class MultiphaseEvent<TEventTypes extends readonly (keyof HTMLElementEventMap)[]
         events: [
             ...{
                 [I in keyof TEventTypes]: MultiPhaseEventConstituent<TEventTypes[I]>;
-            }
+            },
         ],
-        element: HTMLElement
+        element: HTMLElement,
     ) {
         this.name = name;
 
@@ -58,9 +58,9 @@ const useMultiPhaseEvent = <TEventTypes extends readonly (keyof HTMLElementEvent
     events: [
         ...{
             [I in keyof TEventTypes]: MultiPhaseEventConstituent<TEventTypes[I]>;
-        }
+        },
     ],
-    element: HTMLElement | null
+    element: HTMLElement | null,
 ) => {
     useEffect(() => {
         if (!element) return;

@@ -13,43 +13,43 @@ export default function ToolbarUpper() {
         {
             onShortcut: () => setCursorFn(CursorFn.Default),
         },
-        "1"
+        "1",
     );
     useKeyboardShortcut(
         {
             onShortcut: () => setCursorFn(CursorFn.Drag),
         },
-        "2"
+        "2",
     );
     useKeyboardShortcut(
         {
             onShortcut: () => setCursorFn(CursorFn.FreeDraw),
         },
-        "3"
+        "3",
     );
     useKeyboardShortcut(
         {
             onShortcut: () => setCursorFn(CursorFn.Rect),
         },
-        "4"
+        "4",
     );
     useKeyboardShortcut(
         {
             onShortcut: () => setCursorFn(CursorFn.Line),
         },
-        "5"
+        "5",
     );
     useKeyboardShortcut(
         {
             onShortcut: () => setCursorFn(CursorFn.Text),
         },
-        "6"
+        "6",
     );
     useKeyboardShortcut(
         {
             onShortcut: () => setCursorFn(CursorFn.Erase),
         },
-        "7"
+        "7",
     );
     return (
         <div className="withFira scrollbar-thin scrollbar-thumb-zinc-600 bg-primary-600 fixed left-1/2 top-4 w-11/12 -translate-x-1/2 cursor-default select-none overflow-auto  whitespace-nowrap  rounded-md py-1 md:w-6/12 lg:m-0 lg:w-auto lg:max-w-none">
@@ -66,7 +66,7 @@ export default function ToolbarUpper() {
                         {
                             "hover:bg-primary-400":
                                 cursorFn !== CursorFn.Default && cursorFn !== CursorFn.Move,
-                        }
+                        },
                     )}>
                     {cursorFn === CursorFn.Default ? (
                         <RiCursorFill className="m-auto text-white" />
@@ -87,7 +87,7 @@ export default function ToolbarUpper() {
                         },
                         {
                             "hover:bg-primary-400": cursorFn !== CursorFn.Drag,
-                        }
+                        },
                     )}
                     onClick={() => setCursorFn(CursorFn.Drag)}>
                     {cursorFn === CursorFn.Drag ? (
@@ -109,7 +109,7 @@ export default function ToolbarUpper() {
                         },
                         {
                             "hover:bg-primary-400": cursorFn !== CursorFn.FreeDraw,
-                        }
+                        },
                     )}>
                     {cursorFn === CursorFn.FreeDraw ? (
                         <BsPencilFill className="m-auto" color="white" />
@@ -130,7 +130,7 @@ export default function ToolbarUpper() {
                         },
                         {
                             "hover:bg-primary-400": cursorFn !== CursorFn.Rect,
-                        }
+                        },
                     )}>
                     {cursorFn === CursorFn.Rect ? (
                         <BsSquareFill className="m-auto" color="white" />
@@ -151,7 +151,7 @@ export default function ToolbarUpper() {
                         },
                         {
                             "hover:bg-primary-400": cursorFn !== CursorFn.Line,
-                        }
+                        },
                     )}>
                     <MdOutlineHorizontalRule className="m-auto" color="white" />
                     <span className="absolute bottom-1.5 left-1.5 text-xs font-thin text-gray-500">
@@ -169,7 +169,7 @@ export default function ToolbarUpper() {
                         },
                         {
                             "hover:bg-primary-400": cursorFn !== CursorFn.Text,
-                        }
+                        },
                     )}>
                     <RiText className="m-auto" color="white" />
                     <span className="absolute bottom-1.5 left-1.5 text-xs font-thin text-gray-500">
@@ -186,7 +186,7 @@ export default function ToolbarUpper() {
                         },
                         {
                             "hover:bg-primary-400": cursorFn !== CursorFn.Erase,
-                        }
+                        },
                     )}>
                     <CiEraser className="m-auto" color="white" />
                     <span className="absolute bottom-1.5 left-1.5 text-xs font-thin text-gray-500">

@@ -22,7 +22,7 @@ async function createElement(
     elementType: ZagyCanvasElement["shape"],
     canvas: HTMLCanvasElement,
     startPos: Point,
-    endPos: Point
+    endPos: Point,
 ) {
     const cursorTestId: {
         [key in ZagyCanvasElement["shape"]]: CursorFn;
@@ -39,14 +39,14 @@ async function createElement(
         new PointerEvent("pointerdown", {
             clientX: startPos[0],
             clientY: startPos[1],
-        })
+        }),
     );
     fireEvent.pointerMove(
         canvas,
         new PointerEvent("pointermove", {
             clientX: endPos[0],
             clientY: endPos[1],
-        })
+        }),
     );
 
     fireEvent.pointerUp(
@@ -54,7 +54,7 @@ async function createElement(
         new PointerEvent("pointerup", {
             clientX: endPos[0],
             clientY: endPos[1],
-        })
+        }),
     );
 }
 const clickUndo = async () => {
@@ -67,7 +67,7 @@ const pointerDown = (element: HTMLElement, coords: Point) => {
         new PointerEvent("pointerdown", {
             clientX: coords[0],
             clientY: coords[1],
-        })
+        }),
     );
 };
 const pointerMove = (element: HTMLElement, coords: Point) => {
@@ -76,7 +76,7 @@ const pointerMove = (element: HTMLElement, coords: Point) => {
         new PointerEvent("pointermove", {
             clientX: coords[0],
             clientY: coords[1],
-        })
+        }),
     );
 };
 const pointerUp = (element: HTMLElement, coords?: Point) => {
@@ -86,7 +86,7 @@ const pointerUp = (element: HTMLElement, coords?: Point) => {
         new PointerEvent("pointerup", {
             clientX: coords[0],
             clientY: coords[1],
-        })
+        }),
     );
 };
 export { createElement, clickCursor, clickUndo, pointerDown, pointerMove, pointerUp };

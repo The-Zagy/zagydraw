@@ -1,5 +1,5 @@
 import { ActionDeleteSelected } from "./deleteSelected";
-import { ActionCopySelected } from "./copySelected";
+import { ActionExportScene, DestOpts } from "./ExportScene";
 import { UndoableCommand } from "./types";
 
 export class ActionCutSelected extends UndoableCommand {
@@ -7,7 +7,7 @@ export class ActionCutSelected extends UndoableCommand {
 
     public execute() {
         // the cut action can be seen as copy action then delete action
-        new ActionCopySelected().execute();
+        new ActionExportScene(DestOpts.CLIPBOARD, true).execute();
         this.#deleteAction = new ActionDeleteSelected();
         this.#deleteAction.execute();
         return;

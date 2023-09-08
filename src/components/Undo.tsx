@@ -11,7 +11,7 @@ export default function Undo() {
             continueWhilePressed: true,
         },
         "ControlLeft",
-        "z"
+        "z",
     );
     return (
         <Button
