@@ -226,8 +226,10 @@ function ShortCutsModal() {
                         </h1>
                         {Object.keys(SHORTCUTS[group as keyof typeof SHORTCUTS]).map((key) => (
                             <p key={key}>
+                                {/* @ts-ignore*/}
                                 {SHORTCUTS[group][key]["description"]}
                                 {" : "}
+                                {/* @ts-ignore*/}
                                 <span>{SHORTCUTS[group][key]["keys"].join(" + ")}</span>
                             </p>
                         ))}
