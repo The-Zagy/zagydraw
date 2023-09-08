@@ -68,8 +68,13 @@ function ResetCanvasAlert() {
 }
 
 function SaveToDialog() {
+    const [isOpen, setIsOpen] = useState(false);
     return (
-        <Dialog>
+        <Dialog
+            open={isOpen}
+            onOpenChange={(open) => {
+                setIsOpen(open);
+            }}>
             {/*FIX: open dialog/alert dialog inside dropdown or context menu
   @url https://github.com/radix-ui/primitives/issues/1836#issuecomment-1674338372
   */}
@@ -94,11 +99,12 @@ function SaveToDialog() {
                         </span>
                         <Button
                             variant={"default"}
-                            onClick={() =>
+                            onClick={() => {
                                 commandManager.executeCommand(
                                     new ActionExportScene(DestOpts["JSON"], false),
-                                )
-                            }>
+                                );
+                                setIsOpen(false);
+                            }}>
                             Save to file
                         </Button>
                     </div>

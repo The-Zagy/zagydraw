@@ -15,6 +15,7 @@ import {
     generateCacheLineElement,
     generateCacheRectElement,
     generateCachedHandDrawnElement,
+    generateImageElement,
     generateTextElement,
 } from "@/utils/canvas/generateElement";
 
@@ -68,8 +69,8 @@ export class ActionOpenScene extends Command {
                         elsToPush.push(
                             generateCachedHandDrawnElement(el.paths, zoomLevel, el.options),
                         );
-                    } else if (isImage(el)) {
-                        // generateImageElement();
+                    } else if (isImage(el) && el.image !== null) {
+                        elsToPush.push(generateImageElement(el.image, [el.x, el.y], el.options));
                     }
 
                     setPosition({ x: 0, y: 0 });

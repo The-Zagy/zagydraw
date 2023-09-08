@@ -341,8 +341,14 @@ function CreateDataUrl(file: Blob) {
  * create new image instance append it to ZagyImageElement
  * filter the store from the element with placeholder image, and append the new one with the loaded image
  */
-async function loadImage(file: Blob, id: string) {
-    const dataUrl = await CreateDataUrl(file);
+async function loadImage(file: Blob | string, id: string) {
+    // create dataUrl if the data is not Blob
+    let dataUrl: string;
+    if (typeof file === "string") {
+        dataUrl = file;
+    } else {
+        dataUrl = await CreateDataUrl(file);
+    }
     const img = new Image();
     const promise = new Promise<HTMLImageElement>((resolve) => {
         img.onload = () => {
@@ -368,8 +374,11 @@ async function loadImage(file: Blob, id: string) {
     ]);
 }
 
+/**
+ * @param blob Blob | string image as a blob and will be automatically loaded or string which is DataUrl
+ */
 function generateImageElement(
-    blob: Blob,
+    blob: Blob | string,
     startPos: [number, number],
     options: Partial<ImageOptions & { id: string }> = {},
 ): ZagyCanvasImageElement {

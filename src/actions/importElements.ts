@@ -123,8 +123,10 @@ export class ActionImportElements extends UndoableCommand {
                                 elsToPush.push(
                                     generateCachedHandDrawnElement(el.paths, zoomLevel, el.options),
                                 );
-                            } else if (isImage(el)) {
-                                // generateImageElement();
+                            } else if (isImage(el) && el.image !== null) {
+                                elsToPush.push(
+                                    generateImageElement(el.image, [el.x, el.y], el.options),
+                                );
                             }
                         }
 
