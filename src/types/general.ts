@@ -50,6 +50,10 @@ interface TextOptions extends SharedOptions {
     font: FontTypeOptions;
     fontSize: FontSize;
 }
+interface TextRequiredOptions {
+    text: string;
+    point1: Point;
+}
 
 type HandDrawnOptions = SharedOptions;
 type HandDrawnRequiredOptions = {
@@ -203,5 +207,6 @@ export type {
     RectRequiredOptions,
     LineRequiredOptions,
     HandDrawnRequiredOptions,
+    TextRequiredOptions,
 };
 export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn, isImage, isZagyPortable };

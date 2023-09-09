@@ -1,21 +1,9 @@
 import { RoughGenerator } from "roughjs/bin/generator";
 import { randomSeed } from "roughjs/bin/math";
 import { UndoableCommand } from "./types";
-import {
-    generateCacheLineElement,
-    generateCacheRectElement,
-    generateCachedHandDrawnElement,
-    generateHandDrawnElement,
-    generateLineElement,
-    generateRectElement,
-} from "@/utils/canvas/generateElement";
+
 import { useStore } from "@/store";
-import {
-    CursorFn,
-    ZagyCanvasElement,
-    ZagyCanvasLineElement,
-    ZagyCanvasRectElement,
-} from "@/types/general";
+import { CursorFn, ZagyCanvasElement } from "@/types/general";
 import { Point, normalizeToGrid } from "@/utils";
 import { HandDrawn, Line, Rectangle } from "@/utils/canvas/shapes";
 

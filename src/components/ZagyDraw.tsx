@@ -71,9 +71,7 @@ function ZagyDraw() {
             return;
         }
         setZoomLevel(clampedZoom);
-        setElements((elements) =>
-            elements.map((e) => regenerateCacheElement(e, clampedZoom, roughGenerator)),
-        );
+        setElements((elements) => elements.map((e) => regenerateCacheElement(e, clampedZoom)));
     };
     const canvas = useRef<HTMLCanvasElement>(null);
     const roughCanvas = useRef<RoughCanvas | null>(null);

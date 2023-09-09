@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 
 import { randomSeed } from "roughjs/bin/math";
 import { RoughGenerator } from "roughjs/bin/generator";
+import Shape from "./shapes/shape";
 import {
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
@@ -435,23 +436,11 @@ const generateCachedHandDrawnElement = (
     };
 };
 
-const regenerateCacheElement = (
-    el: ZagyCanvasElement,
-    newZoom: number,
-    generator: RoughGenerator,
-): ZagyCanvasElement => {
-    if (isRect(el)) {
-        return generateCacheRectElement(
-            generator,
-            [el.x, el.y],
-            [el.endX, el.endY],
-            newZoom,
-            el.options,
-        );
-    } else if (isLine(el)) {
-        return generateCacheLineElement(generator, el.point1, el.point2, newZoom, el.options);
-    } else if (isHanddrawn(el)) {
-        return generateCachedHandDrawnElement(el.paths, newZoom, el.options);
+const regenerateCacheElement = (el: ZagyCanvasElement, newZoom: number): ZagyCanvasElement => {
+    if (el instanceof Shape) {
+        return el.regenerate({
+            zoom: newZoom,
+        });
     } else {
         return el;
     }

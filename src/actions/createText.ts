@@ -2,7 +2,7 @@ import { Command, UndoableCommand } from "./types";
 import { useStore } from "@/store";
 import { CursorFn, ZagyCanvasElement } from "@/types/general";
 import { Point, normalizePos } from "@/utils";
-import { generateTextElement } from "@/utils/canvas/generateElement";
+import { Text } from "@/utils/canvas/shapes";
 
 class TextAction {
     private static lastMouseDownPosition: Point = [0, 0];
@@ -73,7 +73,7 @@ class TextAction {
                 if (ctx === null) return;
                 const { currentText, position } = useStore.getState();
                 const normalizedPosition = normalizePos(position, this.lastMouseDownPosition);
-                element = generateTextElement(currentText, normalizedPosition, {});
+                element = new Text({ point1: normalizedPosition, text: currentText });
 
                 const { setCurrentText, setIsWriting } = useStore.getState();
                 this.isAlreadyElement = false;

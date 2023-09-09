@@ -1,5 +1,4 @@
 import { Command, UndoableCommand } from "./types";
-import { constructHandDrawnElementPath2D } from "@/utils/canvas/generateElement";
 import { useStore } from "@/store";
 import { CursorFn, ZagyCanvasElement, isHanddrawn, isLine } from "@/types/general";
 import { Point, getHitElement, normalizeToGrid } from "@/utils";
