@@ -83,7 +83,7 @@ const pointNearLine = (A: Point, B: Point, M: Point) => {
  * @param M  point M to check
  * @returns  true if point M is inside rectangle
  */
-const pointInRectangle = (A: Point, B: Point, _: Point, D: Point, M: Point): boolean => {
+export const pointInRectangle = (A: Point, B: Point, _: Point, D: Point, M: Point): boolean => {
     // https://math.stackexchange.com/questions/190111/how-to-check-if-a-point-is-inside-a-rectangle
     const AB = makeVector(A, B);
     const AM = makeVector(A, M);
@@ -131,34 +131,6 @@ export function getHitElement(
     return null;
 }
 export const average = (a: number, b: number): number => (a + b) / 2;
-
-export function getSvgPathFromStroke(points: number[][], closed = true): string {
-    const len = points.length;
-
-    if (len < 4) {
-        return ``;
-    }
-
-    let a = points[0];
-    let b = points[1];
-    const c = points[2];
-
-    let result = `M${a[0].toFixed(2)},${a[1].toFixed(2)} Q${b[0].toFixed(2)},${b[1].toFixed(
-        2,
-    )} ${average(b[0], c[0]).toFixed(2)},${average(b[1], c[1]).toFixed(2)} T`;
-
-    for (let i = 2, max = len - 1; i < max; i++) {
-        a = points[i];
-        b = points[i + 1];
-        result += `${average(a[0], b[0]).toFixed(2)},${average(a[1], b[1]).toFixed(2)} `;
-    }
-
-    if (closed) {
-        result += "Z";
-    }
-
-    return result;
-}
 
 export function getBoundingRect(...elements: ZagyCanvasElement[]) {
     let x = Infinity;

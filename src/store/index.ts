@@ -128,7 +128,7 @@ export const useStore = create<
             visibleElements: elements.filter((el) => {
                 const position = getPosition();
 
-                return isElementVisible(el, [-position.x, -position.y], width, height, zoomLevel);
+                return el.isVisible([-position.x, -position.y], width, height, zoomLevel);
             }),
         }));
     },
@@ -145,7 +145,7 @@ export const useStore = create<
         set(({ elements, width, height, zoomLevel, getPosition }) => ({
             visibleElements: elements.filter((el) => {
                 const position = getPosition();
-                return isElementVisible(el, [-position.x, -position.y], width, height, zoomLevel);
+                return el.isVisible([-position.x, -position.y], width, height, zoomLevel);
             }),
         }));
     },
@@ -154,7 +154,7 @@ export const useStore = create<
         set(({ getPosition, width, height, elements, zoomLevel }) => ({
             visibleElements: elements.filter((el) => {
                 const position = getPosition();
-                return isElementVisible(el, [-position.x, -position.y], width, height, zoomLevel);
+                return el.isVisible([-position.x, -position.y], width, height, zoomLevel);
             }),
         }));
     },

@@ -1,6 +1,6 @@
 import rough from "roughjs";
 import { nanoid } from "nanoid";
-import getStroke from "perfect-freehand";
+
 import { randomSeed } from "roughjs/bin/math";
 import { RoughGenerator } from "roughjs/bin/generator";
 import {
@@ -56,6 +56,7 @@ function normalizeTextOptions(options: Partial<TextOptions>): TextOptions {
 
 function normalizeRectOptions(options: Partial<RectOptions>) {
     const globalConfig = getConfigState();
+    const zoom = useStore.getState().zoomLevel;
     return {
         fill: options.fill || globalConfig.fill,
         fillStyle: options.fillStyle || globalConfig.fillStyle,
@@ -64,6 +65,7 @@ function normalizeRectOptions(options: Partial<RectOptions>) {
         strokeLineDash: options.strokeLineDash || globalConfig.strokeLineDash,
         strokeWidth: options.strokeWidth || globalConfig.strokeWidth,
         seed: options.seed || randomSeed(),
+        zoom: options.zoom || zoom,
     };
 }
 
@@ -403,45 +405,6 @@ function generateImageElement(
     return el;
 }
 
-const constructHandDrawnElementPath2D = (paths: Point[], options: HanddrawnOptions) => {
-    const stroke = getStroke(paths, {
-        size: options.strokeWidth + 2,
-        smoothing: 1.5,
-        thinning: 0,
-        streamline: 0,
-        easing: (t) => t,
-        start: {
-            taper: 0,
-            cap: true,
-        },
-        end: {
-            taper: 0,
-            cap: true,
-        },
-    });
-    const svgFromStroke = getSvgPathFromStroke(stroke);
-
-    return new Path2D(svgFromStroke);
-};
-export const generateHandDrawnElement = (
-    paths: Point[],
-    options: Partial<HanddrawnOptions> = {},
-): ZagyCanvasHandDrawnElement => {
-    const normalizedOptions = normalizeHanddrawnOptions(options);
-    const path2D = constructHandDrawnElementPath2D(paths, normalizedOptions);
-    const { minX, minY, maxX, maxY } = getGlobalMinMax(paths);
-    return {
-        id: nanoid(),
-        shape: "handdrawn",
-        x: minX,
-        y: minY,
-        endX: maxX,
-        endY: maxY,
-        paths: paths,
-        path2D: path2D,
-        options: normalizedOptions,
-    };
-};
 const generateCachedHandDrawnElement = (
     paths: Point[],
     zoom: number,
@@ -505,4 +468,5 @@ export {
     generateCacheLineElement,
     regenerateCacheElement,
     generateImageElement,
+    normalizeRectOptions,
 };

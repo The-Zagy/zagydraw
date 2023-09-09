@@ -17,6 +17,7 @@ import {
     ZagyCanvasRectElement,
 } from "@/types/general";
 import { Point, normalizeToGrid } from "@/utils";
+import { HandDrawn, Line, Rectangle } from "@/utils/canvas/shapes";
 
 class DrawAction {
     private static roughGenerator = new RoughGenerator();
@@ -40,7 +41,8 @@ class DrawAction {
         }
     }
     private static _inProgress(coords: Point, canvas: HTMLCanvasElement | null) {
-        const { cursorFn, isMouseDown, getPosition, setPreviewElement } = useStore.getState();
+        const { cursorFn, isMouseDown, getPosition, setPreviewElement, zoomLevel } =
+            useStore.getState();
         const position = getPosition();
         if (isMouseDown && canvas) {
             // if (!roughCanvas.current) return;
@@ -48,28 +50,35 @@ class DrawAction {
             const norm = normalizeToGrid(position, coords);
             this.lastMouseUpPosition = norm;
             if (cursorFn === CursorFn.Rect) {
-                const rect: ZagyCanvasRectElement = generateRectElement(
-                    this.roughGenerator,
-                    this.lastMouseDownPosition,
-                    this.lastMouseUpPosition,
-                    { seed: this.currentSeed },
-                );
-                setPreviewElement(rect);
+                try {
+                    const rect = new Rectangle({
+                        point1: this.lastMouseDownPosition,
+                        point2: this.lastMouseUpPosition,
+                        seed: this.currentSeed,
+                        zoom: zoomLevel,
+                    });
+                    setPreviewElement(rect);
+                } catch (_) {
+                    return;
+                }
             } else if (cursorFn === CursorFn.Line) {
-                const line: ZagyCanvasLineElement = generateLineElement(
-                    this.roughGenerator,
-                    this.lastMouseDownPosition,
-                    this.lastMouseUpPosition,
-                    { seed: this.currentSeed },
-                );
+                const line = new Line({
+                    point1: this.lastMouseDownPosition,
+                    point2: this.lastMouseUpPosition,
+                    seed: this.currentSeed,
+                    zoom: zoomLevel,
+                });
                 setPreviewElement(line);
             } else if (cursorFn === CursorFn.FreeDraw) {
                 this.currentlyDrawnFreeHand = [
                     ...this.currentlyDrawnFreeHand,
                     [x - position.x, y - position.y],
                 ];
-
-                setPreviewElement(generateHandDrawnElement(this.currentlyDrawnFreeHand));
+                const handDrawnElement = new HandDrawn({
+                    paths: this.currentlyDrawnFreeHand,
+                    zoom: zoomLevel,
+                });
+                setPreviewElement(handDrawnElement);
             }
         }
     }
@@ -108,38 +117,40 @@ class DrawAction {
                 setPreviewElement(null);
                 let el: ZagyCanvasElement | null = null;
                 if (cursorFn === CursorFn.Line) {
-                    const line: ZagyCanvasLineElement = generateCacheLineElement(
-                        this.roughGenerator,
-                        this.lastMouseDownPosition,
-                        this.lastMouseUpPosition,
-                        zoomLevel,
-                        { seed: this.currentSeed },
-                    );
+                    const line = new Line({
+                        point1: this.lastMouseDownPosition,
+                        point2: this.lastMouseUpPosition,
+                        seed: this.currentSeed,
+                        zoom: zoomLevel,
+                    });
                     el = line;
                     this.currentSeed = randomSeed();
                 } else if (cursorFn === CursorFn.Rect) {
-                    const rect = generateCacheRectElement(
-                        this.roughGenerator,
-                        this.lastMouseDownPosition,
-                        this.lastMouseUpPosition,
-                        zoomLevel,
-                        { seed: this.currentSeed },
-                    );
-                    if (rect.endX - rect.x < 10 || rect.endY - rect.y < 10) return;
+                    try {
+                        const rect = new Rectangle({
+                            point1: this.lastMouseDownPosition,
+                            point2: this.lastMouseUpPosition,
+                            seed: this.currentSeed,
+                            zoom: zoomLevel,
+                        });
+                        el = rect;
 
-                    el = rect;
-                    this.currentSeed = randomSeed();
+                        this.currentSeed = randomSeed();
+                    } catch (_) {
+                        return;
+                    }
                 } else if (cursorFn === CursorFn.FreeDraw) {
-                    const handDrawnElement = generateCachedHandDrawnElement(
-                        this.currentlyDrawnFreeHand,
-                        zoomLevel,
-                    );
+                    const handDrawnElement = new HandDrawn({
+                        paths: this.currentlyDrawnFreeHand,
+                        zoom: zoomLevel,
+                    });
                     el = handDrawnElement;
                     this.currentlyDrawnFreeHand = [];
                 }
                 if (el !== null) {
                     insertedElements.push(el);
                     const { setElements } = useStore.getState();
+                    console.log(el);
                     setElements((prev) => [...prev, el as ZagyCanvasElement]);
                 }
                 this.lastMouseDownPosition = [0, 0];

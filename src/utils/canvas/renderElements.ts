@@ -30,27 +30,9 @@ import {
 export function renderRoughElement(
     el: ZagyCanvasRectElement | ZagyCanvasLineElement,
     ctx: CanvasRenderingContext2D,
-    roughCanvas: RoughCanvas,
     zoom: number,
 ) {
-    if (el.cache) {
-        ctx.save();
-        ctx.scale(1 / zoom, 1 / zoom);
-        ctx.drawImage(
-            el.cache,
-            0,
-            0,
-            el.cache.width,
-            el.cache.height,
-            (el.x - CACHE_CANVAS_SIZE_THRESHOLD) * zoom,
-            (el.y - CACHE_CANVAS_SIZE_THRESHOLD) * zoom,
-            el.cache.width,
-            el.cache.height,
-        );
-        ctx.restore();
-    } else {
-        roughCanvas.draw(el.roughElement);
-    }
+    el.render(ctx, zoom);
 }
 
 function renderTextElement(el: ZagyCanvasTextElement, ctx: CanvasRenderingContext2D) {
@@ -137,11 +119,11 @@ function renderElements<T extends ZagyCanvasElement>(
             opacity = el.options.opacity;
         }
         ctx.globalAlpha = opacity;
-        if (isRect(el) || isLine(el)) renderRoughElement(el, ctx, roughCanvas, zoom);
+        if (isRect(el) || isLine(el)) renderRoughElement(el, ctx, zoom);
         else if (isText(el)) {
             renderTextElement(el, ctx);
         } else if (isHanddrawn(el)) {
-            renderFreeDrawElement(el, ctx, zoom);
+            renderRoughElement(el, ctx, zoom);
         } else if (isImage(el)) {
             renderImageElement(el, ctx, zoom);
         }

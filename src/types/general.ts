@@ -15,8 +15,8 @@ type FillStyleOptions = "solid" | "zigzag" | "dots" | "hachure";
 interface SharedOptions {
     opacity: number;
     stroke: string;
-
     strokeWidth: StrokeWidth;
+    zoom: number;
 }
 
 type StrokeLineDash = number[];
@@ -28,6 +28,15 @@ interface RectOptions extends SharedOptions {
     fillStyle: FillStyleOptions;
     strokeLineDash: StrokeLineDash;
     seed: number;
+}
+
+interface RectRequiredOptions {
+    point1: Point;
+    point2: Point;
+}
+interface LineRequiredOptions {
+    point1: Point;
+    point2: Point;
 }
 
 interface LineOptions extends SharedOptions {
@@ -42,7 +51,10 @@ interface TextOptions extends SharedOptions {
     fontSize: FontSize;
 }
 
-type HanddrawnOptions = SharedOptions;
+type HandDrawnOptions = SharedOptions;
+type HandDrawnRequiredOptions = {
+    paths: Point[];
+};
 
 type ImageOptions = SharedOptions;
 
@@ -183,10 +195,13 @@ export type {
     FontSize,
     FillStyleOptions,
     CachableElement,
-    HanddrawnOptions,
+    HandDrawnOptions,
     ZagyCanvasImageElement,
     ImageOptions,
     CleanedElement,
     ZagyPortableT,
+    RectRequiredOptions,
+    LineRequiredOptions,
+    HandDrawnRequiredOptions,
 };
 export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn, isImage, isZagyPortable };
