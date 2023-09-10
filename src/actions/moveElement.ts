@@ -33,8 +33,7 @@ class MoveElementAction {
         const { setCursorFn, isMouseDown } = useStore.getState();
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        const { getPosition, setElements } = useStore.getState();
-        const position = getPosition();
+        const { setElements } = useStore.getState();
         if (!this.isDragging) {
             if (this.hitElement !== null) {
                 setCursorFn(CursorFn.Move);
@@ -48,7 +47,7 @@ class MoveElementAction {
         this.isDragging = true;
         const walkX = pointerCoords[0] - this.lastMouseDownPosition[0];
         const walkY = pointerCoords[1] - this.lastMouseDownPosition[1];
-        const newStart = normalizeToGrid(position, [
+        const newStart = normalizeToGrid({ x: 0, y: 0 }, [
             this.oldPositionStart[0] + walkX,
             this.oldPositionStart[1] + walkY,
         ]);
