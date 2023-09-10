@@ -4,6 +4,7 @@ import { nanoid } from "nanoid";
 import { randomSeed } from "roughjs/bin/math";
 import { RoughGenerator } from "roughjs/bin/generator";
 import Shape from "./shapes/shape";
+import { Rectangle } from "./shapes";
 import {
     ZagyCanvasLineElement,
     ZagyCanvasRectElement,
@@ -145,43 +146,21 @@ const generateCacheRectElement = (
     };
 };
 
-const generateSelectRectElement = (
-    generator: RoughGenerator,
-    startPos: Point,
-    endPos: Point,
-): ZagyCanvasRectElement => {
-    const { x, y, endX, endY } = getCorrectCoordOrder(startPos, endPos);
-    const normalizedOptions: RectOptions = {
+const generateSelectRectElement = (startPos: Point, endPos: Point) => {
+    return new Rectangle({
         fill: "#9b59b6",
         fillStyle: "solid",
         strokeWidth: 1,
         stroke: "transparent",
-        seed: 0,
+        seed: 1,
         opacity: 0.3,
         strokeLineDash: [],
-    };
-    const roughElement = generator.rectangle(
-        startPos[0],
-        startPos[1],
-        endPos[0] - startPos[0],
-        endPos[1] - startPos[1],
-        { ...normalizedOptions, roughness: 0 },
-    );
-    return {
-        roughElement,
-        options: {
-            ...normalizedOptions,
-        },
-        // dummy seed
-
-        x,
-        y,
-        endX,
-        endY,
-        shape: "rectangle",
-
-        id: nanoid(),
-    };
+        point1: startPos,
+        point2: endPos,
+        // todo add roughness to config
+        // @ts-ignore
+        roughness: 0,
+    });
 };
 
 const generateLineElement = (

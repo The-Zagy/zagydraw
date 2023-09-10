@@ -2,7 +2,7 @@ import rough from "roughjs";
 import { randomSeed } from "roughjs/bin/math";
 import { nanoid } from "nanoid";
 import Shape from "./shape";
-import { Point, getGlobalMinMax } from "@/utils";
+import { Point, distance, getGlobalMinMax } from "@/utils";
 import { LineOptions, LineRequiredOptions } from "@/types/general";
 import { CACHE_CANVAS_SIZE_THRESHOLD } from "@/constants";
 import { useStore } from "@/store";
@@ -12,6 +12,18 @@ export class Line extends Shape<LineOptions & LineRequiredOptions> {
     private cacheCtx!: CanvasRenderingContext2D;
     protected options!: LineOptions & LineRequiredOptions;
     protected boundingRect!: [Point, Point];
+    static pointNearLine = (A: Point, B: Point, M: Point): boolean => {
+        A = [Math.round(A[0]), Math.round(A[1])];
+        B = [Math.round(B[0]), Math.round(B[1])];
+        M = [Math.round(M[0]), Math.round(M[1])];
+        const AM = distance(A, M);
+        const MB = distance(M, B);
+        const AB = distance(A, B);
+        const diff = Math.abs(AB - (AM + MB));
+        // 3 is the threshold for now
+        if (diff < 3) return true;
+        return false;
+    };
     constructor(options: Partial<LineOptions> & LineRequiredOptions) {
         super(nanoid(), "line");
         this.generate(options);
@@ -23,6 +35,12 @@ export class Line extends Shape<LineOptions & LineRequiredOptions> {
             maxX: endX,
             maxY: endY,
         } = getGlobalMinMax([options.point1, options.point2]);
+        //choose point1 as the point with the loweer y and point2 as the point with the higher y
+        if (options.point1[1] < options.point2[1]) {
+            const temp = options.point1;
+            options.point1 = options.point2;
+            options.point2 = temp;
+        }
         const normalizedOptions = this.normalizeOptions(options);
         const tempStartPos: Point = [
             options.point1[0] + CACHE_CANVAS_SIZE_THRESHOLD,
@@ -109,5 +127,25 @@ export class Line extends Shape<LineOptions & LineRequiredOptions> {
             point1: this.boundingRect[0],
             point2: this.boundingRect[1],
         });
+    }
+    //@ts-ignore-next-line
+    public moveTo(newStart: Point) {
+        const offsetX = newStart[0] - this.boundingRect[0][0];
+        const offsetY = newStart[1] - this.boundingRect[0][1];
+        const point1 = [
+            this.options.point1[0] + offsetX,
+            this.options.point1[1] + offsetY,
+        ] as Point;
+        const point2 = [
+            this.options.point2[0] + offsetX,
+            this.options.point2[1] + offsetY,
+        ] as Point;
+        return this.regenerate({
+            point1,
+            point2,
+        });
+    }
+    public isHit(mouseCoords: Point): boolean {
+        return Line.pointNearLine(this.options.point1, this.options.point2, mouseCoords);
     }
 }

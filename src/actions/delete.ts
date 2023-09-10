@@ -1,5 +1,5 @@
 import { Command, UndoableCommand } from "./types";
-import { ZagyCanvasElement, ZagyCanvasImageElement } from "@/types/general";
+import { ZagyCanvasElement, ZagyCanvasImageElement, ZagyShape } from "@/types/general";
 import { useStore } from "@/store/index";
 import { CursorFn } from "@/types/general";
 import { Point, getHitElement } from "@/utils";
@@ -14,11 +14,16 @@ class DeleteAction {
         const position = getPosition();
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        const el = getHitElement(visibleElements, ctx, coords, position);
+        const el = getHitElement(visibleElements, coords, position);
         if (el !== null) {
             this.willDelete = true;
             setElements((prev) =>
-                prev.map((val) => (val.id === el.id ? { ...val, willDelete: true } : val)),
+                prev.map((val) => {
+                    if (val.id === el.id) {
+                        val.willDelete = true;
+                    }
+                    return val;
+                }),
             );
         }
     }
@@ -35,7 +40,7 @@ class DeleteAction {
         if (cursorFn !== CursorFn.Erase) return null;
         if (!this.willDelete) return null;
         const { elements } = useStore.getState();
-        const deletedElements: ZagyCanvasElement[] = elements
+        const deletedElements: ZagyShape[] = elements
             .filter(
                 (val) =>
                     val.willDelete &&

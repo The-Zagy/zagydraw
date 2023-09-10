@@ -1,5 +1,7 @@
 import { Drawable } from "roughjs/bin/core";
 
+import Shape from "@/utils/canvas/shapes/shape";
+
 type Point = [number, number];
 type ElementTypes = "rectangle" | "line" | "text" | "handdrawn" | "image";
 
@@ -163,23 +165,19 @@ enum CursorFn {
     // "Nwse-resize",
 }
 
-function isRect(el: ZagyCanvasElement): el is ZagyCanvasRectElement {
+function isRect(el: ZagyCanvasRectElement): el is ZagyCanvasRectElement {
     return el.shape === "rectangle";
 }
-
-function isLine(el: ZagyCanvasElement): el is ZagyCanvasLineElement {
+function isLine(el: ZagyCanvasLineElement): el is ZagyCanvasLineElement {
     return el.shape === "line";
 }
-
-function isText(el: ZagyCanvasElement): el is ZagyCanvasTextElement {
+function isText(el: ZagyCanvasTextElement): el is ZagyCanvasTextElement {
     return el.shape === "text";
 }
-
-function isHanddrawn(el: ZagyCanvasElement): el is ZagyCanvasHandDrawnElement {
+function isHanddrawn(el: ZagyCanvasHandDrawnElement): el is ZagyCanvasHandDrawnElement {
     return el.shape === "handdrawn";
 }
-
-function isImage(el: ZagyCanvasElement): el is ZagyCanvasImageElement {
+function isImage(el: ZagyCanvasImageElement): el is ZagyCanvasImageElement {
     return el.shape === "image";
 }
 
@@ -206,7 +204,7 @@ function isZagyPortable(test: unknown): asserts test is ZagyPortableT {
     throw new Error("notZagyPortable");
 }
 //function to check if elements extends CachableElement
-
+type ZagyShape = Shape<unknown>;
 export type {
     ZagyCanvasElement,
     ZagyCanvasLineElement,
@@ -235,5 +233,6 @@ export type {
     TextRequiredOptions,
     ImageRequiredOptions,
     ImageComputedFields,
+    ZagyShape,
 };
 export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn, isImage, isZagyPortable };

@@ -2,7 +2,7 @@ import rough from "roughjs";
 import { randomSeed } from "roughjs/bin/math";
 import { nanoid } from "nanoid";
 import Shape from "./shape";
-import { Point, normalizeRectCoords } from "@/utils";
+import { Point, normalizeRectCoords, normalizeToGrid } from "@/utils";
 import { RectOptions, RectRequiredOptions } from "@/types/general";
 import { CACHE_CANVAS_SIZE_THRESHOLD } from "@/constants";
 import { useStore } from "@/store";
@@ -95,14 +95,34 @@ export class Rectangle extends Shape<RectOptions & RectRequiredOptions> {
         return { ...this.options, shape: this.shape };
     }
     public move(walkX: number, walkY: number) {
+        const position = useStore.getState().position;
+
         this.boundingRect[0][0] += walkX;
         this.boundingRect[0][1] += walkY;
         this.boundingRect[1][0] += walkX;
         this.boundingRect[1][1] += walkY;
-
         return this.regenerate({
-            point1: this.boundingRect[0],
-            point2: this.boundingRect[1],
+            point1: normalizeToGrid(position, this.boundingRect[0]),
+            point2: normalizeToGrid(position, this.boundingRect[1]),
         });
+    }
+    public moveTo(newStart: Point) {
+        return this.regenerate({
+            point1: newStart,
+            point2: [
+                newStart[0] + this.boundingRect[1][0] - this.boundingRect[0][0],
+                newStart[1] + this.boundingRect[1][1] - this.boundingRect[0][1],
+            ],
+        });
+    }
+    public isElementInside(shape: Shape<unknown>) {
+        const [x, y] = this.boundingRect[0];
+        const [endX, endY] = this.boundingRect[1];
+        const [targetX, targetY] = shape.getBoundingRect()[0];
+        const [targetEndX, targetEndY] = shape.getBoundingRect()[1];
+        if (targetX >= x && targetY >= y && targetEndX <= endX && targetEndY <= endY) {
+            return true;
+        }
+        return false;
     }
 }

@@ -2,6 +2,8 @@ export type Point = [x: number, y: number];
 
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import Shape from "./canvas/shapes/shape";
+import { Rectangle } from "./canvas/shapes";
 import type { CanvasState } from "@/store";
 import {
     ZagyCanvasElement,
@@ -99,34 +101,14 @@ const pointInPath = (ctx: CanvasRenderingContext2D, path: Path2D, [x, y]: Point)
 };
 export function getHitElement(
     elements: CanvasState["elements"],
-    ctx: CanvasRenderingContext2D,
     mousePos: Point,
     pos: CanvasState["position"],
 ): null | CanvasState["elements"][number] {
     //todo deal with stacking elements when stacking is implemented
     mousePos = [mousePos[0] - pos.x, mousePos[1] - pos.y];
 
-    for (let i = 0; i < elements.length; i++) {
-        if (
-            elements[i].shape === "rectangle" ||
-            elements[i].shape === "text" ||
-            elements[i].shape === "image"
-        ) {
-            const { x, y, endX, endY } = elements[i] as ZagyCanvasRectElement;
-            if (pointInRectangle([x, y], [endX, y], [endX, endY], [x, endY], mousePos)) {
-                return elements[i];
-            }
-        } else if (elements[i].shape === "line") {
-            const { point1, point2 } = elements[i] as ZagyCanvasLineElement;
-            if (pointNearLine(point1, point2, mousePos)) {
-                return elements[i];
-            }
-        } else if (elements[i].shape === "handdrawn") {
-            const { path2D } = elements[i] as ZagyCanvasHandDrawnElement;
-            if (pointInPath(ctx, path2D, [mousePos[0], mousePos[1]])) {
-                return elements[i];
-            }
-        }
+    for (const el of elements) {
+        if (el.isHit(mousePos)) return el;
     }
     return null;
 }
@@ -138,25 +120,13 @@ export function getBoundingRect(...elements: ZagyCanvasElement[]) {
     let endX = -Infinity;
     let endY = -Infinity;
     for (const element of elements) {
-        //the check not needed currently but maybe other shapes will be added in the future
-        if (
-            element.shape === "rectangle" ||
-            element.shape === "line" ||
-            element.shape === "text" ||
-            element.shape === "handdrawn" ||
-            element.shape === "image"
-        ) {
-            const {
-                x: elementStartX,
-                y: elementStartY,
-                endX: elementEndX,
-                endY: elementEndY,
-            } = element;
-            x = Math.min(x, elementStartX);
-            y = Math.min(y, elementStartY);
-            endX = Math.max(endX, elementEndX);
-            endY = Math.max(endY, elementEndY);
-        }
+        const boundingRect = element.getBoundingRect();
+        const [elementStartX, elementStartY] = boundingRect[0];
+        const [elementEndX, elementEndY] = boundingRect[1];
+        x = Math.min(x, elementStartX);
+        y = Math.min(y, elementStartY);
+        endX = Math.max(endX, elementEndX);
+        endY = Math.max(endY, elementEndY);
     }
     const threshold = 10;
     return [
@@ -165,21 +135,8 @@ export function getBoundingRect(...elements: ZagyCanvasElement[]) {
     ];
 }
 
-export const isElementInRect = (element: ZagyCanvasElement, rect: ZagyCanvasRectElement) => {
-    if (
-        element.shape === "rectangle" ||
-        element.shape === "line" ||
-        element.shape === "text" ||
-        element.shape === "handdrawn" ||
-        element.shape === "image"
-    ) {
-        const { x, y, endX, endY } = element as ZagyCanvasRectElement;
-
-        if (x >= rect.x && y >= rect.y && endX <= rect.endX && endY <= rect.endY) {
-            return true;
-        }
-    }
-    return false;
+export const isElementInRect = (element: Shape<unknown>, rect: Rectangle) => {
+    rect.isElementInside(element);
 };
 
 export const isElementVisible = (

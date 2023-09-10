@@ -91,4 +91,10 @@ export class Text extends Shape<TextOptions & TextRequiredOptions> {
             point1: newStart,
         });
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    public moveTo(newStart: Point) {
+        return this.regenerate({
+            point1: newStart,
+        });
+    }
 }

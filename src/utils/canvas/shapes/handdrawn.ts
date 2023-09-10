@@ -13,7 +13,15 @@ export class HandDrawn extends Shape<HandDrawnOptions & HandDrawnRequiredOptions
     protected options!: HandDrawnOptions & HandDrawnRequiredOptions;
     protected boundingRect!: [Point, Point];
     protected path2D!: Path2D;
-
+    static ctx = document.createElement("canvas").getContext("2d")!;
+    static pointInPath = (path: Path2D, [x, y]: Point, threshold = 60): boolean => {
+        const ctx = HandDrawn.ctx;
+        const originalThreshold = ctx.lineWidth;
+        ctx.lineWidth = threshold;
+        const result = ctx.isPointInStroke(path, x, y);
+        ctx.lineWidth = originalThreshold;
+        return result;
+    };
     static constructHandDrawnElementPath2D = (
         options: HandDrawnOptions & HandDrawnRequiredOptions,
     ) => {
@@ -130,5 +138,18 @@ export class HandDrawn extends Shape<HandDrawnOptions & HandDrawnRequiredOptions
     public move(walkX: number, walkY: number) {
         const newPaths = this.options.paths.map((p) => [p[0] - walkX, p[1] - walkY] as Point);
         return this.regenerate({ paths: newPaths });
+    }
+    public moveTo(newStart: Point) {
+        const newPaths = this.options.paths.map(
+            (p) =>
+                [
+                    p[0] + newStart[0] - this.boundingRect[0][0],
+                    p[1] + newStart[1] - this.boundingRect[0][1],
+                ] as Point,
+        );
+        return this.regenerate({ paths: newPaths });
+    }
+    public isHit(mouseCoords: Point): boolean {
+        return HandDrawn.pointInPath(this.path2D, mouseCoords);
     }
 }

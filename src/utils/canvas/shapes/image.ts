@@ -155,4 +155,14 @@ export class ZagyImage extends Shape<ImageOptions & ImageRequiredOptions & Image
             point2: this.boundingRect[1],
         });
     }
+    //
+    public moveTo(newStart: Point) {
+        return this.regenerate({
+            point1: newStart,
+            point2: [
+                newStart[0] + this.boundingRect[1][0] - this.boundingRect[0][0],
+                newStart[1] + this.boundingRect[1][1] - this.boundingRect[0][1],
+            ],
+        });
+    }
 }

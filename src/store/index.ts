@@ -1,12 +1,7 @@
 import { randomSeed } from "roughjs/bin/math";
 import { create } from "zustand";
-import {
-    ZagyCanvasElement,
-    CursorFn,
-    GlobalElementOptions,
-    ZagyCanvasRectElement,
-} from "@/types/general";
-import { isElementVisible } from "@/utils";
+import { CursorFn, GlobalElementOptions, ZagyShape } from "@/types/general";
+import { Rectangle } from "@/utils/canvas/shapes";
 
 type ConfigState = Omit<GlobalElementOptions, "seed"> & {
     cursorFn: CursorFn;
@@ -14,16 +9,16 @@ type ConfigState = Omit<GlobalElementOptions, "seed"> & {
     isMobile: boolean;
 };
 
-export type CanvasState<T extends ZagyCanvasElement = ZagyCanvasElement> = {
+export type CanvasState = {
     width: number;
     height: number;
     position: { x: number; y: number };
     zoomLevel: number;
-    elements: T[];
-    previewElement: T | null;
-    selectedElements: T[];
-    visibleElements: T[];
-    multiSelectRect: ZagyCanvasRectElement | null;
+    elements: ZagyShape[];
+    previewElement: ZagyShape | null;
+    selectedElements: ZagyShape[];
+    visibleElements: ZagyShape[];
+    multiSelectRect: Rectangle | null;
 };
 
 export type GeneralActionsState = {
@@ -59,9 +54,9 @@ type CanvasActions = {
     setDimensions: (width: CanvasState["width"], height: CanvasState["height"]) => void;
     setPosition: (position: CanvasState["position"]) => void;
     setZoomLevel: (zoomLevel: CanvasState["zoomLevel"]) => void;
-    setElements: (callback: (prev: ZagyCanvasElement[]) => ZagyCanvasElement[]) => void;
+    setElements: (callback: (prev: ZagyShape[]) => ZagyShape[]) => void;
     setPreviewElement: (el: CanvasState["previewElement"]) => void;
-    setSelectedElements: (callback: (prev: ZagyCanvasElement[]) => ZagyCanvasElement[]) => void;
+    setSelectedElements: (callback: (prev: ZagyShape[]) => ZagyShape[]) => void;
     setMultiSelectRect: (rect: CanvasState["multiSelectRect"]) => void;
     getPosition: () => { x: number; y: number };
 };

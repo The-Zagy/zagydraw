@@ -15,6 +15,7 @@ export default abstract class Shape<T> {
 
     static generator: RoughGenerator = new RoughGenerator();
     public abstract move(walkX: number, walkY: number): typeof this;
+    public abstract moveTo(startPos: Point): typeof this;
     public abstract copy(): T & { shape: ElementTypes };
     public abstract render(ctx: CanvasRenderingContext2D, zoom: number): void;
     /*
@@ -47,5 +48,11 @@ export default abstract class Shape<T> {
             return true;
         }
         return false;
+    }
+    getBoundingRect(): [Point, Point] {
+        return this.boundingRect;
+    }
+    getOptions(): T {
+        return this.options;
     }
 }
