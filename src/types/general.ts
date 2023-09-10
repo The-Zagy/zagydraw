@@ -61,6 +61,31 @@ type HandDrawnRequiredOptions = {
 };
 
 type ImageOptions = SharedOptions;
+type ImageRequiredOptions = {
+    /**
+     * top left corner of an image
+     *
+     */
+    point1: Point;
+    /**
+     * A string containing an object URL that can be used to reference the contents of the specified source object(URL.createObjectURL)
+     *
+     * NOTE: if provided as blob the DataUrl will be loaded from it automatically
+     */
+    image: string | Blob;
+};
+/**
+ * fields that is needed to describe the image but not required while creating the image and the generator should update those fields
+ */
+type ImageComputedFields = {
+    /**
+     * top left corner of an image
+     *
+     * NOTE: if the image haven't loaded yet will be the point2 for the preview image
+     *
+     */
+    point2: Point;
+};
 
 type GlobalElementOptions = TextOptions & RectOptions & LineOptions;
 
@@ -208,5 +233,7 @@ export type {
     LineRequiredOptions,
     HandDrawnRequiredOptions,
     TextRequiredOptions,
+    ImageRequiredOptions,
+    ImageComputedFields,
 };
 export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn, isImage, isZagyPortable };
