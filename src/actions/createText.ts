@@ -71,7 +71,8 @@ class TextAction {
                 if (canvas === null) return;
                 const ctx = canvas.getContext("2d");
                 if (ctx === null) return;
-                const { currentText, position } = useStore.getState();
+                const { currentText, getPosition } = useStore.getState();
+                const position = getPosition();
                 const normalizedPosition = normalizePos(position, this.lastMouseDownPosition);
                 element = new Text({ point1: normalizedPosition, text: currentText });
 
