@@ -1,17 +1,7 @@
-import { RoughGenerator } from "roughjs/bin/generator";
 import { UndoableCommand } from "./types";
 import { useStore } from "@/store/index";
-import {
-    generateCacheLineElement,
-    generateCacheRectElement,
-    generateCachedHandDrawnElement,
-    generateImageElement,
-    generateTextElement,
-} from "@/utils/canvas/generateElement";
 import { Point, getBoundingRect, normalizePos, normalizeToGrid } from "@/utils";
 import {
-    ZagyCanvasElement,
-    ZagyPortableT,
     ZagyShape,
     isHanddrawn,
     isImage,
@@ -20,7 +10,7 @@ import {
     isText,
     isZagyPortable,
 } from "@/types/general";
-import { HandDrawn, Line, Rectangle, Text, ZagyImage } from "@/utils/canvas/shapes";
+import { ZagyHandDrawn, ZagyLine, ZagyRectangle, ZagyText, ZagyImage } from "@/utils/canvas/shapes";
 
 export class ActionImportElements extends UndoableCommand {
     #importedIds: Set<string>;
@@ -71,14 +61,14 @@ export class ActionImportElements extends UndoableCommand {
                         const elsToPush: ZagyShape[] = [];
                         for (const el of items.elements) {
                             if (isRect(el)) {
-                                elsToPush.push(new Rectangle(el.options));
+                                elsToPush.push(new ZagyRectangle(el.options));
                             } else if (isLine(el)) {
-                                elsToPush.push(new Line(el.options));
+                                elsToPush.push(new ZagyLine(el.options));
                             } else if (isText(el)) {
-                                elsToPush.push(new Text(el.options));
+                                elsToPush.push(new ZagyText(el.options));
                             } else if (isHanddrawn(el)) {
-                                elsToPush.push(new HandDrawn(el.options));
-                            } else if (isImage(el) && el.image !== null) {
+                                elsToPush.push(new ZagyHandDrawn(el.options));
+                            } else if (isImage(el)) {
                                 elsToPush.push(new ZagyImage(el.options));
                             }
                         }
@@ -91,7 +81,7 @@ export class ActionImportElements extends UndoableCommand {
                         elsToPush.forEach((el) => this.#importedIds.add(el.id));
                         setElements((prev) => [...prev, ...elsToPush]);
                     } catch {
-                        const textEl = new Text({
+                        const textEl = new ZagyText({
                             text: pasted,
                             point1: normalizePos(getPosition(), this.mouseCoords),
                         });

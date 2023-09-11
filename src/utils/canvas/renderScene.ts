@@ -1,15 +1,10 @@
-import { RoughCanvas } from "roughjs/bin/canvas";
 import renderElements from "./renderElements";
 import drawGrid from "./renderGrid";
 
 import renderBoundingRect from "./renderBoundingRect";
 import { CanvasState } from "@/store";
 
-function renderScene(
-    roughCanvas: RoughCanvas,
-    ctx: CanvasRenderingContext2D,
-    canvasState: CanvasState,
-) {
+function renderScene(ctx: CanvasRenderingContext2D, canvasState: CanvasState) {
     ctx.clearRect(0, 0, canvasState.width, canvasState.height);
     ctx.fillStyle = "dark";
     ctx.fillRect(0, 0, canvasState.width, canvasState.height);
@@ -34,7 +29,7 @@ function renderScene(
     if (canvasState.multiSelectRect) {
         renderedElements.push(canvasState.multiSelectRect);
     }
-    renderElements(renderedElements, roughCanvas, ctx, canvasState.zoomLevel);
+    renderElements(renderedElements, ctx, canvasState.zoomLevel);
     renderBoundingRect(canvasState.selectedElements, ctx);
     ctx.restore();
 }

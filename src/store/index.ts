@@ -1,7 +1,7 @@
 import { randomSeed } from "roughjs/bin/math";
 import { create } from "zustand";
 import { CursorFn, GlobalElementOptions, ZagyShape } from "@/types/general";
-import { Rectangle } from "@/utils/canvas/shapes";
+import { ZagyRectangle } from "@/utils/canvas/shapes";
 
 type ConfigState = Omit<GlobalElementOptions, "seed"> & {
     cursorFn: CursorFn;
@@ -18,7 +18,7 @@ export type CanvasState = {
     previewElement: ZagyShape | null;
     selectedElements: ZagyShape[];
     visibleElements: ZagyShape[];
-    multiSelectRect: Rectangle | null;
+    multiSelectRect: ZagyRectangle | null;
 };
 
 export type GeneralActionsState = {

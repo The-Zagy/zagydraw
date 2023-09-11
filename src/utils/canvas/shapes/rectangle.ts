@@ -3,13 +3,13 @@ import { randomSeed } from "roughjs/bin/math";
 import { nanoid } from "nanoid";
 import Shape from "./shape";
 import { Point, normalizeRectCoords, normalizeToGrid } from "@/utils";
-import { RectOptions, RectRequiredOptions } from "@/types/general";
+import { RectOptions, RectRequiredOptions, ZagyShape } from "@/types/general";
 import { CACHE_CANVAS_SIZE_THRESHOLD } from "@/constants";
 import { useStore } from "@/store";
 const { getElementConfigState: getConfigState } = useStore.getState();
-export class Rectangle extends Shape<RectOptions & RectRequiredOptions> {
+
+export class ZagyRectangle extends Shape<RectOptions & RectRequiredOptions> {
     private cacheCanvas!: HTMLCanvasElement;
-    private cacheCtx!: CanvasRenderingContext2D;
     protected options!: RectOptions & RectRequiredOptions;
     protected boundingRect!: [Point, Point];
     constructor(options: Partial<RectOptions> & RectRequiredOptions) {
@@ -44,7 +44,6 @@ export class Rectangle extends Shape<RectOptions & RectRequiredOptions> {
         cacheCtx.scale(normalizedOptions.zoom, normalizedOptions.zoom);
         rough.canvas(cacheCanvas).draw(roughElement);
         this.cacheCanvas = cacheCanvas;
-        this.cacheCtx = cacheCtx;
         this.options = normalizedOptions;
         this.boundingRect = [
             [x, y],
@@ -114,7 +113,7 @@ export class Rectangle extends Shape<RectOptions & RectRequiredOptions> {
             ],
         });
     }
-    public isElementInside(shape: Shape<unknown>) {
+    public isElementInside(shape: ZagyShape) {
         const [x, y] = this.boundingRect[0];
         const [endX, endY] = this.boundingRect[1];
         const [targetX, targetY] = shape.getBoundingRect()[0];

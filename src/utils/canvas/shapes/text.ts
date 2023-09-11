@@ -4,7 +4,8 @@ import { Point, getCorrectCoordOrder } from "@/utils";
 import { FontTypeOptions, TextOptions, TextRequiredOptions } from "@/types/general";
 import { useStore } from "@/store";
 const { getElementConfigState: getConfigState } = useStore.getState();
-export class Text extends Shape<TextOptions & TextRequiredOptions> {
+
+export class ZagyText extends Shape<TextOptions & TextRequiredOptions> {
     // todo add a cache canvas for text
     protected options!: TextOptions & TextRequiredOptions;
     protected text!: string[];

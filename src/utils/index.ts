@@ -3,12 +3,10 @@ export type Point = [x: number, y: number];
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import Shape from "./canvas/shapes/shape";
-import { Rectangle } from "./canvas/shapes";
+import { ZagyRectangle } from "./canvas/shapes";
 import type { CanvasState } from "@/store";
 import {
     ZagyCanvasElement,
-    ZagyCanvasHandDrawnElement,
-    ZagyCanvasLineElement,
     ZagyCanvasRectElement,
     GlobalElementOptions,
     isRect,
@@ -17,6 +15,7 @@ import {
     isHanddrawn,
     ZagyShape,
     isImage,
+    SharedOptions,
 } from "@/types/general";
 
 export function cn(...inputs: ClassValue[]) {
@@ -67,7 +66,7 @@ const makeVector = (p1: Point, p2: Point): Point => {
     return [p2[0] - p1[0], p2[1] - p1[1]];
 };
 
-const pointNearLine = (A: Point, B: Point, M: Point) => {
+export const pointNearLine = (A: Point, B: Point, M: Point) => {
     A = [Math.round(A[0]), Math.round(A[1])];
     B = [Math.round(B[0]), Math.round(B[1])];
     M = [Math.round(M[0]), Math.round(M[1])];
@@ -98,19 +97,23 @@ export const pointInRectangle = (A: Point, B: Point, _: Point, D: Point, M: Poin
     const AD_AD = dotProduct(AD, AD);
     return 0 < AM_AB && AM_AB < AB_AB && 0 < AM_AD && AM_AD < AD_AD;
 };
-const pointInPath = (ctx: CanvasRenderingContext2D, path: Path2D, [x, y]: Point): boolean => {
+export const pointInPath = (
+    ctx: CanvasRenderingContext2D,
+    path: Path2D,
+    [x, y]: Point,
+): boolean => {
     return ctx.isPointInPath(path, x, y);
 };
 export function getHitElement(
     elements: CanvasState["elements"],
-    mousePos: Point,
+    mouseCoords: Point,
     pos: CanvasState["position"],
 ): null | CanvasState["elements"][number] {
     //todo deal with stacking elements when stacking is implemented
-    mousePos = [mousePos[0] - pos.x, mousePos[1] - pos.y];
+    mouseCoords = [mouseCoords[0] - pos.x, mouseCoords[1] - pos.y];
 
     for (const el of elements) {
-        if (el.isHit(mousePos)) return el;
+        if (el.isHit(mouseCoords)) return el;
     }
     return null;
 }
@@ -137,7 +140,7 @@ export function getBoundingRect(...elements: ZagyShape[]) {
     ];
 }
 
-export const isElementInRect = (element: Shape<unknown>, rect: Rectangle) => {
+export const isElementInRect = (element: Shape<unknown & SharedOptions>, rect: ZagyRectangle) => {
     rect.isElementInside(element);
 };
 
@@ -229,9 +232,7 @@ export type CommonConfigOptions = {
 /**
  *  get union config of many elements
  */
-export function getElementsUnionConfig<T extends ZagyShape = ZagyShape>(
-    elements: T[],
-): CommonConfigOptions {
+export function getElementsUnionConfig<T extends ZagyShape>(elements: T[]): CommonConfigOptions {
     if (elements.length === 0) return {};
     const elementTypesSoFar: {
         [k in ZagyCanvasElement["shape"]]: boolean;
@@ -256,7 +257,7 @@ export function getElementsUnionConfig<T extends ZagyShape = ZagyShape>(
             }
             res = {
                 ...res,
-                ...element.options,
+                ...(element.getOptions() as object),
             };
         } else if (isLine(element)) {
             if (!elementTypesSoFar["line"]) {
@@ -265,7 +266,7 @@ export function getElementsUnionConfig<T extends ZagyShape = ZagyShape>(
             }
             res = {
                 ...res,
-                ...element.options,
+                ...(element.getOptions() as object),
             };
         } else if (isText(element)) {
             if (!elementTypesSoFar["text"]) {
@@ -274,7 +275,7 @@ export function getElementsUnionConfig<T extends ZagyShape = ZagyShape>(
             }
             res = {
                 ...res,
-                ...element.options,
+                ...(element.getOptions() as object),
             };
         } else if (isHanddrawn(element)) {
             if (!elementTypesSoFar["handdrawn"]) {
@@ -283,7 +284,7 @@ export function getElementsUnionConfig<T extends ZagyShape = ZagyShape>(
             }
             res = {
                 ...res,
-                ...element.options,
+                ...(element.getOptions() as object),
             };
         } else if (isImage(element)) {
             if (!elementTypesSoFar["image"]) {
@@ -292,7 +293,7 @@ export function getElementsUnionConfig<T extends ZagyShape = ZagyShape>(
             }
             res = {
                 ...res,
-                ...element.options,
+                ...(element.getOptions() as object),
             };
         }
     }

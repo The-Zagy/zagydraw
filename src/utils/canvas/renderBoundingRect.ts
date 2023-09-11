@@ -1,4 +1,4 @@
-import { ZagyCanvasElement } from "@/types/general";
+import { ZagyShape } from "@/types/general";
 import { getBoundingRect } from "@/utils";
 
 function drawCircle(ctx: CanvasRenderingContext2D, x: number, y: number) {
@@ -38,12 +38,9 @@ function drawHandles(
     drawCircle(ctx, xMid, rectPos.y[1]);
 }
 
-export default function renderBoundingRect(
-    elements: ZagyCanvasElement[],
-    ctx: CanvasRenderingContext2D,
-) {
+export default function renderBoundingRect(elements: ZagyShape[], ctx: CanvasRenderingContext2D) {
+    if (elements.length === 0) return;
     const rect = getBoundingRect(...elements);
-    if (!rect) return;
     const [x, y] = [rect[0][0], rect[0][1]];
     const [endX, endY] = [rect[1][0], rect[1][1]];
     const width = endX - x;

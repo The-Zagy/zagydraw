@@ -1,14 +1,12 @@
-import { RoughGenerator } from "roughjs/bin/generator";
 import { randomSeed } from "roughjs/bin/math";
 import { UndoableCommand } from "./types";
 
 import { useStore } from "@/store";
-import { CursorFn, ZagyCanvasElement } from "@/types/general";
+import { CursorFn, ZagyShape } from "@/types/general";
 import { Point, normalizeToGrid } from "@/utils";
-import { HandDrawn, Line, Rectangle } from "@/utils/canvas/shapes";
+import { ZagyHandDrawn, ZagyLine, ZagyRectangle } from "@/utils/canvas/shapes";
 
 class DrawAction {
-    private static roughGenerator = new RoughGenerator();
     private static currentSeed = randomSeed();
     private static currentlyDrawnFreeHand: Point[] = [];
     private static lastMouseDownPosition: Point = [0, 0];
@@ -39,7 +37,7 @@ class DrawAction {
             this.lastMouseUpPosition = norm;
             if (cursorFn === CursorFn.Rect) {
                 try {
-                    const rect = new Rectangle({
+                    const rect = new ZagyRectangle({
                         point1: this.lastMouseDownPosition,
                         point2: this.lastMouseUpPosition,
                         seed: this.currentSeed,
@@ -50,7 +48,7 @@ class DrawAction {
                     return;
                 }
             } else if (cursorFn === CursorFn.Line) {
-                const line = new Line({
+                const line = new ZagyLine({
                     point1: this.lastMouseDownPosition,
                     point2: this.lastMouseUpPosition,
                     seed: this.currentSeed,
@@ -62,7 +60,7 @@ class DrawAction {
                     ...this.currentlyDrawnFreeHand,
                     [x - position.x, y - position.y],
                 ];
-                const handDrawnElement = new HandDrawn({
+                const handDrawnElement = new ZagyHandDrawn({
                     paths: this.currentlyDrawnFreeHand,
                     zoom: zoomLevel,
                 });
@@ -85,7 +83,7 @@ class DrawAction {
         };
     }
     public static end(): UndoableCommand | null {
-        const insertedElements: ZagyCanvasElement[] = [];
+        const insertedElements: ZagyShape[] = [];
         const { cursorFn } = useStore.getState();
         if (
             cursorFn !== CursorFn.Rect &&
@@ -103,9 +101,9 @@ class DrawAction {
             execute: () => {
                 const { cursorFn, setPreviewElement, zoomLevel } = useStore.getState();
                 setPreviewElement(null);
-                let el: ZagyCanvasElement | null = null;
+                let el: ZagyShape | null = null;
                 if (cursorFn === CursorFn.Line) {
-                    const line = new Line({
+                    const line = new ZagyLine({
                         point1: this.lastMouseDownPosition,
                         point2: this.lastMouseUpPosition,
                         seed: this.currentSeed,
@@ -115,7 +113,7 @@ class DrawAction {
                     this.currentSeed = randomSeed();
                 } else if (cursorFn === CursorFn.Rect) {
                     try {
-                        const rect = new Rectangle({
+                        const rect = new ZagyRectangle({
                             point1: this.lastMouseDownPosition,
                             point2: this.lastMouseUpPosition,
                             seed: this.currentSeed,
@@ -128,7 +126,7 @@ class DrawAction {
                         return;
                     }
                 } else if (cursorFn === CursorFn.FreeDraw) {
-                    const handDrawnElement = new HandDrawn({
+                    const handDrawnElement = new ZagyHandDrawn({
                         paths: this.currentlyDrawnFreeHand,
                         zoom: zoomLevel,
                     });
@@ -139,7 +137,7 @@ class DrawAction {
                     insertedElements.push(el);
                     const { setElements } = useStore.getState();
                     console.log(el);
-                    setElements((prev) => [...prev, el as ZagyCanvasElement]);
+                    setElements((prev) => [...prev, el as ZagyShape]);
                 }
                 this.lastMouseDownPosition = [0, 0];
                 this.lastMouseUpPosition = [0, 0];

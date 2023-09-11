@@ -1,5 +1,5 @@
-export { Rectangle } from "./rectangle";
-export { Line } from "./line";
-export { HandDrawn } from "./handdrawn";
-export { Text } from "./text";
+export { ZagyRectangle } from "./rectangle";
+export { ZagyLine } from "./line";
+export { ZagyHandDrawn } from "./handdrawn";
+export { ZagyText } from "./text";
 export { ZagyImage } from "./image";

@@ -1,20 +1,7 @@
 import { fileSave } from "browser-fs-access";
 import { Command } from "./types";
-import {
-    type ZagyCanvasElement,
-    isRect,
-    isImage,
-    ZagyCanvasImageElement,
-    ZagyCanvasRectElement,
-    isLine,
-    ZagyCanvasLineElement,
-    CleanedElement,
-    ZagyPortableT,
-} from "@/types/general";
+import { ZagyPortableT } from "@/types/general";
 import { useStore } from "@/store/index";
-import { isText, isHanddrawn } from "@/types/general";
-import { ZagyCanvasTextElement } from "@/types/general";
-import { ZagyCanvasHandDrawnElement } from "@/types/general";
 
 export const DestOpts = {
     CLIPBOARD: 0,
@@ -39,7 +26,7 @@ export class ActionExportScene extends Command {
             // don't copy dump text into the user clipboard if there's no data to copy
             if (elements.length === 0 && selectedElements.length === 0) return;
             // cleaned up the items
-            const portable: ZagyPortableT<unknown> = {
+            const portable: ZagyPortableT = {
                 type: "ZagyPortableContent",
                 version: 1,
                 elements: [],

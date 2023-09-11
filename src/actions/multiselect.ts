@@ -1,13 +1,11 @@
-import { RoughGenerator } from "roughjs/bin/generator";
 import { useStore } from "@/store";
 import { CursorFn } from "@/types/general";
-import { Point, isElementInRect, normalizePos } from "@/utils";
+import { Point, normalizePos } from "@/utils";
 import { generateSelectRectElement } from "@/utils/canvas/generateElement";
 
 class MultiSelectAction {
     private static lastMouseUpPosition: Point | null = [0, 0];
     private static lastMouseDownPosition: Point | null = [0, 0];
-    private static roughGenerator = new RoughGenerator();
     private static _start(coords: Point) {
         const { getPosition } = useStore.getState();
         const position = getPosition();

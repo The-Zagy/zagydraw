@@ -8,9 +8,8 @@ import { CACHE_CANVAS_SIZE_THRESHOLD } from "@/constants";
 import { useStore } from "@/store";
 const { getElementConfigState: getConfigState } = useStore.getState();
 
-export class Line extends Shape<LineOptions & LineRequiredOptions> {
+export class ZagyLine extends Shape<LineOptions & LineRequiredOptions> {
     private cacheCanvas!: HTMLCanvasElement;
-    private cacheCtx!: CanvasRenderingContext2D;
     protected options!: LineOptions & LineRequiredOptions;
     protected boundingRect!: [Point, Point];
     static pointNearLine = (A: Point, B: Point, M: Point): boolean => {
@@ -72,7 +71,6 @@ export class Line extends Shape<LineOptions & LineRequiredOptions> {
             [endX, endY],
         ];
         this.cacheCanvas = cacheCanvas;
-        this.cacheCtx = cacheCtx;
         this.options = normalizedOptions;
         return this;
     }
@@ -147,6 +145,6 @@ export class Line extends Shape<LineOptions & LineRequiredOptions> {
         });
     }
     public isHit(mouseCoords: Point): boolean {
-        return Line.pointNearLine(this.options.point1, this.options.point2, mouseCoords);
+        return ZagyLine.pointNearLine(this.options.point1, this.options.point2, mouseCoords);
     }
 }

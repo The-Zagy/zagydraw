@@ -3,7 +3,7 @@ import { Command } from "./types";
 import { useStore } from "@/store/index";
 import { getBoundingRect } from "@/utils";
 import renderElements from "@/utils/canvas/renderElements";
-import { type ZagyCanvasElement } from "@/types/general";
+import { ZagyShape } from "@/types/general";
 
 export type ExportOpeions = {
     onlySelected: boolean;
@@ -30,11 +30,10 @@ export class ActionExportScene extends Command {
         this.type = type;
     }
 
-    private static drawCanvas(elements: ZagyCanvasElement[], options: ExportOpeions) {
+    private static drawCanvas(elements: ZagyShape[], options: ExportOpeions) {
         if (!ActionExportScene.exportCanvas) return false;
         const exportContext = ActionExportScene.exportCanvas.getContext("2d");
         if (exportContext === null) return;
-        const roughCanvas = rough.canvas(ActionExportScene.exportCanvas);
 
         // get canvas width/height to hold all elements
         const rect = getBoundingRect(...elements);
@@ -57,7 +56,7 @@ export class ActionExportScene extends Command {
         // Translate the context to match the top-left corner of the selected elements
         exportContext.translate(-rect[0][0], -rect[0][1]);
 
-        renderElements(elements, roughCanvas, exportContext, 1);
+        renderElements(elements, exportContext, 1);
         return true;
     }
 

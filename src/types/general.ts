@@ -1,6 +1,7 @@
 import { Drawable } from "roughjs/bin/core";
 
 import Shape from "@/utils/canvas/shapes/shape";
+import { ZagyHandDrawn, ZagyLine, ZagyRectangle, ZagyText, ZagyImage } from "@/utils/canvas/shapes";
 
 type Point = [number, number];
 type ElementTypes = "rectangle" | "line" | "text" | "handdrawn" | "image";
@@ -165,34 +166,34 @@ enum CursorFn {
     // "Nwse-resize",
 }
 
-function isRect(el: { shape: string }): el is ZagyCanvasRectElement {
+function isRect(el: { shape: string }): el is ZagyRectangle {
     return el.shape === "rectangle";
 }
-function isLine(el: { shape: string }): el is ZagyCanvasLineElement {
+function isLine(el: { shape: string }): el is ZagyLine {
     return el.shape === "line";
 }
-function isText(el: { shape: string }): el is ZagyCanvasTextElement {
+function isText(el: { shape: string }): el is ZagyText {
     return el.shape === "text";
 }
-function isHanddrawn(el: { shape: string }): el is ZagyCanvasHandDrawnElement {
+function isHanddrawn(el: { shape: string }): el is ZagyHandDrawn {
     return el.shape === "handdrawn";
 }
-function isImage(el: { shape: string }): el is ZagyCanvasImageElement {
+function isImage(el: { shape: string }): el is ZagyImage {
     return el.shape === "image";
 }
 
 //function to check if elements extends CachableElement
 type ZagyShape = Shape<unknown>;
 
-type ZagyPortableT<T> = {
+type ZagyPortableT = {
     type: "ZagyPortableContent";
     elements: {
-        id: Shape<T>["id"];
-        shape: Shape<T>["shape"];
+        id: ZagyShape["id"];
+        shape: ZagyShape["shape"];
         /**
          * every prop needed to recreate the element once again
          */
-        options: Shape<T>["options"];
+        options: ZagyShape["options"];
     }[];
     /**
      * will help if we make any breaking changes in the schema and want to be backward compatible
@@ -201,7 +202,7 @@ type ZagyPortableT<T> = {
 };
 
 // mockup structure type guard
-function isZagyPortable<T = unknown>(test: unknown): asserts test is ZagyPortableT<T> {
+function isZagyPortable(test: unknown): asserts test is ZagyPortableT {
     if (
         typeof test === "object" &&
         test !== null &&

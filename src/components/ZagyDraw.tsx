@@ -2,7 +2,6 @@ import { PointerEventHandler, useEffect, useLayoutEffect, useRef } from "react";
 import rough from "roughjs";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import clsx from "clsx";
-import { RoughGenerator } from "roughjs/bin/generator";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "./ui/button";
 import { ActionImportElements } from "@/actions/importElements";
@@ -35,7 +34,6 @@ const { setZoomLevel, setDimensions, setIsMouseDown, setElements, setCursorFn } 
 //         );
 //     }
 // );
-const roughGenerator = new RoughGenerator();
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.1;
 
@@ -91,7 +89,7 @@ function ZagyDraw() {
         if (roughCanvas.current || !canvas.current) return;
         roughCanvas.current = rough.canvas(canvas.current);
     }, []);
-    useRenderScene(roughCanvas.current, canvas.current?.getContext("2d") || null, {
+    useRenderScene(canvas.current?.getContext("2d") || null, {
         width,
         height,
         position,
@@ -191,7 +189,7 @@ function ZagyDraw() {
         if (!canvas.current) return;
         const ctx = canvas.current.getContext("2d");
         if (!ctx) return;
-        const el = getHitElement(visibleElements, ctx, [event.clientX, event.clientY], position);
+        const el = getHitElement(visibleElements, [event.clientX, event.clientY], position);
         if (el) {
             setCursorFn(CursorFn.Move);
             // TODO: move this code whereever we will handle resize/rotate

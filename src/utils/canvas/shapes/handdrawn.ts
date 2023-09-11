@@ -7,15 +7,14 @@ import { CACHE_CANVAS_SIZE_THRESHOLD } from "@/constants";
 import { useStore } from "@/store";
 const { getElementConfigState: getConfigState } = useStore.getState();
 
-export class HandDrawn extends Shape<HandDrawnOptions & HandDrawnRequiredOptions> {
+export class ZagyHandDrawn extends Shape<HandDrawnOptions & HandDrawnRequiredOptions> {
     private cacheCanvas!: HTMLCanvasElement;
-    private cacheCtx!: CanvasRenderingContext2D;
     protected options!: HandDrawnOptions & HandDrawnRequiredOptions;
     protected boundingRect!: [Point, Point];
     protected path2D!: Path2D;
     static ctx = document.createElement("canvas").getContext("2d")!;
     static pointInPath = (path: Path2D, [x, y]: Point, threshold = 60): boolean => {
-        const ctx = HandDrawn.ctx;
+        const ctx = ZagyHandDrawn.ctx;
         const originalThreshold = ctx.lineWidth;
         ctx.lineWidth = threshold;
         const result = ctx.isPointInStroke(path, x, y);
@@ -40,7 +39,7 @@ export class HandDrawn extends Shape<HandDrawnOptions & HandDrawnRequiredOptions
                 cap: true,
             },
         });
-        const svgFromStroke = HandDrawn.getSvgPathFromStroke(stroke);
+        const svgFromStroke = ZagyHandDrawn.getSvgPathFromStroke(stroke);
         return new Path2D(svgFromStroke);
     };
     static getSvgPathFromStroke(points: number[][], closed = true): string {
@@ -70,7 +69,7 @@ export class HandDrawn extends Shape<HandDrawnOptions & HandDrawnRequiredOptions
     }
     public generate(options: Partial<HandDrawnOptions> & HandDrawnRequiredOptions) {
         const normalizedOptions = this.normalizeOptions(options);
-        const path2D = HandDrawn.constructHandDrawnElementPath2D(normalizedOptions);
+        const path2D = ZagyHandDrawn.constructHandDrawnElementPath2D(normalizedOptions);
         const { minX: x, minY: y, maxX: endX, maxY: endY } = getGlobalMinMax(options.paths);
         const cacheCanvas = document.createElement("canvas");
         cacheCanvas.width = endX - x + CACHE_CANVAS_SIZE_THRESHOLD;
@@ -92,7 +91,6 @@ export class HandDrawn extends Shape<HandDrawnOptions & HandDrawnRequiredOptions
             [endX, endY],
         ];
         this.cacheCanvas = cacheCanvas;
-        this.cacheCtx = cacheCtx;
         this.options = normalizedOptions;
         this.path2D = path2D;
         return this;
@@ -151,6 +149,6 @@ export class HandDrawn extends Shape<HandDrawnOptions & HandDrawnRequiredOptions
     }
 
     public isHit(mouseCoords: Point): boolean {
-        return HandDrawn.pointInPath(this.path2D, mouseCoords);
+        return ZagyHandDrawn.pointInPath(this.path2D, mouseCoords);
     }
 }

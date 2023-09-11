@@ -1,5 +1,4 @@
 import React, { ReactNode, useEffect, useMemo } from "react";
-import rough from "roughjs";
 import { MdDeleteOutline, MdCopyAll } from "react-icons/md";
 import { IconContext } from "react-icons";
 import { TbLetterL, TbLetterM, TbLetterS, TbLetterX } from "react-icons/tb";
@@ -15,27 +14,14 @@ import {
     FontTypeOptions,
     GlobalElementOptions,
     StrokeWidth,
-    ZagyCanvasElement,
     ZagyShape,
-    isHanddrawn,
-    isLine,
-    isRect,
-    isText,
 } from "@/types/general";
-import {
-    generateCacheLineElement,
-    generateCacheRectElement,
-    generateCachedHandDrawnElement,
-    generateTextElement,
-} from "@/utils/canvas/generateElement";
 import { commandManager } from "@/actions/commandManager";
 import { ActionDeleteSelected } from "@/actions";
 import { ActionExportScene, DestOpts } from "@/actions/ExportScene";
 import useKeyboardShortcut from "@/hooks/useShortcut";
 import { SHORTCUTS } from "@/constants";
 //import { BsTextCenter, BsTextLeft, BsTextRight } from "react-icons/bs";
-
-const gen = rough.generator();
 
 type Props = {
     labelName: string;

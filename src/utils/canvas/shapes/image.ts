@@ -162,4 +162,8 @@ export class ZagyImage extends Shape<ImageOptions & ImageRequiredOptions & Image
             ],
         });
     }
+
+    public isImageLoading(): boolean {
+        return this.cacheCanvas === undefined || this.cacheCanvas instanceof Promise;
+    }
 }
