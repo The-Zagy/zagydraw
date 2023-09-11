@@ -14,8 +14,8 @@ export default abstract class Shape<T> {
     }
 
     static generator: RoughGenerator = new RoughGenerator();
-    public abstract move(walkX: number, walkY: number): typeof this;
-    public abstract moveTo(startPos: Point): typeof this;
+    public abstract move(walkX: number, walkY: number): this;
+    public abstract moveTo(startPos: Point): this;
     /**
      * every shape must return cleaned up version of itself and satisify the `ZagyPortableT`
      */
@@ -31,7 +31,7 @@ export default abstract class Shape<T> {
      * Regenerates the shape with new options, all options are optional and will be merged with the current options
      */
     public abstract generate(options: T): this;
-    public abstract regenerate(options: Partial<T>): ReturnType<typeof this.generate>;
+    public abstract regenerate(options: Partial<T>): this;
     public isHit(mouseCoords: Point): boolean {
         const x = this.boundingRect[0][0];
         const y = this.boundingRect[0][1];
