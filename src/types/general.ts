@@ -89,7 +89,7 @@ type ImageComputedFields = {
     point2: Point;
 };
 
-type GlobalElementOptions = TextOptions & RectOptions & LineOptions;
+type GlobalElementOptions = TextOptions & RectOptions & LineOptions & ImageOptions;
 
 interface Position {
     x: number;
@@ -165,46 +165,55 @@ enum CursorFn {
     // "Nwse-resize",
 }
 
-function isRect(el: ZagyCanvasRectElement): el is ZagyCanvasRectElement {
+function isRect(el: { shape: string }): el is ZagyCanvasRectElement {
     return el.shape === "rectangle";
 }
-function isLine(el: ZagyCanvasLineElement): el is ZagyCanvasLineElement {
+function isLine(el: { shape: string }): el is ZagyCanvasLineElement {
     return el.shape === "line";
 }
-function isText(el: ZagyCanvasTextElement): el is ZagyCanvasTextElement {
+function isText(el: { shape: string }): el is ZagyCanvasTextElement {
     return el.shape === "text";
 }
-function isHanddrawn(el: ZagyCanvasHandDrawnElement): el is ZagyCanvasHandDrawnElement {
+function isHanddrawn(el: { shape: string }): el is ZagyCanvasHandDrawnElement {
     return el.shape === "handdrawn";
 }
-function isImage(el: ZagyCanvasImageElement): el is ZagyCanvasImageElement {
+function isImage(el: { shape: string }): el is ZagyCanvasImageElement {
     return el.shape === "image";
 }
 
-type CleanedElement<T extends ZagyCanvasElement> = Omit<
-    T,
-    "cache" | "cacheCtx" | "zoom" | "willDelete" | "roughElement" | "imgRef" | "path2D"
->;
+//function to check if elements extends CachableElement
+type ZagyShape = Shape<unknown>;
 
-type ZagyPortableT = {
+type ZagyPortableT<T> = {
     type: "ZagyPortableContent";
-    elements: CleanedElement<ZagyCanvasElement>[];
+    elements: {
+        id: Shape<T>["id"];
+        shape: Shape<T>["shape"];
+        /**
+         * every prop needed to recreate the element once again
+         */
+        options: Shape<T>["options"];
+    }[];
+    /**
+     * will help if we make any breaking changes in the schema and want to be backward compatible
+     */
+    version: 1;
 };
 
 // mockup structure type guard
-function isZagyPortable(test: unknown): asserts test is ZagyPortableT {
+function isZagyPortable<T = unknown>(test: unknown): asserts test is ZagyPortableT<T> {
     if (
         typeof test === "object" &&
         test !== null &&
         "type" in test &&
         test.type === "ZagyPortableContent" &&
-        "elements" in test
+        "elements" in test &&
+        "version" in test
     )
         return;
     throw new Error("notZagyPortable");
 }
-//function to check if elements extends CachableElement
-type ZagyShape = Shape<unknown>;
+
 export type {
     ZagyCanvasElement,
     ZagyCanvasLineElement,
@@ -225,7 +234,6 @@ export type {
     HandDrawnOptions,
     ZagyCanvasImageElement,
     ImageOptions,
-    CleanedElement,
     ZagyPortableT,
     RectRequiredOptions,
     LineRequiredOptions,
@@ -234,5 +242,6 @@ export type {
     ImageRequiredOptions,
     ImageComputedFields,
     ZagyShape,
+    SharedOptions,
 };
 export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn, isImage, isZagyPortable };

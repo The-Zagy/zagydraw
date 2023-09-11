@@ -7,6 +7,7 @@ import { LineOptions, LineRequiredOptions } from "@/types/general";
 import { CACHE_CANVAS_SIZE_THRESHOLD } from "@/constants";
 import { useStore } from "@/store";
 const { getElementConfigState: getConfigState } = useStore.getState();
+
 export class Line extends Shape<LineOptions & LineRequiredOptions> {
     private cacheCanvas!: HTMLCanvasElement;
     private cacheCtx!: CanvasRenderingContext2D;
@@ -100,6 +101,7 @@ export class Line extends Shape<LineOptions & LineRequiredOptions> {
     }
     public render(ctx: CanvasRenderingContext2D, zoom: number): void {
         ctx.save();
+        super.render(ctx, zoom);
         ctx.scale(1 / zoom, 1 / zoom);
         ctx.drawImage(
             this.cacheCanvas,
@@ -114,9 +116,7 @@ export class Line extends Shape<LineOptions & LineRequiredOptions> {
         );
         ctx.restore();
     }
-    public copy() {
-        return { ...this.options, shape: this.shape };
-    }
+
     public move(walkX: number, walkY: number) {
         this.boundingRect[0][0] += walkX;
         this.boundingRect[0][1] += walkY;
@@ -128,6 +128,7 @@ export class Line extends Shape<LineOptions & LineRequiredOptions> {
             point2: this.boundingRect[1],
         });
     }
+
     //@ts-ignore-next-line
     public moveTo(newStart: Point) {
         const offsetX = newStart[0] - this.boundingRect[0][0];

@@ -10,7 +10,7 @@ export class Text extends Shape<TextOptions & TextRequiredOptions> {
     protected text!: string[];
     protected boundingRect!: [Point, Point];
     constructor(options: Partial<TextOptions> & TextRequiredOptions) {
-        super(nanoid(), "rectangle");
+        super(nanoid(), "text");
         this.generate(options);
     }
     public generate(options: Partial<TextOptions> & TextRequiredOptions) {
@@ -67,9 +67,11 @@ export class Text extends Shape<TextOptions & TextRequiredOptions> {
             zoom: options.zoom || zoom,
         };
     }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public render(ctx: CanvasRenderingContext2D, zoom: number): void {
         ctx.save();
+        super.render(ctx, zoom);
         ctx.font = `${this.options.fontSize}px ` + FontTypeOptions[this.options.font];
         ctx.fillStyle = this.options.stroke;
         ctx.textBaseline = "top";
@@ -82,16 +84,14 @@ export class Text extends Shape<TextOptions & TextRequiredOptions> {
         );
         ctx.restore();
     }
-    public copy() {
-        return { ...this.options, shape: this.shape };
-    }
+
     public move(walkX: number, walkY: number) {
         const newStart = [this.options.point1[0] + walkX, this.options.point1[1] + walkY] as Point;
         return this.regenerate({
             point1: newStart,
         });
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     public moveTo(newStart: Point) {
         return this.regenerate({
             point1: newStart,

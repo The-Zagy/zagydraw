@@ -173,6 +173,7 @@ export const useStore = create<
     font: "minecraft",
     fontSize: 24,
     opacity: 1,
+    zoom: 1,
     getElementConfigState() {
         return {
             fill: get().fill,
@@ -184,6 +185,7 @@ export const useStore = create<
             strokeLineDash: get().strokeLineDash,
             strokeWidth: get().strokeWidth,
             seed: randomSeed(),
+            zoom: get().zoom,
         };
     },
     //setConfigState
@@ -210,6 +212,9 @@ export const useStore = create<
     },
     setOpacity(opacity) {
         set({ opacity });
+    },
+    setZoom(zoom) {
+        set({ zoom });
     },
     setIsMouseDown(isMouseDown) {
         set({ isMouseDown });

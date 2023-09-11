@@ -15,6 +15,8 @@ import {
     isLine,
     isText,
     isHanddrawn,
+    ZagyShape,
+    isImage,
 } from "@/types/general";
 
 export function cn(...inputs: ClassValue[]) {
@@ -114,7 +116,7 @@ export function getHitElement(
 }
 export const average = (a: number, b: number): number => (a + b) / 2;
 
-export function getBoundingRect(...elements: ZagyCanvasElement[]) {
+export function getBoundingRect(...elements: ZagyShape[]) {
     let x = Infinity;
     let y = Infinity;
     let endX = -Infinity;
@@ -227,7 +229,7 @@ export type CommonConfigOptions = {
 /**
  *  get union config of many elements
  */
-export function getElementsUnionConfig<T extends ZagyCanvasElement = ZagyCanvasElement>(
+export function getElementsUnionConfig<T extends ZagyShape = ZagyShape>(
     elements: T[],
 ): CommonConfigOptions {
     if (elements.length === 0) return {};
@@ -277,6 +279,15 @@ export function getElementsUnionConfig<T extends ZagyCanvasElement = ZagyCanvasE
         } else if (isHanddrawn(element)) {
             if (!elementTypesSoFar["handdrawn"]) {
                 elementTypesSoFar["handdrawn"] = true;
+                count++;
+            }
+            res = {
+                ...res,
+                ...element.options,
+            };
+        } else if (isImage(element)) {
+            if (!elementTypesSoFar["image"]) {
+                elementTypesSoFar["image"] = true;
                 count++;
             }
             res = {

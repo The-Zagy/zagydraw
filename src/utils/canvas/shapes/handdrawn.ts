@@ -118,6 +118,7 @@ export class HandDrawn extends Shape<HandDrawnOptions & HandDrawnRequiredOptions
     }
     public render(ctx: CanvasRenderingContext2D, zoom: number): void {
         ctx.save();
+        super.render(ctx, zoom);
         ctx.scale(1 / zoom, 1 / zoom);
         ctx.drawImage(
             this.cacheCanvas,
@@ -132,13 +133,12 @@ export class HandDrawn extends Shape<HandDrawnOptions & HandDrawnRequiredOptions
         );
         ctx.restore();
     }
-    public copy() {
-        return { ...this.options, shape: this.shape };
-    }
+
     public move(walkX: number, walkY: number) {
         const newPaths = this.options.paths.map((p) => [p[0] - walkX, p[1] - walkY] as Point);
         return this.regenerate({ paths: newPaths });
     }
+
     public moveTo(newStart: Point) {
         const newPaths = this.options.paths.map(
             (p) =>
@@ -149,6 +149,7 @@ export class HandDrawn extends Shape<HandDrawnOptions & HandDrawnRequiredOptions
         );
         return this.regenerate({ paths: newPaths });
     }
+
     public isHit(mouseCoords: Point): boolean {
         return HandDrawn.pointInPath(this.path2D, mouseCoords);
     }

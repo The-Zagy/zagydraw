@@ -33,76 +33,22 @@ export class ActionExportScene extends Command {
         super();
     }
 
-    /**
-     * elements in the store contains props that is needed when exporting them, or when the user import them again so we clean those props up to propably make the exported size small
-     */
-    private static cleanupItem<T extends ZagyCanvasElement>(el: T): CleanedElement<T> {
-        const baseTemp: CleanedElement<ZagyCanvasElement> = {
-            id: el.id,
-            shape: el.shape,
-            x: el.x,
-            y: el.y,
-            endX: el.endX,
-            endY: el.endY,
-            options: el.options,
-        };
-        if (isImage(el)) {
-            return {
-                ...baseTemp,
-                shape: el.shape,
-                image: el.image,
-            } satisfies CleanedElement<ZagyCanvasImageElement> as unknown as CleanedElement<T>;
-        } else if (isRect(el)) {
-            return {
-                ...baseTemp,
-                shape: el.shape,
-                options: el.options,
-            } satisfies CleanedElement<ZagyCanvasRectElement> as unknown as CleanedElement<T>;
-        } else if (isLine(el)) {
-            return {
-                ...baseTemp,
-                shape: el.shape,
-                point1: el.point1,
-                point2: el.point2,
-                options: el.options,
-            } satisfies CleanedElement<ZagyCanvasLineElement> as unknown as CleanedElement<T>;
-        } else if (isText(el)) {
-            return {
-                ...baseTemp,
-                shape: el.shape,
-                text: el.text,
-                options: el.options,
-            } satisfies CleanedElement<ZagyCanvasTextElement> as unknown as CleanedElement<T>;
-        } else if (isHanddrawn(el)) {
-            return {
-                ...baseTemp,
-                shape: el.shape,
-                paths: el.paths,
-                options: el.options,
-            } satisfies CleanedElement<ZagyCanvasHandDrawnElement> as unknown as CleanedElement<T>;
-        } else {
-            throw new Error("EXPORT SCENE: cannot export unknown item");
-        }
-    }
-
     public async execute() {
         const { selectedElements, elements } = useStore.getState();
         try {
-            // clean up the items
-            const portable: ZagyPortableT = {
+            // don't copy dump text into the user clipboard if there's no data to copy
+            if (elements.length === 0 && selectedElements.length === 0) return;
+            // cleaned up the items
+            const portable: ZagyPortableT<unknown> = {
                 type: "ZagyPortableContent",
+                version: 1,
                 elements: [],
             };
+
             // choose which items to clean up
-            if (this.onlySelected) {
-                selectedElements.forEach((el) =>
-                    portable.elements.push(ActionExportScene.cleanupItem(el)),
-                );
-            } else {
-                elements.forEach((el) => portable.elements.push(ActionExportScene.cleanupItem(el)));
-            }
-            // don't copy dump text into the user clipboard if there's no data to copy
-            if (portable.elements.length === 0) return;
+            (this.onlySelected ? selectedElements : elements).forEach((el) =>
+                portable.elements.push(el.copy()),
+            );
 
             // choose export mechanism
             if (this.dest === DestOpts.CLIPBOARD) {

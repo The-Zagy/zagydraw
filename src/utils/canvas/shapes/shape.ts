@@ -1,8 +1,8 @@
 import { RoughGenerator } from "roughjs/bin/generator";
-import { ElementTypes } from "@/types/general";
+import { ElementTypes, SharedOptions, ZagyPortableT } from "@/types/general";
 import { Point, pointInRectangle } from "@/utils";
 
-export default abstract class Shape<T> {
+export default abstract class Shape<T extends SharedOptions> {
     protected abstract options: T;
     protected abstract boundingRect: [Point, Point];
     public willDelete = false;
@@ -16,8 +16,15 @@ export default abstract class Shape<T> {
     static generator: RoughGenerator = new RoughGenerator();
     public abstract move(walkX: number, walkY: number): typeof this;
     public abstract moveTo(startPos: Point): typeof this;
-    public abstract copy(): T & { shape: ElementTypes };
-    public abstract render(ctx: CanvasRenderingContext2D, zoom: number): void;
+    /**
+     * every shape must return cleaned up version of itself and satisify the `ZagyPortableT`
+     */
+    public copy(): ZagyPortableT<T>["elements"][number] {
+        return { id: this.id, shape: this.shape, options: this.options };
+    }
+    public render(ctx: CanvasRenderingContext2D, zoom: number): void {
+        ctx.globalAlpha = this.willDelete ? this.options.opacity * 0.5 : this.options.opacity;
+    }
     /*
      * Regenerates the shape with new options, all options are optional and will be merged with the current options
      */

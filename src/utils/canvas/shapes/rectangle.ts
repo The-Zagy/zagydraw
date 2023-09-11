@@ -77,6 +77,7 @@ export class Rectangle extends Shape<RectOptions & RectRequiredOptions> {
     }
     public render(ctx: CanvasRenderingContext2D, zoom: number): void {
         ctx.save();
+        super.render(ctx, zoom);
         ctx.scale(1 / zoom, 1 / zoom);
         ctx.drawImage(
             this.cacheCanvas,
@@ -91,9 +92,7 @@ export class Rectangle extends Shape<RectOptions & RectRequiredOptions> {
         );
         ctx.restore();
     }
-    public copy() {
-        return { ...this.options, shape: this.shape };
-    }
+
     public move(walkX: number, walkY: number) {
         const position = useStore.getState().position;
 

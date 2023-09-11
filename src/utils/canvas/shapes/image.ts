@@ -9,7 +9,7 @@ type ZagyImageCompleteOptions = Partial<ImageOptions & ImageComputedFields> & Im
 const { getElementConfigState: getConfigState } = useStore.getState();
 
 export class ZagyImage extends Shape<ImageOptions & ImageRequiredOptions & ImageComputedFields> {
-    private cacheCanvas!: HTMLCanvasElement | Promise<void>;
+    private cacheCanvas: undefined | HTMLImageElement | Promise<void> = undefined;
     protected options!: ImageOptions & ImageRequiredOptions & ImageComputedFields;
     protected boundingRect!: [Point, Point];
 
@@ -54,18 +54,15 @@ export class ZagyImage extends Shape<ImageOptions & ImageRequiredOptions & Image
         img.src = dataUrl;
         const loadedImage = await promise;
         // create cache canvas ,update `point2` and update the `image` to DataUrl
-        const cacheCanvas = document.createElement("canvas");
-        const cacheCtx = cacheCanvas.getContext("2d");
-        if (!cacheCtx) throw new Error("cacheCtx is null");
-        cacheCtx.drawImage(loadedImage, this.options.point1[0], this.options.point1[1]);
-
-        this.options.image = dataUrl;
-        this.cacheCanvas = cacheCanvas;
-        this.options.point2 = [
-            this.options.point1[0] + loadedImage.width,
-            this.options.point1[1] + loadedImage.height,
-        ];
-
+        this.regenerate({
+            point2: [
+                this.options.point1[0] + loadedImage.width,
+                this.options.point1[1] + loadedImage.height,
+            ],
+            image: dataUrl,
+        });
+        this.cacheCanvas = loadedImage;
+        this.boundingRect = [this.boundingRect[0], this.options.point2];
         // TODO: i left it like the old API which is image is resposible for re adding itself to the store when the image reload, but is this good API? i mean with this implemention if we changed the store we would need to make changes in this class as well
         const { setElements, elements } = useStore.getState();
         // this suppose to prevent adding loaded image to the store after the user delete the preview
@@ -78,7 +75,10 @@ export class ZagyImage extends Shape<ImageOptions & ImageRequiredOptions & Image
         const normalizedOptions = this.normalizeOptions(options);
         this.options = normalizedOptions;
         this.boundingRect = [normalizedOptions.point1, normalizedOptions.point2];
-        this.cacheCanvas = this.loadImage(options.image);
+        // only create new promise(load image) if you don't have promise or loaded image
+        if (this.cacheCanvas === undefined) {
+            this.cacheCanvas = this.loadImage(options.image);
+        }
         return this;
     }
 
@@ -111,9 +111,10 @@ export class ZagyImage extends Shape<ImageOptions & ImageRequiredOptions & Image
 
     public render(ctx: CanvasRenderingContext2D, zoom: number): void {
         ctx.save();
+        super.render(ctx, zoom);
         ctx.scale(1 / zoom, 1 / zoom);
         // draw placeholder while loading the image, when the image is loaded will trigger rerender with new element that is not promise
-        if (this.cacheCanvas instanceof Promise) {
+        if (this.cacheCanvas instanceof Promise || this.cacheCanvas === undefined) {
             ctx.setLineDash([5, 5]);
             ctx.strokeStyle = "red";
             ctx.lineWidth = 1;
@@ -138,10 +139,6 @@ export class ZagyImage extends Shape<ImageOptions & ImageRequiredOptions & Image
         }
         ctx.restore();
         return;
-    }
-
-    public copy() {
-        return { ...this.options, shape: this.shape };
     }
 
     public move(walkX: number, walkY: number) {
