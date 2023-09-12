@@ -112,7 +112,7 @@ export class ZagyImage extends Shape<ImageOptions & ImageRequiredOptions & Image
     public render(ctx: CanvasRenderingContext2D, zoom: number): void {
         ctx.save();
         super.render(ctx, zoom);
-        ctx.scale(1 / zoom, 1 / zoom);
+
         // draw placeholder while loading the image, when the image is loaded will trigger rerender with new element that is not promise
         if (this.cacheCanvas instanceof Promise || this.cacheCanvas === undefined) {
             ctx.setLineDash([5, 5]);
@@ -131,8 +131,8 @@ export class ZagyImage extends Shape<ImageOptions & ImageRequiredOptions & Image
                 0,
                 this.options.point2[0] - this.options.point1[0],
                 this.options.point2[1] - this.options.point1[1],
-                this.options.point1[0] * zoom,
-                this.options.point1[1] * zoom,
+                this.options.point1[0],
+                this.options.point1[1],
                 this.options.point2[0] - this.options.point1[0],
                 this.options.point2[1] - this.options.point1[1],
             );
