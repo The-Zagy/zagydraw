@@ -41,8 +41,8 @@ function drawHandles(
 export default function renderBoundingRect(elements: ZagyShape[], ctx: CanvasRenderingContext2D) {
     if (elements.length === 0) return;
     const rect = getBoundingRect(...elements);
-    const [x, y] = [rect[0][0], rect[0][1]];
-    const [endX, endY] = [rect[1][0], rect[1][1]];
+    const [x, y] = [rect[0][0] - 10, rect[0][1] - 10];
+    const [endX, endY] = [rect[1][0] + 10, rect[1][1] + 10];
     const width = endX - x;
     const height = endY - y;
     ctx.save();

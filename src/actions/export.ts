@@ -1,4 +1,3 @@
-import rough from "roughjs";
 import { Command } from "./types";
 import { useStore } from "@/store/index";
 import { getBoundingRect } from "@/utils";

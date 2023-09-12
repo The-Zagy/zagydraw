@@ -133,10 +133,10 @@ export function getBoundingRect(...elements: ZagyShape[]) {
         endX = Math.max(endX, elementEndX);
         endY = Math.max(endY, elementEndY);
     }
-    const threshold = 10;
+
     return [
-        [x - threshold, y - threshold],
-        [endX + threshold, endY + threshold],
+        [x, y],
+        [endX, endY],
     ];
 }
 

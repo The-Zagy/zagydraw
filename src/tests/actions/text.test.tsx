@@ -3,7 +3,8 @@ import userEvent from "@testing-library/user-event";
 import App from "@/components/App";
 import { useStore } from "@/store";
 import { clickCursor, pointerDown, pointerUp } from "@/tests/testUtils";
-import { CursorFn, FontSize, FontTypeOptions, ZagyCanvasTextElement } from "@/types/general";
+import { CursorFn, FontSize, FontTypeOptions } from "@/types/general";
+import { ZagyText } from "@/utils/canvas/shapes";
 
 const initialStoreState = useStore.getState();
 describe("text", () => {
@@ -20,7 +21,7 @@ describe("text", () => {
         pointerUp(canvas, [200, 200]);
         await user.keyboard("h");
         await user.keyboard("[Escape]");
-        expect((useStore.getState().elements[0] as ZagyCanvasTextElement).text).toEqual(["h"]);
+        expect((useStore.getState().elements[0] as ZagyText).getOptions().text).toEqual("h");
     });
     it("text should be appended when clicking on anywhere on the canvas ", async () => {
         render(<App />);
@@ -40,7 +41,7 @@ describe("text", () => {
             },
             keys: "[MouseLeft]",
         });
-        expect((useStore.getState().elements[0] as ZagyCanvasTextElement).text).toEqual(["h"]);
+        expect((useStore.getState().elements[0] as ZagyText).getOptions().text).toEqual("h");
     });
     it("text should be appended when tapping anywhere on the canvas ", async () => {
         render(<App />);
@@ -60,7 +61,7 @@ describe("text", () => {
             },
             keys: "[TouchA]",
         });
-        expect((useStore.getState().elements[0] as ZagyCanvasTextElement).text).toEqual(["h"]);
+        expect((useStore.getState().elements[0] as ZagyText).getOptions().text).toEqual("h");
     });
     it("text should have correct size ", async () => {
         render(<App />);

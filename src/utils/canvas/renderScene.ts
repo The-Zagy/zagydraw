@@ -20,7 +20,6 @@ function renderScene(ctx: CanvasRenderingContext2D, canvasState: CanvasState) {
     ctx.save();
     ctx.translate(canvasState.position.x, canvasState.position.y);
     ctx.scale(canvasState.zoomLevel, canvasState.zoomLevel);
-    console.log(canvasState.visibleElements);
     const renderedElements: CanvasState["elements"] = [...canvasState.visibleElements];
 
     if (canvasState.previewElement) {

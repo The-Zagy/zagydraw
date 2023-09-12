@@ -136,7 +136,7 @@ class DrawAction {
                 if (el !== null) {
                     insertedElements.push(el);
                     const { setElements } = useStore.getState();
-                    console.log(el);
+
                     setElements((prev) => [...prev, el as ZagyShape]);
                 }
                 this.lastMouseDownPosition = [0, 0];

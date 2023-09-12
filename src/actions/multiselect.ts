@@ -34,7 +34,6 @@ class MultiSelectAction {
             useStore.getState();
         if (multiSelectRect !== null) {
             const selected = visibleElements.filter((el) => multiSelectRect.isElementInside(el));
-            console.log(selected);
             setSelectedElements(() => selected);
         }
         this.lastMouseDownPosition = null;

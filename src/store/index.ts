@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { CursorFn, GlobalElementOptions, ZagyShape } from "@/types/general";
 import { ZagyRectangle } from "@/utils/canvas/shapes";
 
-type ConfigState = Omit<GlobalElementOptions, "seed"> & {
+type ConfigState = Omit<GlobalElementOptions, "seed" | "zoom"> & {
     cursorFn: CursorFn;
     isToolbarElementConfigOpen: boolean;
     isMobile: boolean;
@@ -185,7 +185,7 @@ export const useStore = create<
             strokeLineDash: get().strokeLineDash,
             strokeWidth: get().strokeWidth,
             seed: randomSeed(),
-            zoom: get().zoom,
+            zoom: get().zoomLevel,
         };
     },
     //setConfigState
@@ -212,9 +212,6 @@ export const useStore = create<
     },
     setOpacity(opacity) {
         set({ opacity });
-    },
-    setZoom(zoom) {
-        set({ zoom });
     },
     setIsMouseDown(isMouseDown) {
         set({ isMouseDown });
