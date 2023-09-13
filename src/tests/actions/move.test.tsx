@@ -57,15 +57,21 @@ describe("move elements", () => {
             (rectStartPos[0] + rectEndPos[0]) / 2 + movement[1],
         ]);
         const rect = useStore.getState().elements.find((e) => e.shape === "rectangle");
-        expect(rect?.x).toEqual(rectStartPos[0] + movement[0]);
-        expect(rect?.y).toEqual(rectStartPos[1] + movement[1]);
-        expect(rect?.endX).toEqual(rectEndPos[0] + movement[0]);
-        expect(rect?.endY).toEqual(rectEndPos[1] + movement[1]);
+        const boundingRect = rect!.getBoundingRect();
+        const [x, y] = boundingRect[0];
+        const [endX, endY] = boundingRect[1];
+        expect(x).toEqual(rectStartPos[0] + movement[0]);
+        expect(y).toEqual(rectStartPos[1] + movement[1]);
+        expect(endX).toEqual(rectEndPos[0] + movement[0]);
+        expect(endY).toEqual(rectEndPos[1] + movement[1]);
     });
     it("should move line element", async () => {
         const canvas = await screen.findByTestId<HTMLCanvasElement>("canvas");
         if (!canvas) throw new Error("canvas not found");
-        //move rect element
+        const oldBoundingRect = useStore
+            .getState()
+            .elements.find((e) => e.shape === "line")!
+            .getBoundingRect();
         pointerMove(canvas, [
             (lineStartPos[0] + lineEndPos[0]) / 2,
             (lineStartPos[0] + lineEndPos[0]) / 2,
@@ -84,10 +90,13 @@ describe("move elements", () => {
         ]);
 
         const line = useStore.getState().elements.find((e) => e.shape === "line");
-        expect(line?.x).toEqual(lineEndPos[0] + movement[0]);
-        expect(line?.y).toEqual(lineEndPos[1] + movement[1]);
-        expect(line?.endX).toEqual(lineStartPos[0] + movement[0]);
-        expect(line?.endY).toEqual(lineStartPos[1] + movement[1]);
+        const boundingRect = line!.getBoundingRect();
+        const [x, y] = boundingRect[0];
+        const [endX, endY] = boundingRect[1];
+        expect(x).toEqual(oldBoundingRect[0][0] + movement[0]);
+        expect(y).toEqual(oldBoundingRect[0][1] + movement[1]);
+        expect(endX).toEqual(oldBoundingRect[1][0] + movement[0]);
+        expect(endY).toEqual(oldBoundingRect[1][1] + movement[1]);
     });
     it("shouldn't move an element if pointer isn't down", async () => {
         const canvas = await screen.findByTestId<HTMLCanvasElement>("canvas");
@@ -108,10 +117,13 @@ describe("move elements", () => {
             (rectStartPos[0] + rectEndPos[0]) / 2 + movement[1],
         ]);
         const rect = useStore.getState().elements.find((e) => e.shape === "rectangle");
-        expect(rect?.x).toEqual(rectStartPos[0]);
-        expect(rect?.y).toEqual(rectStartPos[1]);
-        expect(rect?.endX).toEqual(rectEndPos[0]);
-        expect(rect?.endY).toEqual(rectEndPos[1]);
+        const boundingRect = rect!.getBoundingRect();
+        const [x, y] = boundingRect[0];
+        const [endX, endY] = boundingRect[1];
+        expect(x).toEqual(rectStartPos[0]);
+        expect(y).toEqual(rectStartPos[1]);
+        expect(endX).toEqual(rectEndPos[0]);
+        expect(endY).toEqual(rectEndPos[1]);
     });
     it("should be able to undo a move", async () => {
         const canvas = await screen.findByTestId<HTMLCanvasElement>("canvas");
@@ -135,9 +147,12 @@ describe("move elements", () => {
         ]);
         await clickUndo();
         const rect = useStore.getState().elements.find((e) => e.shape === "rectangle");
-        expect(rect?.x).toEqual(rectStartPos[0]);
-        expect(rect?.y).toEqual(rectStartPos[1]);
-        expect(rect?.endX).toEqual(rectEndPos[0]);
-        expect(rect?.endY).toEqual(rectEndPos[1]);
+        const boundingRect = rect!.getBoundingRect();
+        const [x, y] = boundingRect[0];
+        const [endX, endY] = boundingRect[1];
+        expect(x).toEqual(rectStartPos[0]);
+        expect(y).toEqual(rectStartPos[1]);
+        expect(endX).toEqual(rectEndPos[0]);
+        expect(endY).toEqual(rectEndPos[1]);
     });
 });

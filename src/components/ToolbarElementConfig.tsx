@@ -141,7 +141,7 @@ const {
 export default function ToolbarLeft() {
     const [font, fontSize] = useStore((state) => [state.font, state.fontSize]);
     const selectedElements = useStore((state) => state.selectedElements);
-    const [isMobile, toolbarElementConfigOpen, zoom] = useStore((state) => [
+    const [isMobile, toolbarElementConfigOpen] = useStore((state) => [
         state.isMobile,
         state.isToolbarElementConfigOpen,
         state.zoomLevel,

@@ -13,7 +13,7 @@ import App from "@/components/App";
 
 import { useStore } from "@/store";
 import { CursorFn } from "@/types/general";
-import { Point, getBoundingRect, sleep } from "@/utils";
+import { Point, getBoundingRect } from "@/utils";
 
 const initialStoreState = useStore.getState();
 describe("import-export", () => {
@@ -49,7 +49,7 @@ describe("import-export", () => {
 
     it("can paste image", async () => {
         render(<App />);
-        const user = userEvent.setup();
+        // const user = userEvent.setup();
         const canvas = await screen.findByTestId("canvas");
         if (!canvas) throw new Error("canvas not found");
         act(() => useStore.setState({ width: 1000, height: 1000 }));
