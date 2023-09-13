@@ -32,6 +32,8 @@ function drawHandles(
     drawCircle(ctx, rectPos.x[0], yMid);
     // middle top
     drawCircle(ctx, xMid, rectPos.y[0]);
+    // middle top rotate
+    drawCircle(ctx, xMid, rectPos.y[0] - 20);
     //  middle right
     drawCircle(ctx, rectPos.x[1], yMid);
     // middle bottom
