@@ -37,7 +37,10 @@ describe("import-export", () => {
         const elements = [...useStore.getState().elements];
         useStore.getState().setElements(() => []);
         const boundingRect = getBoundingRect(...elements);
-        const targetPosition = boundingRect[0];
+        // because we paste the element under the curosor
+        const halfWidth = Math.floor((boundingRect[1][0] - boundingRect[0][0]) / 2);
+        const halfHeigt = Math.floor((boundingRect[1][1] - boundingRect[0][1]) / 2);
+        const targetPosition = [boundingRect[0][0] + halfWidth, boundingRect[0][1] + halfHeigt];
         await user.keyboard("{Control>}c{/Control}");
         pointerMove(canvas, targetPosition as Point);
         await user.paste();
