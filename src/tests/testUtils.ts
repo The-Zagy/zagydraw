@@ -1,4 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react";
+import { UserEvent } from "@testing-library/user-event/dist/types/setup/setup";
 import { CursorFn, ZagyCanvasElement } from "@/types/general";
 import { Point } from "@/utils";
 const cursorToTestId = {
@@ -20,7 +21,7 @@ const clickCursor = async (cursor: CursorFn) => {
 
 async function createElement(
     elementType: ZagyCanvasElement["shape"],
-    canvas: HTMLCanvasElement,
+    canvas: HTMLElement,
     startPos: Point,
     endPos: Point,
 ) {
@@ -57,6 +58,18 @@ async function createElement(
         }),
     );
 }
+const createTextElement = async (
+    canvas: HTMLElement,
+    user: UserEvent,
+    text: string,
+    pos: Point,
+) => {
+    await clickCursor(CursorFn.Text);
+    pointerDown(canvas, pos);
+    pointerUp(canvas);
+    await user.keyboard(text);
+    await user.keyboard("[Escape]");
+};
 const clickUndo = async () => {
     const undoButton = await screen.findByTestId("undo-button");
     return fireEvent.click(undoButton);
@@ -89,4 +102,12 @@ const pointerUp = (element: HTMLElement, coords?: Point) => {
         }),
     );
 };
-export { createElement, clickCursor, clickUndo, pointerDown, pointerMove, pointerUp };
+export {
+    createElement,
+    clickCursor,
+    clickUndo,
+    pointerDown,
+    pointerMove,
+    pointerUp,
+    createTextElement,
+};

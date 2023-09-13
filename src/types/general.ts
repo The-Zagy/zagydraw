@@ -1,5 +1,8 @@
 import { Drawable } from "roughjs/bin/core";
 
+import Shape from "@/utils/canvas/shapes/shape";
+import { ZagyHandDrawn, ZagyLine, ZagyRectangle, ZagyText, ZagyImage } from "@/utils/canvas/shapes";
+
 type Point = [number, number];
 type ElementTypes = "rectangle" | "line" | "text" | "handdrawn" | "image";
 
@@ -15,8 +18,8 @@ type FillStyleOptions = "solid" | "zigzag" | "dots" | "hachure";
 interface SharedOptions {
     opacity: number;
     stroke: string;
-
     strokeWidth: StrokeWidth;
+    zoom: number;
 }
 
 type StrokeLineDash = number[];
@@ -30,6 +33,15 @@ interface RectOptions extends SharedOptions {
     seed: number;
 }
 
+interface RectRequiredOptions {
+    point1: Point;
+    point2: Point;
+}
+interface LineRequiredOptions {
+    point1: Point;
+    point2: Point;
+}
+
 interface LineOptions extends SharedOptions {
     fill: string;
     fillStyle: FillStyleOptions;
@@ -41,12 +53,44 @@ interface TextOptions extends SharedOptions {
     font: FontTypeOptions;
     fontSize: FontSize;
 }
+interface TextRequiredOptions {
+    text: string;
+    point1: Point;
+}
 
-type HanddrawnOptions = SharedOptions;
+type HandDrawnOptions = SharedOptions;
+type HandDrawnRequiredOptions = {
+    paths: Point[];
+};
 
 type ImageOptions = SharedOptions;
+type ImageRequiredOptions = {
+    /**
+     * top left corner of an image
+     *
+     */
+    point1: Point;
+    /**
+     * A string containing an object URL that can be used to reference the contents of the specified source object(URL.createObjectURL)
+     *
+     * NOTE: if provided as blob the DataUrl will be loaded from it automatically
+     */
+    image: string | Blob;
+};
+/**
+ * fields that is needed to describe the image but not required while creating the image and the generator should update those fields
+ */
+type ImageComputedFields = {
+    /**
+     * top left corner of an image
+     *
+     * NOTE: if the image haven't loaded yet will be the point2 for the preview image
+     *
+     */
+    point2: Point;
+};
 
-type GlobalElementOptions = TextOptions & RectOptions & LineOptions;
+type GlobalElementOptions = TextOptions & RectOptions & LineOptions & ImageOptions;
 
 interface Position {
     x: number;
@@ -122,34 +166,39 @@ enum CursorFn {
     // "Nwse-resize",
 }
 
-function isRect(el: ZagyCanvasElement): el is ZagyCanvasRectElement {
+function isRect(el: { shape: string }): el is ZagyRectangle {
     return el.shape === "rectangle";
 }
-
-function isLine(el: ZagyCanvasElement): el is ZagyCanvasLineElement {
+function isLine(el: { shape: string }): el is ZagyLine {
     return el.shape === "line";
 }
-
-function isText(el: ZagyCanvasElement): el is ZagyCanvasTextElement {
+function isText(el: { shape: string }): el is ZagyText {
     return el.shape === "text";
 }
-
-function isHanddrawn(el: ZagyCanvasElement): el is ZagyCanvasHandDrawnElement {
+function isHanddrawn(el: { shape: string }): el is ZagyHandDrawn {
     return el.shape === "handdrawn";
 }
-
-function isImage(el: ZagyCanvasElement): el is ZagyCanvasImageElement {
+function isImage(el: { shape: string }): el is ZagyImage {
     return el.shape === "image";
 }
 
-type CleanedElement<T extends ZagyCanvasElement> = Omit<
-    T,
-    "cache" | "cacheCtx" | "zoom" | "willDelete" | "roughElement" | "imgRef" | "path2D"
->;
+//function to check if elements extends CachableElement
+type ZagyShape = Shape<unknown>;
 
 type ZagyPortableT = {
     type: "ZagyPortableContent";
-    elements: CleanedElement<ZagyCanvasElement>[];
+    elements: {
+        id: ZagyShape["id"];
+        shape: ZagyShape["shape"];
+        /**
+         * every prop needed to recreate the element once again
+         */
+        options: ZagyShape["options"];
+    }[];
+    /**
+     * will help if we make any breaking changes in the schema and want to be backward compatible
+     */
+    version: 1;
 };
 
 // mockup structure type guard
@@ -159,12 +208,12 @@ function isZagyPortable(test: unknown): asserts test is ZagyPortableT {
         test !== null &&
         "type" in test &&
         test.type === "ZagyPortableContent" &&
-        "elements" in test
+        "elements" in test &&
+        "version" in test
     )
         return;
     throw new Error("notZagyPortable");
 }
-//function to check if elements extends CachableElement
 
 export type {
     ZagyCanvasElement,
@@ -183,10 +232,17 @@ export type {
     FontSize,
     FillStyleOptions,
     CachableElement,
-    HanddrawnOptions,
+    HandDrawnOptions,
     ZagyCanvasImageElement,
     ImageOptions,
-    CleanedElement,
     ZagyPortableT,
+    RectRequiredOptions,
+    LineRequiredOptions,
+    HandDrawnRequiredOptions,
+    TextRequiredOptions,
+    ImageRequiredOptions,
+    ImageComputedFields,
+    ZagyShape,
+    SharedOptions,
 };
 export { CursorFn, FontTypeOptions, isLine, isRect, isText, isHanddrawn, isImage, isZagyPortable };

@@ -1,20 +1,16 @@
 import { UndoableCommand } from "./types";
-import { ZagyCanvasElement, ZagyCanvasImageElement } from "@/types/general";
+import { ZagyShape, isImage } from "@/types/general";
 import { useStore } from "@/store/index";
 
 export class ActionDeleteSelected extends UndoableCommand {
-    #selectedElements!: ZagyCanvasElement[];
+    #selectedElements!: ZagyShape[];
 
     public execute() {
         const { setElements, setSelectedElements, elements, selectedElements } =
             useStore.getState();
-        // if the element is image and still loading to add it to the history just delete it
+        // if the element is image and still loading don't add it to the history just delete it
         this.#selectedElements = selectedElements.filter(
-            (itm) =>
-                !(
-                    itm.shape === "image" &&
-                    (itm as ZagyCanvasImageElement).imgRef instanceof Promise
-                ),
+            (itm) => !(isImage(itm) && itm.isImageLoading()),
         );
         // remove any elements that exist on selected elements array
         // create hash of ids for easy check while filtring the elements

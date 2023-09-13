@@ -21,10 +21,11 @@ describe("multi selection", () => {
         const movement = [100, 100];
         const endPos: Point = [pointerDownPos[0] + movement[0], pointerDownPos[1] + movement[1]];
         pointerMove(canvas, endPos);
-        expect(useStore.getState().multiSelectRect?.x).toEqual(pointerDownPos[0]);
-        expect(useStore.getState().multiSelectRect?.y).toEqual(pointerDownPos[1]);
-        expect(useStore.getState().multiSelectRect?.endX).toEqual(endPos[0]);
-        expect(useStore.getState().multiSelectRect?.endY).toEqual(endPos[1]);
+        const boundingRect = useStore.getState().multiSelectRect!.getBoundingRect();
+        expect(boundingRect[0][0]).toEqual(pointerDownPos[0]);
+        expect(boundingRect[0][1]).toEqual(pointerDownPos[1]);
+        expect(boundingRect[1][0]).toEqual(endPos[0]);
+        expect(boundingRect[1][1]).toEqual(endPos[1]);
     });
     it("should disappear when on pointerup", async () => {
         render(<App />);

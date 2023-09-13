@@ -1,5 +1,4 @@
 import React, { ReactNode, useEffect, useMemo } from "react";
-import rough from "roughjs";
 import { MdDeleteOutline, MdCopyAll } from "react-icons/md";
 import { IconContext } from "react-icons";
 import { TbLetterL, TbLetterM, TbLetterS, TbLetterX } from "react-icons/tb";
@@ -15,26 +14,14 @@ import {
     FontTypeOptions,
     GlobalElementOptions,
     StrokeWidth,
-    ZagyCanvasElement,
-    isHanddrawn,
-    isLine,
-    isRect,
-    isText,
+    ZagyShape,
 } from "@/types/general";
-import {
-    generateCacheLineElement,
-    generateCacheRectElement,
-    generateCachedHandDrawnElement,
-    generateTextElement,
-} from "@/utils/canvas/generateElement";
 import { commandManager } from "@/actions/commandManager";
 import { ActionDeleteSelected } from "@/actions";
 import { ActionExportScene, DestOpts } from "@/actions/ExportScene";
 import useKeyboardShortcut from "@/hooks/useShortcut";
 import { SHORTCUTS } from "@/constants";
 //import { BsTextCenter, BsTextLeft, BsTextRight } from "react-icons/bs";
-
-const gen = rough.generator();
 
 type Props = {
     labelName: string;
@@ -47,6 +34,7 @@ const isValidColor = (color: string) => {
     s.color = color;
     return s.color !== "";
 };
+
 const InputWithIcon: React.FC<Props> = (props) => {
     const inputRef = React.useRef<HTMLInputElement>(null);
     const lastValue = React.useRef<string>("");
@@ -102,6 +90,7 @@ const InputWithIcon: React.FC<Props> = (props) => {
         </label>
     );
 };
+
 const RadioButton: React.FC<{
     children: ReactNode;
     value: string | number;
@@ -135,6 +124,7 @@ const RadioButton: React.FC<{
         </div>
     );
 };
+
 const {
     setElements,
     setSelectedElements,
@@ -147,10 +137,11 @@ const {
     setStrokeLineDash,
     setStrokeWidth,
 } = useStore.getState();
+
 export default function ToolbarLeft() {
     const [font, fontSize] = useStore((state) => [state.font, state.fontSize]);
     const selectedElements = useStore((state) => state.selectedElements);
-    const [isMobile, toolbarElementConfigOpen, zoom] = useStore((state) => [
+    const [isMobile, toolbarElementConfigOpen] = useStore((state) => [
         state.isMobile,
         state.isToolbarElementConfigOpen,
         state.zoomLevel,
@@ -173,7 +164,7 @@ export default function ToolbarLeft() {
         {
             onShortcut: () => commandManager.executeCommand(new ActionDeleteSelected()),
         },
-        "Delete",
+        ...SHORTCUTS["editor"]["delete"]["keys"],
     );
     useKeyboardShortcut(
         {
@@ -218,37 +209,14 @@ export default function ToolbarLeft() {
         for (const itm of selectedElements) {
             ids.add(itm.id);
         }
-        const els: ZagyCanvasElement[] = [];
+        const els: ZagyShape[] = [];
         //todo maybe optimize so that if the element's own config isn't changed no need to re-generate
         selectedElements.forEach((el) => {
-            if (isRect(el)) {
-                els.push(
-                    generateCacheRectElement(gen, [el.x, el.y], [el.endX, el.endY], zoom, {
-                        ...el.options,
-                        [k]: value,
-                        id: el.id,
-                    }),
-                );
-            } else if (isLine(el)) {
-                els.push(
-                    generateCacheLineElement(gen, [el.x, el.y], [el.endX, el.endY], zoom, {
-                        ...el.options,
-                        id: el.id,
-                        [k]: value,
-                    }),
-                );
-            } else if (isText(el)) {
-                els.push(
-                    generateTextElement(el.text.join("\n"), [el.x, el.y], {
-                        ...el.options,
-                        [k]: value,
-                    }),
-                );
-            } else if (isHanddrawn(el)) {
-                els.push(
-                    generateCachedHandDrawnElement(el.paths, zoom, { ...el.options, [k]: value }),
-                );
-            }
+            els.push(
+                el.regenerate({
+                    [k]: value,
+                }),
+            );
         });
         // change global config to new options
 

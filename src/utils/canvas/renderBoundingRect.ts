@@ -1,11 +1,11 @@
-import { ZagyCanvasElement } from "@/types/general";
+import { ZagyShape } from "@/types/general";
 import { getBoundingRect } from "@/utils";
 
 function drawCircle(ctx: CanvasRenderingContext2D, x: number, y: number) {
     ctx.save();
     ctx.beginPath();
     ctx.fillStyle = "#9b59b6";
-    ctx.arc(x, y, 10, 0, 2 * Math.PI);
+    ctx.arc(x, y, 5, 0, 2 * Math.PI);
     ctx.fill();
     ctx.restore();
 }
@@ -38,14 +38,11 @@ function drawHandles(
     drawCircle(ctx, xMid, rectPos.y[1]);
 }
 
-export default function renderBoundingRect(
-    elements: ZagyCanvasElement[],
-    ctx: CanvasRenderingContext2D,
-) {
+export default function renderBoundingRect(elements: ZagyShape[], ctx: CanvasRenderingContext2D) {
+    if (elements.length === 0) return;
     const rect = getBoundingRect(...elements);
-    if (!rect) return;
-    const [x, y] = [rect[0][0], rect[0][1]];
-    const [endX, endY] = [rect[1][0], rect[1][1]];
+    const [x, y] = [rect[0][0] - 10, rect[0][1] - 10];
+    const [endX, endY] = [rect[1][0] + 10, rect[1][1] + 10];
     const width = endX - x;
     const height = endY - y;
     ctx.save();

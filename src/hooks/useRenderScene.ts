@@ -4,7 +4,7 @@ type Nullable<T> = { [P in keyof T]: T[P] | null };
 type Params = Nullable<Parameters<typeof renderScene>>;
 //useRenderScne params are the same as renderScene params
 const useRenderScene = (...params: Params) => {
-    const [roughCanvas, ctx, canvasState] = params;
+    const [ctx, canvasState] = params;
     const lastAnimationFrame = useRef<number | null>(null);
     useEffect(() => {
         if (!ctx || !canvasState) return;
@@ -12,8 +12,7 @@ const useRenderScene = (...params: Params) => {
             cancelAnimationFrame(lastAnimationFrame.current);
         }
         lastAnimationFrame.current = requestAnimationFrame(() => {
-            if (!roughCanvas) return;
-            renderScene(roughCanvas, ctx, canvasState);
+            renderScene(ctx, canvasState);
             lastAnimationFrame.current = null;
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps

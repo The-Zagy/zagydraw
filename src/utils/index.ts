@@ -2,17 +2,20 @@ export type Point = [x: number, y: number];
 
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import Shape from "./canvas/shapes/shape";
+import { ZagyRectangle } from "./canvas/shapes";
 import type { CanvasState } from "@/store";
 import {
     ZagyCanvasElement,
-    ZagyCanvasHandDrawnElement,
-    ZagyCanvasLineElement,
     ZagyCanvasRectElement,
     GlobalElementOptions,
     isRect,
     isLine,
     isText,
     isHanddrawn,
+    ZagyShape,
+    isImage,
+    SharedOptions,
 } from "@/types/general";
 
 export function cn(...inputs: ClassValue[]) {
@@ -63,7 +66,7 @@ const makeVector = (p1: Point, p2: Point): Point => {
     return [p2[0] - p1[0], p2[1] - p1[1]];
 };
 
-const pointNearLine = (A: Point, B: Point, M: Point) => {
+export const pointNearLine = (A: Point, B: Point, M: Point) => {
     A = [Math.round(A[0]), Math.round(A[1])];
     B = [Math.round(B[0]), Math.round(B[1])];
     M = [Math.round(M[0]), Math.round(M[1])];
@@ -83,7 +86,7 @@ const pointNearLine = (A: Point, B: Point, M: Point) => {
  * @param M  point M to check
  * @returns  true if point M is inside rectangle
  */
-const pointInRectangle = (A: Point, B: Point, _: Point, D: Point, M: Point): boolean => {
+export const pointInRectangle = (A: Point, B: Point, _: Point, D: Point, M: Point): boolean => {
     // https://math.stackexchange.com/questions/190111/how-to-check-if-a-point-is-inside-a-rectangle
     const AB = makeVector(A, B);
     const AM = makeVector(A, M);
@@ -94,120 +97,51 @@ const pointInRectangle = (A: Point, B: Point, _: Point, D: Point, M: Point): boo
     const AD_AD = dotProduct(AD, AD);
     return 0 < AM_AB && AM_AB < AB_AB && 0 < AM_AD && AM_AD < AD_AD;
 };
-const pointInPath = (ctx: CanvasRenderingContext2D, path: Path2D, [x, y]: Point): boolean => {
+export const pointInPath = (
+    ctx: CanvasRenderingContext2D,
+    path: Path2D,
+    [x, y]: Point,
+): boolean => {
     return ctx.isPointInPath(path, x, y);
 };
 export function getHitElement(
     elements: CanvasState["elements"],
-    ctx: CanvasRenderingContext2D,
-    mousePos: Point,
+    mouseCoords: Point,
     pos: CanvasState["position"],
 ): null | CanvasState["elements"][number] {
     //todo deal with stacking elements when stacking is implemented
-    mousePos = [mousePos[0] - pos.x, mousePos[1] - pos.y];
+    mouseCoords = [mouseCoords[0] - pos.x, mouseCoords[1] - pos.y];
 
-    for (let i = 0; i < elements.length; i++) {
-        if (
-            elements[i].shape === "rectangle" ||
-            elements[i].shape === "text" ||
-            elements[i].shape === "image"
-        ) {
-            const { x, y, endX, endY } = elements[i] as ZagyCanvasRectElement;
-            if (pointInRectangle([x, y], [endX, y], [endX, endY], [x, endY], mousePos)) {
-                return elements[i];
-            }
-        } else if (elements[i].shape === "line") {
-            const { point1, point2 } = elements[i] as ZagyCanvasLineElement;
-            if (pointNearLine(point1, point2, mousePos)) {
-                return elements[i];
-            }
-        } else if (elements[i].shape === "handdrawn") {
-            const { path2D } = elements[i] as ZagyCanvasHandDrawnElement;
-            if (pointInPath(ctx, path2D, [mousePos[0], mousePos[1]])) {
-                return elements[i];
-            }
-        }
+    for (const el of elements) {
+        if (el.isHit(mouseCoords)) return el;
     }
     return null;
 }
 export const average = (a: number, b: number): number => (a + b) / 2;
 
-export function getSvgPathFromStroke(points: number[][], closed = true): string {
-    const len = points.length;
-
-    if (len < 4) {
-        return ``;
-    }
-
-    let a = points[0];
-    let b = points[1];
-    const c = points[2];
-
-    let result = `M${a[0].toFixed(2)},${a[1].toFixed(2)} Q${b[0].toFixed(2)},${b[1].toFixed(
-        2,
-    )} ${average(b[0], c[0]).toFixed(2)},${average(b[1], c[1]).toFixed(2)} T`;
-
-    for (let i = 2, max = len - 1; i < max; i++) {
-        a = points[i];
-        b = points[i + 1];
-        result += `${average(a[0], b[0]).toFixed(2)},${average(a[1], b[1]).toFixed(2)} `;
-    }
-
-    if (closed) {
-        result += "Z";
-    }
-
-    return result;
-}
-
-export function getBoundingRect(...elements: ZagyCanvasElement[]) {
+export function getBoundingRect(...elements: ZagyShape[]) {
     let x = Infinity;
     let y = Infinity;
     let endX = -Infinity;
     let endY = -Infinity;
     for (const element of elements) {
-        //the check not needed currently but maybe other shapes will be added in the future
-        if (
-            element.shape === "rectangle" ||
-            element.shape === "line" ||
-            element.shape === "text" ||
-            element.shape === "handdrawn" ||
-            element.shape === "image"
-        ) {
-            const {
-                x: elementStartX,
-                y: elementStartY,
-                endX: elementEndX,
-                endY: elementEndY,
-            } = element;
-            x = Math.min(x, elementStartX);
-            y = Math.min(y, elementStartY);
-            endX = Math.max(endX, elementEndX);
-            endY = Math.max(endY, elementEndY);
-        }
+        const boundingRect = element.getBoundingRect();
+        const [elementStartX, elementStartY] = boundingRect[0];
+        const [elementEndX, elementEndY] = boundingRect[1];
+        x = Math.min(x, elementStartX);
+        y = Math.min(y, elementStartY);
+        endX = Math.max(endX, elementEndX);
+        endY = Math.max(endY, elementEndY);
     }
-    const threshold = 10;
+
     return [
-        [x - threshold, y - threshold],
-        [endX + threshold, endY + threshold],
+        [x, y],
+        [endX, endY],
     ];
 }
 
-export const isElementInRect = (element: ZagyCanvasElement, rect: ZagyCanvasRectElement) => {
-    if (
-        element.shape === "rectangle" ||
-        element.shape === "line" ||
-        element.shape === "text" ||
-        element.shape === "handdrawn" ||
-        element.shape === "image"
-    ) {
-        const { x, y, endX, endY } = element as ZagyCanvasRectElement;
-
-        if (x >= rect.x && y >= rect.y && endX <= rect.endX && endY <= rect.endY) {
-            return true;
-        }
-    }
-    return false;
+export const isElementInRect = (element: Shape<unknown & SharedOptions>, rect: ZagyRectangle) => {
+    rect.isElementInside(element);
 };
 
 export const isElementVisible = (
@@ -298,9 +232,7 @@ export type CommonConfigOptions = {
 /**
  *  get union config of many elements
  */
-export function getElementsUnionConfig<T extends ZagyCanvasElement = ZagyCanvasElement>(
-    elements: T[],
-): CommonConfigOptions {
+export function getElementsUnionConfig<T extends ZagyShape>(elements: T[]): CommonConfigOptions {
     if (elements.length === 0) return {};
     const elementTypesSoFar: {
         [k in ZagyCanvasElement["shape"]]: boolean;
@@ -325,7 +257,7 @@ export function getElementsUnionConfig<T extends ZagyCanvasElement = ZagyCanvasE
             }
             res = {
                 ...res,
-                ...element.options,
+                ...(element.getOptions() as object),
             };
         } else if (isLine(element)) {
             if (!elementTypesSoFar["line"]) {
@@ -334,7 +266,7 @@ export function getElementsUnionConfig<T extends ZagyCanvasElement = ZagyCanvasE
             }
             res = {
                 ...res,
-                ...element.options,
+                ...(element.getOptions() as object),
             };
         } else if (isText(element)) {
             if (!elementTypesSoFar["text"]) {
@@ -343,7 +275,7 @@ export function getElementsUnionConfig<T extends ZagyCanvasElement = ZagyCanvasE
             }
             res = {
                 ...res,
-                ...element.options,
+                ...(element.getOptions() as object),
             };
         } else if (isHanddrawn(element)) {
             if (!elementTypesSoFar["handdrawn"]) {
@@ -352,7 +284,16 @@ export function getElementsUnionConfig<T extends ZagyCanvasElement = ZagyCanvasE
             }
             res = {
                 ...res,
-                ...element.options,
+                ...(element.getOptions() as object),
+            };
+        } else if (isImage(element)) {
+            if (!elementTypesSoFar["image"]) {
+                elementTypesSoFar["image"] = true;
+                count++;
+            }
+            res = {
+                ...res,
+                ...(element.getOptions() as object),
             };
         }
     }

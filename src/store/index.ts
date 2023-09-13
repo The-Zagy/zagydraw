@@ -1,29 +1,24 @@
 import { randomSeed } from "roughjs/bin/math";
 import { create } from "zustand";
-import {
-    ZagyCanvasElement,
-    CursorFn,
-    GlobalElementOptions,
-    ZagyCanvasRectElement,
-} from "@/types/general";
-import { isElementVisible } from "@/utils";
+import { CursorFn, GlobalElementOptions, ZagyShape } from "@/types/general";
+import { ZagyRectangle } from "@/utils/canvas/shapes";
 
-type ConfigState = Omit<GlobalElementOptions, "seed"> & {
+type ConfigState = Omit<GlobalElementOptions, "seed" | "zoom"> & {
     cursorFn: CursorFn;
     isToolbarElementConfigOpen: boolean;
     isMobile: boolean;
 };
 
-export type CanvasState<T extends ZagyCanvasElement = ZagyCanvasElement> = {
+export type CanvasState = {
     width: number;
     height: number;
     position: { x: number; y: number };
     zoomLevel: number;
-    elements: T[];
-    previewElement: T | null;
-    selectedElements: T[];
-    visibleElements: T[];
-    multiSelectRect: ZagyCanvasRectElement | null;
+    elements: ZagyShape[];
+    previewElement: ZagyShape | null;
+    selectedElements: ZagyShape[];
+    visibleElements: ZagyShape[];
+    multiSelectRect: ZagyRectangle | null;
 };
 
 export type GeneralActionsState = {
@@ -59,9 +54,9 @@ type CanvasActions = {
     setDimensions: (width: CanvasState["width"], height: CanvasState["height"]) => void;
     setPosition: (position: CanvasState["position"]) => void;
     setZoomLevel: (zoomLevel: CanvasState["zoomLevel"]) => void;
-    setElements: (callback: (prev: ZagyCanvasElement[]) => ZagyCanvasElement[]) => void;
+    setElements: (callback: (prev: ZagyShape[]) => ZagyShape[]) => void;
     setPreviewElement: (el: CanvasState["previewElement"]) => void;
-    setSelectedElements: (callback: (prev: ZagyCanvasElement[]) => ZagyCanvasElement[]) => void;
+    setSelectedElements: (callback: (prev: ZagyShape[]) => ZagyShape[]) => void;
     setMultiSelectRect: (rect: CanvasState["multiSelectRect"]) => void;
     getPosition: () => { x: number; y: number };
 };
@@ -128,7 +123,7 @@ export const useStore = create<
             visibleElements: elements.filter((el) => {
                 const position = getPosition();
 
-                return isElementVisible(el, [-position.x, -position.y], width, height, zoomLevel);
+                return el.isVisible([-position.x, -position.y], width, height, zoomLevel);
             }),
         }));
     },
@@ -145,7 +140,7 @@ export const useStore = create<
         set(({ elements, width, height, zoomLevel, getPosition }) => ({
             visibleElements: elements.filter((el) => {
                 const position = getPosition();
-                return isElementVisible(el, [-position.x, -position.y], width, height, zoomLevel);
+                return el.isVisible([-position.x, -position.y], width, height, zoomLevel);
             }),
         }));
     },
@@ -154,7 +149,7 @@ export const useStore = create<
         set(({ getPosition, width, height, elements, zoomLevel }) => ({
             visibleElements: elements.filter((el) => {
                 const position = getPosition();
-                return isElementVisible(el, [-position.x, -position.y], width, height, zoomLevel);
+                return el.isVisible([-position.x, -position.y], width, height, zoomLevel);
             }),
         }));
     },
@@ -178,6 +173,7 @@ export const useStore = create<
     font: "minecraft",
     fontSize: 24,
     opacity: 1,
+    zoom: 1,
     getElementConfigState() {
         return {
             fill: get().fill,
@@ -189,6 +185,7 @@ export const useStore = create<
             strokeLineDash: get().strokeLineDash,
             strokeWidth: get().strokeWidth,
             seed: randomSeed(),
+            zoom: get().zoomLevel,
         };
     },
     //setConfigState

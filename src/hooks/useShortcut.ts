@@ -22,9 +22,6 @@ export default function useKeyboardShortcut(
     const pressedKeysSet = useRef(new Set<KeyCodes>());
     const pressedKeysSorted = useRef<KeyCodes[]>([]);
     const alreadyExecuted = useRef(false);
-    // console.log(shortcutCombinationSorted, pressedKeysSorted.current);
-    // console.log(shortcutCombinationSet, pressedKeysSet.current);
-    // console.log(alreadyExecuted.current);
 
     useEffect(() => {
         const element = options.element ?? window;

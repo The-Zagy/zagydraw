@@ -1,30 +1,23 @@
-import { RoughGenerator } from "roughjs/bin/generator";
 import { fileOpen } from "browser-fs-access";
 import { Command } from "./types";
 import {
-    ZagyCanvasElement,
     isZagyPortable,
     isLine,
     isRect,
     isText,
     isImage,
     isHanddrawn,
+    ZagyShape,
 } from "@/types/general";
 import { useStore } from "@/store/index";
-import {
-    generateCacheLineElement,
-    generateCacheRectElement,
-    generateCachedHandDrawnElement,
-    generateImageElement,
-    generateTextElement,
-} from "@/utils/canvas/generateElement";
+import { ZagyLine, ZagyRectangle, ZagyText, ZagyImage, ZagyHandDrawn } from "@/utils/canvas/shapes";
 
 /**
  * future version should support loading scene from Z+ as well
  */
 export class ActionOpenScene extends Command {
     public async execute() {
-        const { setSelectedElements, setElements, setPosition, zoomLevel } = useStore.getState();
+        const { setSelectedElements, setElements, setPosition } = useStore.getState();
         try {
             const blob = await fileOpen({
                 // List of allowed file extensions (with leading '.'), defaults to `''`.
@@ -38,41 +31,19 @@ export class ActionOpenScene extends Command {
             if (text) {
                 const portable = JSON.parse(text);
                 isZagyPortable(portable);
-                const roughGenerator = new RoughGenerator();
-                const elsToPush: ZagyCanvasElement[] = [];
+                const elsToPush: ZagyShape[] = [];
                 for (const el of portable.elements) {
                     if (isRect(el)) {
-                        elsToPush.push(
-                            generateCacheRectElement(
-                                roughGenerator,
-                                [el.x, el.y],
-                                [el.endX, el.endY],
-                                zoomLevel,
-                                el.options,
-                            ),
-                        );
+                        elsToPush.push(new ZagyRectangle(el.options));
                     } else if (isLine(el)) {
-                        elsToPush.push(
-                            generateCacheLineElement(
-                                roughGenerator,
-                                el.point1,
-                                el.point2,
-                                zoomLevel,
-                                el.options,
-                            ),
-                        );
+                        elsToPush.push(new ZagyLine(el.options));
                     } else if (isText(el)) {
-                        elsToPush.push(
-                            generateTextElement(el.text.join("\n"), [el.x, el.y], el.options),
-                        );
+                        elsToPush.push(new ZagyText(el.options));
                     } else if (isHanddrawn(el)) {
-                        elsToPush.push(
-                            generateCachedHandDrawnElement(el.paths, zoomLevel, el.options),
-                        );
-                    } else if (isImage(el) && el.image !== null) {
-                        elsToPush.push(generateImageElement(el.image, [el.x, el.y], el.options));
+                        elsToPush.push(new ZagyHandDrawn(el.options));
+                    } else if (isImage(el)) {
+                        elsToPush.push(new ZagyImage(el.options));
                     }
-
                     setPosition({ x: 0, y: 0 });
                     setSelectedElements(() => []);
                     setElements(() => [...elsToPush]);

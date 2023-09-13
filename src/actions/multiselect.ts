@@ -1,13 +1,11 @@
-import { RoughGenerator } from "roughjs/bin/generator";
 import { useStore } from "@/store";
-import { CursorFn, ZagyCanvasRectElement } from "@/types/general";
-import { Point, isElementInRect, normalizePos } from "@/utils";
+import { CursorFn } from "@/types/general";
+import { Point, normalizePos } from "@/utils";
 import { generateSelectRectElement } from "@/utils/canvas/generateElement";
 
 class MultiSelectAction {
     private static lastMouseUpPosition: Point | null = [0, 0];
     private static lastMouseDownPosition: Point | null = [0, 0];
-    private static roughGenerator = new RoughGenerator();
     private static _start(coords: Point) {
         const { getPosition } = useStore.getState();
         const position = getPosition();
@@ -20,19 +18,22 @@ class MultiSelectAction {
         if (isMouseDown && canvas) {
             const norm = normalizePos(position, coords);
             this.lastMouseUpPosition = norm;
-            const rect: ZagyCanvasRectElement = generateSelectRectElement(
-                this.roughGenerator,
-                this.lastMouseDownPosition!,
-                this.lastMouseUpPosition,
-            );
-            setMultiSelectRect(rect);
+            try {
+                const rect = generateSelectRectElement(
+                    this.lastMouseDownPosition!,
+                    this.lastMouseUpPosition,
+                );
+                setMultiSelectRect(rect);
+            } catch (_) {
+                // do nothing
+            }
         }
     }
     private static _end() {
         const { visibleElements, setSelectedElements, multiSelectRect, setMultiSelectRect } =
             useStore.getState();
         if (multiSelectRect !== null) {
-            const selected = visibleElements.filter((el) => isElementInRect(el, multiSelectRect));
+            const selected = visibleElements.filter((el) => multiSelectRect.isElementInside(el));
             setSelectedElements(() => selected);
         }
         this.lastMouseDownPosition = null;

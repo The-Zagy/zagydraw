@@ -1,8 +1,8 @@
 import { Command, UndoableCommand } from "./types";
 import { useStore } from "@/store";
-import { CursorFn, ZagyCanvasElement } from "@/types/general";
+import { CursorFn } from "@/types/general";
 import { Point, normalizePos } from "@/utils";
-import { generateTextElement } from "@/utils/canvas/generateElement";
+import { ZagyText } from "@/utils/canvas/shapes";
 
 class TextAction {
     private static lastMouseDownPosition: Point = [0, 0];
@@ -60,7 +60,7 @@ class TextAction {
         canvas: HTMLCanvasElement | null,
         textArea: HTMLTextAreaElement | null,
     ): UndoableCommand | null {
-        let element: ZagyCanvasElement | null = null;
+        let element: ZagyText | null = null;
         const { cursorFn } = useStore.getState();
         textArea?.blur();
         if (cursorFn !== CursorFn.Text) return null;
@@ -71,9 +71,10 @@ class TextAction {
                 if (canvas === null) return;
                 const ctx = canvas.getContext("2d");
                 if (ctx === null) return;
-                const { currentText, position } = useStore.getState();
+                const { currentText, getPosition } = useStore.getState();
+                const position = getPosition();
                 const normalizedPosition = normalizePos(position, this.lastMouseDownPosition);
-                element = generateTextElement(currentText, normalizedPosition, {});
+                element = new ZagyText({ point1: normalizedPosition, text: currentText });
 
                 const { setCurrentText, setIsWriting } = useStore.getState();
                 this.isAlreadyElement = false;
