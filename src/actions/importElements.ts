@@ -31,11 +31,19 @@ export class ActionImportElements extends UndoableCommand {
         const { getPosition } = useStore.getState();
         const newBoundingStart = normalizeToGrid(getPosition(), this.mouseCoords);
         const oldBounding = getBoundingRect(...els);
+        // to paste the elements under the mouse not below it
+        const halfWidth = Math.floor((oldBounding[1][0] - oldBounding[0][0]) / 2);
+        const halfHeigt = Math.floor((oldBounding[1][1] - oldBounding[0][1]) / 2);
+
         for (const el of els) {
             const bounding = el.getBoundingRect();
+            // the offset here means elements offset inside the bouding rect the hold them all(to save same items order and structure after paste)
             const xOffset = bounding[0][0] - oldBounding[0][0];
             const yOffset = bounding[0][1] - oldBounding[0][1];
-            el.moveTo([newBoundingStart[0] + xOffset, newBoundingStart[1] + yOffset]);
+            el.moveTo([
+                newBoundingStart[0] - halfWidth + xOffset,
+                newBoundingStart[1] - halfHeigt + yOffset,
+            ]);
         }
     }
 

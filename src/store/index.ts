@@ -59,6 +59,7 @@ type CanvasActions = {
     setSelectedElements: (callback: (prev: ZagyShape[]) => ZagyShape[]) => void;
     setMultiSelectRect: (rect: CanvasState["multiSelectRect"]) => void;
     getPosition: () => { x: number; y: number };
+    setVisiblity: () => void;
 };
 type ConfigStateActions = {
     [K in keyof ConfigState as `set${Capitalize<K & string>}`]: (value: ConfigState[K]) => void;
@@ -119,24 +120,25 @@ export const useStore = create<
     setPosition: (position) => {
         set({ position });
         //update visible elements
-        set(({ elements, width, height, zoomLevel, getPosition }) => ({
-            visibleElements: elements.filter((el) => {
-                const position = getPosition();
-
-                return el.isVisible([-position.x, -position.y], width, height, zoomLevel);
-            }),
-        }));
+        get().setVisiblity();
     },
     setZoomLevel: (newZoomLevel) => {
         // zoom on the cursor
-        set(() => {
+        set(({ position, width, height, zoomLevel }) => {
+            const zoomDif = newZoomLevel / zoomLevel;
+            // this calculates the offset so that zoom is at the center of the screen
+            const newPosition = {
+                x: position.x * zoomDif + (width / 2) * (1 - zoomDif),
+                y: position.y * zoomDif + (height / 2) * (1 - zoomDif),
+            };
             return {
                 zoomLevel: newZoomLevel,
+                position: newPosition,
             };
         });
+        get().setVisiblity();
     },
-    setDimensions: (width, height) => {
-        set({ width, height });
+    setVisiblity: () => {
         set(({ elements, width, height, zoomLevel, getPosition }) => ({
             visibleElements: elements.filter((el) => {
                 const position = getPosition();
@@ -144,14 +146,13 @@ export const useStore = create<
             }),
         }));
     },
+    setDimensions: (width, height) => {
+        set({ width, height });
+        get().setVisiblity();
+    },
     setElements: (callback) => {
         set((state) => ({ elements: callback(state.elements) }));
-        set(({ getPosition, width, height, elements, zoomLevel }) => ({
-            visibleElements: elements.filter((el) => {
-                const position = getPosition();
-                return el.isVisible([-position.x, -position.y], width, height, zoomLevel);
-            }),
-        }));
+        get().setVisiblity();
     },
     setCursorFn(fn) {
         set({ cursorFn: fn });

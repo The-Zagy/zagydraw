@@ -23,7 +23,7 @@ import { CursorFn } from "@/types/general";
 // import { distance, getHitElement } from "@/utils";
 import { getHitElement } from "@/utils";
 
-const { setZoomLevel, setDimensions, setIsMouseDown, setElements, setCursorFn } =
+const { setZoomLevel, setDimensions, setIsMouseDown, setElements, setCursorFn, getPosition } =
     useStore.getState();
 
 // const debouncedRegenerateCacheElements = debounce(
@@ -61,7 +61,12 @@ function ZagyDraw() {
 
     const canvasElements = useStore((state) => state.elements);
 
-    const handleZoom = (zoomType: "in" | "out") => {
+    const handleZoom = (zoomType: "in" | "out" | "reset") => {
+        if (zoomType === "reset") {
+            setZoomLevel(1);
+            setElements((elements) => elements.map((e) => regenerateCacheElement(e, 1)));
+            return;
+        }
         const zoomFactor = zoomType === "in" ? 1.1 : 0.9;
         const currentZoom = +(zoomLevel * zoomFactor).toFixed(1);
         const clampedZoom = Math.min(Math.max(currentZoom, MIN_ZOOM), MAX_ZOOM);
@@ -189,7 +194,11 @@ function ZagyDraw() {
         if (!canvas.current) return;
         const ctx = canvas.current.getContext("2d");
         if (!ctx) return;
-        const el = getHitElement(visibleElements, [event.clientX, event.clientY], position);
+        const el = getHitElement(
+            visibleElements,
+            [event.clientX / zoomLevel, event.clientY / zoomLevel],
+            getPosition(),
+        );
         if (el) {
             setCursorFn(CursorFn.Move);
             // TODO: move this code whereever we will handle resize/rotate
@@ -444,7 +453,7 @@ function ZagyDraw() {
                 </Button>
                 <Button
                     variant={"outline"}
-                    onClick={() => setZoomLevel(1)}
+                    onClick={() => handleZoom("reset")}
                     className="rounded-none border-x border-x-gray-500">
                     {Number.parseInt(String(zoomLevel * 100))}%
                 </Button>
@@ -458,12 +467,12 @@ function ZagyDraw() {
                     <Plus />
                 </Button>
             </div>
-            <div className="fixed bottom-4 right-4 text-lg text-white">
-                {/* <pre>{JSON.stringify(position)}</pre>
+            {/* <div className="fixed bottom-4 right-4 text-lg text-white">
+                <pre>{JSON.stringify(position)}</pre>
                 <pre>{JSON.stringify(getPosition())}</pre>
                 <pre>
                     {JSON.stringify(
-                        normalizePos(position, [mouseCoords.current[0], mouseCoords.current[1]])
+                        normalizePos(position, [mouseCoords.current[0], mouseCoords.current[1]]),
                     )}
                 </pre>
                 <pre>
@@ -471,7 +480,7 @@ function ZagyDraw() {
                         normalizePos(getPosition(), [
                             mouseCoords.current[0] / zoomLevel,
                             mouseCoords.current[1] / zoomLevel,
-                        ])
+                        ]),
                     )}
                 </pre>
                 <pre>
@@ -479,8 +488,8 @@ function ZagyDraw() {
                         mouseCoords.current[0] / zoomLevel,
                         mouseCoords.current[1] / zoomLevel,
                     ])}
-                </pre> */}
-            </div>
+                </pre>
+            </div> */}
         </>
     );
 }

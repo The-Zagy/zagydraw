@@ -18,9 +18,10 @@ function renderScene(ctx: CanvasRenderingContext2D, canvasState: CanvasState) {
         canvasState.zoomLevel,
     );
     ctx.save();
+
     ctx.translate(canvasState.position.x, canvasState.position.y);
     ctx.scale(canvasState.zoomLevel, canvasState.zoomLevel);
-    const renderedElements: CanvasState["elements"] = [...canvasState.visibleElements];
+    const renderedElements: CanvasState["elements"] = [...canvasState.elements];
 
     if (canvasState.previewElement) {
         renderedElements.push(canvasState.previewElement);
