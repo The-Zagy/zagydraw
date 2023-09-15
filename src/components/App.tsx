@@ -8,6 +8,7 @@ import { ExportModal } from "./ExportModal";
 import { DropDown } from "./DropDown";
 import { useIsMobile, usePreventDefaultZoom } from "@/hooks";
 import { ThemeProvider } from "@/components/theme-provider";
+import { WsWidget } from "@/components/Ws";
 
 export default function App() {
     useIsMobile();
@@ -21,6 +22,7 @@ export default function App() {
                     <ToolbarLeft />
                     <ToolbarLower />
                     <ExportModal />
+                    <WsWidget />
                 </IconContext.Provider>
                 <Undo />
                 <DropDown />

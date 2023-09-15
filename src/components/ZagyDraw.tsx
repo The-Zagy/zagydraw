@@ -166,17 +166,17 @@ function ZagyDraw() {
 
     useGlobalEvent("wheel", handleScroll);
     useGlobalEvent("resize", handleResize);
-    useGlobalEvent("paste", (event) => {
-        event.preventDefault();
-        if (!event.clipboardData) return;
-        if (!canvas.current) return;
-        commandManager.executeCommand(
-            new ActionImportElements(event.clipboardData, [
-                mouseCoords.current[0] / zoomLevel,
-                mouseCoords.current[1] / zoomLevel,
-            ]),
-        );
-    });
+    // useGlobalEvent("paste", (event) => {
+    //     event.preventDefault();
+    //     if (!event.clipboardData) return;
+    //     if (!canvas.current) return;
+    //     commandManager.executeCommand(
+    //         new ActionImportElements(event.clipboardData, [
+    //             mouseCoords.current[0] / zoomLevel,
+    //             mouseCoords.current[1] / zoomLevel,
+    //         ]),
+    //     );
+    // });
 
     useEvent("pointerdown", selectSingleElement, canvas.current);
 
