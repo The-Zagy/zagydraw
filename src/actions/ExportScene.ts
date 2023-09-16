@@ -19,23 +19,25 @@ export class ActionExportScene extends Command {
     constructor(private dest: DestOpts, private onlySelected = false) {
         super();
     }
+    static copyElements(onlySelected: boolean): ZagyPortableT["elements"] {
+        const { selectedElements, elements } = useStore.getState();
+        const els: ZagyPortableT["elements"] = [];
+        // choose which items to clean up
+        (onlySelected ? selectedElements : elements).forEach((el) => els.push(el.copy()));
+        return els;
+    }
 
     public async execute() {
-        const { selectedElements, elements } = useStore.getState();
         try {
+            const copied = ActionExportScene.copyElements(this.onlySelected);
             // don't copy dump text into the user clipboard if there's no data to copy
-            if (elements.length === 0 && selectedElements.length === 0) return;
+            if (copied.length === 0) return;
             // cleaned up the items
             const portable: ZagyPortableT = {
                 type: "ZagyPortableContent",
                 version: 1,
-                elements: [],
+                elements: copied,
             };
-
-            // choose which items to clean up
-            (this.onlySelected ? selectedElements : elements).forEach((el) =>
-                portable.elements.push(el.copy()),
-            );
 
             // choose export mechanism
             if (this.dest === DestOpts.CLIPBOARD) {

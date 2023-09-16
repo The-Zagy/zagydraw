@@ -42,6 +42,7 @@ function connectWs(
             socketReadyStateMap[socket.readyState as keyof typeof socketReadyStateMap],
         );
         if (options.join) {
+            // TODO, create wrapper around socket.send for "typesafe" and autocompletion while sending events
             socket.send(
                 JSON.stringify({
                     msg: "room:join",

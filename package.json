@@ -39,6 +39,7 @@
         "throttle-debounce": "^5.0.0",
         "ts-toolbelt": "^9.6.0",
         "use-debounce": "^9.0.4",
+        "zod": "^3.22.2",
         "zustand": "^4.3.7"
     },
     "devDependencies": {
